@@ -13,3 +13,35 @@ git init
 
 步驟 2：初始化 Open
 openspec init
+
+
+
+** LLM Wiki 2.0 
+https://github.com/langchain-ai/openwiki
+
+```bash
+sudo npm install -g openwiki
+```
+
+
+
+## 9router
+
+```bash
+~/.openwiki/.env
+```
+
+
+
+Personal mode builds a local personal brain wiki in ~/.openwiki/wiki from configured sources like local repositories, Gmail, Notion, Web Search, Hacker News, and X/Twitter.
+```bash
+openwiki personal --init
+openwiki personal --update
+```
+
+Code mode builds repository documentation in openwiki/ for the current codebase.
+```bash
+openwiki --init
+openwiki --update
+```
+
