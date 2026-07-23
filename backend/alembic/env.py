@@ -8,7 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add the app directory to the system path to allow imports
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'app')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.core.config import settings
 from app.core.database import Base # Import your Base from database.py
 

@@ -167,9 +167,62 @@ alembic current          # 看 migration 狀態
 alembic upgrade head     # 執行 migration（如果還沒跑）
 ```
 
+```
+/opsx:propose fix-alembic-configuration
 
+**目標：**
+永久修正 Alembic 配置，讓每次 build Docker 容器時都能正確初始化 migration。
 
-todo: 
+**要修正的地方：**
+
+1. **alembic.ini**
+   - 把 sqlalchemy.url 改成從 config 讀取（或使用環境變數）
+   - 設定正確的 script_location
+
+2. **alembic/env.py**
+   - 從 `app.core.config` import settings
+   - 使用 `settings.DATABASE_URL` 作為連線字串
+   - 支援 async engine
+
+3. **backend/Dockerfile**
+   - 確保 alembic 初始化相關檔案被正確 copy
+   - 在 Dockerfile 的 CMD 或 entrypoint 中可選加入 alembic upgrade head（開發階段可選）
+
+4. **docker-compose.yml**
+   - 確認 postgres 服務名稱正確（讓 alembic 可以連到 db）
+
+**要求：**
+- 修正後 alembic upgrade head 在容器內可以正常執行
+- 保持與之前 Proposal 的相容性
+- 更新 README.md 的 migration 操作說明
+
+請先生成 proposal 和 design 讓我確認。
+
+```
+/opsx-apply
+
+```
+Change: fix-alembic-configuration
+Schema: spec-driven
+Progress: 16/16 tasks complete ✓
+Completed This Session
+- 1.1 Modify backend/alembic.ini: Set sqlalchemy.url to a dummy value
+- 1.2 Modify backend/alembic.ini: Ensure script_location is set correctly
+- 2.1-2.5 Modify backend/alembic/env.py: Fixed imports and sys.path
+- 3.1 Modify backend/Dockerfile: Copy alembic files
+- 4.1-4.3 Create entrypoint script and update Dockerfile
+- 5.1 Update README.md with Alembic instructions
+- 6.1-6.4 Verification tasks complete
+All tasks complete!
+```
+
+```bash
+podman-compose down
+podman-compose up -d --build
+podman-compose exec backend alembic current
+podman-compose exec backend alembic upgrade head     # 執行 migration（如果還沒跑）
+```
+
 1. Swagger 文件確認
 開啟瀏覽器訪問：
 
@@ -177,3 +230,4 @@ http://localhost:8000/docs
 http://localhost:8000/redoc
 
 應該能看到乾淨的 API 文件，且有 health 端點。
+

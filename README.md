@@ -51,15 +51,19 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Initialize Alembic (if not already done)
-alembic init alembic
-# Update alembic/env.py to use app.core.config.settings.DATABASE_URL
-# Generate initial migration
-alembic revision --autogenerate -m "Initial migration"
-# Run migrations
-alembic upgrade head
-uvicorn app.main:app --reload
-```
+**Alembic Migrations in Docker/Podman:**
+
+For Alembic to function correctly within the containerized environment:
+
+1.  **Generate initial Alembic files**: If not already present, run `podman run --rm -v $(pwd)/backend:/app --entrypoint "alembic" localhost/demo_backend:latest init alembic` from the project root. This creates the `backend/alembic` directory and `backend/alembic.ini`. **Commit these generated files.**
+2.  **Run migrations**:
+    -   To apply pending migrations: `podman exec -it demo_backend_1 alembic upgrade head`
+    -   To generate a new migration script (after model changes): `podman exec -it demo_backend_1 alembic revision --autogenerate -m "Description of changes"`
+    -   To rollback last migration: `podman exec -it demo_backend_1 alembic downgrade -1`
+3.  **Optional: Auto-run migrations on startup (for development)**:
+    Set the environment variable `RUN_MIGRATIONS=true` when starting the backend service.
+    Example: `RUN_MIGRATIONS=true podman-compose up -d --build backend`
+    This uses the `docker-entrypoint.sh` script to run `alembic upgrade head` before starting the FastAPI app.
 
 Backend runs at http://localhost:8000
 
