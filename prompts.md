@@ -232,3 +232,108 @@ http://localhost:8000/redoc
 應該能看到乾淨的 API 文件，且有 health 端點。
 
 /opsx-archive 
+
+
+## Proposal 3：加入測試框架與測試案例
+
+```
+/opsx:propose add-tests-for-all-features
+
+**目標：**
+為目前已完成的 Backend 和 Frontend 功能加入完整的測試覆蓋。
+
+**測試範圍（每個功能都要有對應 testcase）：**
+
+**Backend (FastAPI) 使用 pytest：**
+- `tests/` 目錄結構
+- `requirements-dev.txt` 或在 requirements.txt 加入 pytest, httpx, pytest-asyncio
+- 測試案例：
+  - Health endpoint test
+  - Config loading test
+  - Database connection test（使用 test DB）
+  - CORS headers test
+  - API v1 endpoints test
+
+**Frontend (Vue + Vitest)：**
+- Vitest + @vue/test-utils + happy-dom
+- 測試案例：
+  - Vuetify 組件渲染測試（Dashboard, Layout）
+  - Pinia Store 測試（theme store）
+  - Router navigation test
+  - API service 呼叫測試（mock）
+
+**其他：**
+- Dockerfile / docker-compose 加入測試階段（可選）
+- README.md 增加 "如何執行測試" 說明
+- 提供簡單的 CI 測試指令（pytest + vitest）
+
+**要求：**
+- 測試要能獨立運行（Backend 用 test DB，Frontend 用 mock）
+- 保持現有程式不被破壞
+- 測試覆蓋主要功能
+- 先產生 proposal、design、tasks 讓我確認
+```
+
+```
+/opsx:propose fix-pinia-typescript-conflict
+
+**問題：**
+npm install pinia 失敗，因為 Pinia 4.x 需要 typescript >= 5.6.0，但目前專案是 5.3.3。
+
+**解決方案：**
+1. 把 frontend/package.json 中的 typescript 升級到 ^5.6.0 或更高
+2. 更新 vue-tsc、@vue/language-core 等相關套件（如果需要）
+3. 執行 npm install 確保相容
+4. 確認 Vitest、Vue 等套件仍正常運作
+5. 更新 README.md 的安裝說明
+
+請直接修正，不要產生新功能。
+```
+
+
+/opsx-apply
+
+Implementation Complete
+Change: add-tests-for-all-features
+Schema: spec-driven
+Progress: 28/28 tasks complete ✓
+Completed This Session
+- Backend: pytest setup (conftest, test_config, test_database, test_api_health, test_api_cors, test_api_errors)
+- Frontend: Vitest setup with Vue Test Utils and happy-dom
+- Frontend tests:
+- App component (2 tests)
+- Theme store Pinia (5 tests)
+- Router (3 tests)
+- API service with mocked axios (2 tests)
+- README updated with test instructions
+- Total: 12 frontend tests passing
+Note on Backend Tests
+Backend tests are fully configured and ready but require running inside the Docker container (pip not available on host). They can be executed with:
+
+```
+podman-compose down                                                                       
+podman-compose up -d --build
+podman exec demo_backend_1 python -m pytest /app/tests/ -v 2>&1 | grep -E "(PASSED|FAILED|ERROR|passed|failed)"
+cd frontend && npm run test 
+# 前端容器是 nginx 靜態檔案伺服器，沒有 npm。前端測試必須在前端容器內 npm run test 執行。
+# podman exec demo_frontend_1 npm run test
+```
+
+## 常見的 Vue + Docker 開發模式
+一般做法：
+- 前端測試在本機開發環境執行（npm run test）
+- Docker 只負責建置靜態檔案（npm run build）
+- CI/CD 流水線在測試階段執行測試
+這裡的優點：
+- 測試環境與開發環境一致
+- 容器保持輕量，僅作為靜態檔案伺服器
+- 測試快速，不需要重建容器
+如果需要在容器內測試：
+# 新增測試階段到 Dockerfile
+FROM node:18-alpine AS test
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run test
+但對於開發而言，本機測試已足夠。

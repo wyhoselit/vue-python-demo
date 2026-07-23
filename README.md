@@ -77,6 +77,33 @@ npm run dev
 
 Frontend runs at http://localhost:5173
 
+### Running Tests
+
+#### Backend Tests
+
+```bash
+cd backend
+pip install pytest httpx pytest-asyncio
+pytest
+```
+
+#### Frontend Tests
+
+```bash
+cd frontend
+npm run test
+```
+
+#### Run All Tests
+
+```bash
+# Run backend tests
+cd backend && pytest
+
+# Run frontend tests
+cd frontend && npm run test
+```
+
 ## Docker
 
 ```bash
