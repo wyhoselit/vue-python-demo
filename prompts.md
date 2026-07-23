@@ -81,3 +81,99 @@ Proposal 1：建立專案基礎結構（最優先）
 - 確保 Podman / docker-compose 仍可正常運行
 
 請先生成 proposal、design、tasks 文件，供我審核後再 apply。
+
+
+## 執行完 Proposal 2 後的建議
+
+執行 /opsx:apply
+
+
+Change: enhance-fastapi-backend
+Schema: spec-driven
+Progress: 22/22 tasks complete ✓
+Completed This Session
+- 1.1 Create backend/app/core/__init__.py
+- 1.2 Create backend/app/core/config.py with Pydantic Settings class
+- 1.3 Add pydantic-settings to backend/requirements.txt
+- 2.1 Create backend/app/core/database.py with SQLAlchemy engine setup
+- 2.2 Add database dependencies: sqlalchemy, psycopg2-binary to backend/requirements.txt
+- 2.3 Create backend/app/core/security.py with JWT stub
+- 3.1 Create backend/app/api/__init__.py
+- 3.2 Create backend/app/api/v1/__init__.py with APIRouter
+- 3.3 Create backend/app/api/v1/endpoints/__init__.py
+- 3.4 Create backend/app/api/v1/endpoints/health.py with health endpoint
+- 4.1 Add CORS middleware configuration to main.py
+- 4.2 Add global exception handlers to main.py
+- 4.3 Refactor backend/app/main.py to integrate all modules
+- 5.1 Initialize Alembic in backend directory
+- 5.2 Configure alembic/env.py to use database URL from settings
+- 5.3 Create initial empty migration
+- 6.1 Update backend/requirements.txt with all new dependencies
+- 6.2 Update README.md with backend architecture documentation
+- 6.3 Rebuild containers with podman-compose up -d --build
+- 6.4 Verify /health endpoint returns {"status": "ok"}
+- 6.5 Verify /api/v1/health endpoint returns {"status": "ok"}
+- 6.6 Verify CORS headers present for localhost:5173
+All tasks complete! You can archive this change with /opsx-archive.
+
+
+立即驗證 Checklist（依序執行）
+請在終端機執行以下指令：
+1. 重啟 Backend（重要）
+Bash# 如果使用 podman-compose
+podman-compose down
+podman-compose up -d --build
+
+# 或直接用 uvicorn 開發模式測試
+cd backend
+uvicorn app.main:app --reload --port 8000
+
+2. 基本健康檢查
+```Bash
+# Root health
+curl http://localhost:8000/health
+```
+
+# v1 API health
+```
+curl http://localhost:8000/api/v1/health
+```
+
+預期結果：兩個都回傳 {"status":"ok"}
+3. 驗證 CORS（最重要）
+```Bash
+curl -H "Origin: http://localhost:5173" \
+     -H "Access-Control-Request-Method: GET" \
+     -X OPTIONS http://localhost:8000/api/v1/health -v
+```
+
+檢查 Response Headers 中是否有：
+Access-Control-Allow-Origin: http://localhost:5173
+Access-Control-Allow-Methods: ...
+Access-Control-Allow-Headers: ...
+
+4. 檢查設定檔是否正確載入
+```bash
+curl http://localhost:8000/api/v1/config/debug   # 如果有這個端點
+```
+# 或直接看 l   ogs 是否有正確載入 DATABASE_URL 等設定
+1. 檢查資料庫連線（Alembic）
+```bash
+# 進入正在運行的 backend 容器
+podman exec -it demo_backend_1 bash
+alembic init -t async alembic
+# 在容器內執行
+alembic current          # 看 migration 狀態
+alembic upgrade head     # 執行 migration（如果還沒跑）
+```
+
+
+
+todo: 
+1. Swagger 文件確認
+開啟瀏覽器訪問：
+
+http://localhost:8000/docs
+http://localhost:8000/redoc
+
+應該能看到乾淨的 API 文件，且有 health 端點。
