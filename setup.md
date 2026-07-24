@@ -54,3 +54,12 @@ curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/
 /plugin marketplace add Egonex-AI/Understand-Anything
 /plugin install understand-anything
 ```
+
+
+https://github.com/sickn33/agentic-awesome-skills#installation
+## Agentic Awesome Skills
+```bash
+npx agentic-awesome-skill
+npx agentic-awesome-skills --path .agents/skills --category development,backend --risk safe,none
+
+```
