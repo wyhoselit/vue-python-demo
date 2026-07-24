@@ -45,3 +45,12 @@ openwiki --init
 openwiki --update
 ```
 
+## Understand Anything
+```bash
+curl -fsSL https://raw.githubusercontent.com/Egonex-AI/Understand-Anything/main/install.sh | bash
+```
+
+```opencode
+/plugin marketplace add Egonex-AI/Understand-Anything
+/plugin install understand-anything
+```
