@@ -24,6 +24,7 @@ The `docker-compose.yml` file defines two services:
     -   Exposes port `8000`.
     -   Mounts `./backend/app` as a volume for development.
     -   Uses `.env` file for environment variables.
+    -   Supports `RUN_MIGRATIONS=true` to auto-run Alembic migrations on startup via `docker-entrypoint.sh`.
 -   **`frontend`**:
     -   Builds from `frontend/Dockerfile`.
     -   Exposes port `5173`.

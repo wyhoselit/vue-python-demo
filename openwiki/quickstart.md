@@ -92,9 +92,46 @@ See `.agent/workflows/` for workflow definitions.
 ## Non-Goals (Current Scope)
 
 - Authentication or authorization
-- Database setup or ORM configuration
-- CI/CD pipelines
 - Production-grade security hardening
+
+## Running Tests
+
+### Backend Tests
+
+```bash
+cd backend
+pip install pytest httpx pytest-asyncio
+pytest
+```
+
+Tests include:
+- Health endpoint tests (`/health`, `/api/v1/health`)
+- Configuration validation tests
+- Database connection and session tests
+- CORS and error handling tests
+
+### Frontend Tests
+
+```bash
+cd frontend
+npm run test
+```
+
+Tests include:
+- Component rendering tests (App.vue)
+- Pinia store tests (theme store)
+- API service tests
+- Router tests
+
+### Docker Test Execution
+
+```bash
+# Backend tests in container
+docker compose exec backend pytest
+
+# Frontend tests in container
+docker compose exec frontend npm run test
+```
 
 ## Source References
 

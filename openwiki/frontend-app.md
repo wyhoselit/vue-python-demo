@@ -34,13 +34,59 @@ frontend/
 │   ├── assets/             # Images, icons, etc.
 │   ├── components/         # Reusable Vue components
 │   ├── plugins/            # Vue plugins (e.g., Vuetify)
+│   ├── router/             # Vue Router configuration
+│   ├── services/           # API service clients
+│   ├── stores/             # Pinia state management
+│   ├── __tests__/          # Vitest test suite
+│   │   ├── setup.ts        # Test setup and mocks
+│   │   ├── components/     # Component tests
+│   │   ├── router/         # Router tests
+│   │   ├── services/       # API service tests
+│   │   └── stores/         # Store tests
 │   ├── App.vue             # Main application component
 │   └── main.ts             # Application entry point
 ├── package.json            # Project dependencies and scripts
 ├── tsconfig.json           # TypeScript configuration
 ├── vite.config.ts          # Vite build configuration
+├── vitest.config.ts        # Vitest configuration
 └── Dockerfile              # Docker build instructions
 ```
+
+### State Management
+
+The application uses Pinia for centralized state management, with stores defined in `src/stores/`.
+
+### Routing
+
+Vue Router is configured in `src/router/` for client-side navigation.
+
+### API Services
+
+API calls are abstracted in `src/services/` using Axios with typed responses.
+
+## Testing
+
+The frontend uses Vitest with Happy DOM for unit testing Vue components and Pinia stores.
+
+```bash
+cd frontend
+npm run test
+```
+
+### Test Structure
+
+- `src/__tests__/setup.ts` - Global test setup with Vuetify CSS mocks
+- `src/__tests__/components/App.spec.ts` - Component rendering tests
+- `src/__tests__/stores/theme.spec.ts` - Pinia store tests
+- `src/__tests__/services/api.spec.ts` - API service tests
+- `src/__tests__/router/index.spec.ts` - Router tests
+
+### Test Configuration
+
+`vitest.config.ts` configures:
+- Happy DOM environment for browser simulation
+- Vuetify component inlining for SSR compatibility
+- CSS mocking for Vuetify styles
 
 ## Getting Started (Local)
 

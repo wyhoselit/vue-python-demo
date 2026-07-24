@@ -28,10 +28,29 @@ The backend is structured as follows:
 ```
 backend/
 ├── app/
-│   └── main.py       # Main FastAPI application entry point
-├── requirements.txt  # Python dependencies
-└── Dockerfile        # Docker build instructions
+│   ├── main.py           # Main FastAPI application entry point
+│   ├── api/              # API routers and endpoints
+│   │   ├── v1/
+│   │   │   └── endpoints/ # Versioned API endpoints
+│   │   └── router.py
+│   └── core/             # Core configuration and database
+│       ├── config.py     # Pydantic Settings configuration
+│       ├── database.py   # SQLAlchemy engine and session
+│       └── security.py
+├── tests/                # Pytest test suite
+│   ├── conftest.py       # Test fixtures
+│   ├── test_api_*.py     # API endpoint tests
+│   └── test_*.py         # Component tests
+├── requirements.txt      # Python dependencies
+├── pytest.ini            # Pytest configuration
+├── Dockerfile            # Docker build instructions
+├── docker-entrypoint.sh  # Container entrypoint with migration support
+└── alembic/              # Database migrations
 ```
+
+### Docker Entrypoint
+
+The `docker-entrypoint.sh` script supports automatic Alembic migrations when `RUN_MIGRATIONS=true` is set in the environment.
 
 ## Getting Started (Local)
 
@@ -59,6 +78,31 @@ To run the backend service locally:
 ## Endpoints
 
 -   **`GET /health`**: Returns `{"status": "ok"}`.
+
+## Testing
+
+### Running Tests Locally
+
+```bash
+cd backend
+pip install pytest httpx pytest-asyncio
+pytest
+```
+
+### Test Coverage
+
+- `tests/test_api_health.py` - Health endpoint tests
+- `tests/test_config.py` - Configuration validation tests
+- `tests/test_database.py` - Database connection and session tests
+- `tests/test_api_cors.py` - CORS middleware tests
+- `tests/test_api_errors.py` - Error handling tests
+
+### Test Fixtures
+
+`tests/conftest.py` provides:
+- SQLite in-memory database fixture
+- FastAPI TestClient fixture with dependency overrides
+- Database session fixture
 
 ## Source References
 
