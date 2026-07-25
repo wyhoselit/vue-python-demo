@@ -521,8 +521,106 @@ cd /code/vue-python-demo; podman-compose down; podman-compose up -d
 
 
 ```bash
-gitnexus analyze
+gitnexus analyze .
+gitnexus wiki .
 ```
 ```opencode
  /opsx:explore 根據 GitNexus 的結構分析，把功能整理成 OpenSpec specs
+```
+
+
+```bash
+openwiki --update
+```
+
+1. 固定工作流（推薦做成習慣）
+每次重要功能開發，都照這個順序：
+```text
+1. gitnexus analyze .          ← 更新知識圖
+2. /opsx:propose ...           ← 寫 Proposal（可參考 GitNexus 結構）
+3. 審核 proposal / design / tasks
+4. /opsx:apply
+5. gitnexus analyze .          ← 再分析一次（確認變更後結構）
+6. gitnexus wiki .             ← 更新結構文件
+7. openwiki --update           ← 更新 Agent Wiki
+8. 手動或用 AI 把重要變更同步回 OpenSpec specs
+```
+2. 在 Proposal 裡強制加入品質檢查項目
+之後每次寫 Proposal 時，固定加上這一段：
+```Markdown
+**品質與架構確認（必須）：**
+1. 變更完成後執行 `gitnexus analyze .`，確認知識圖更新
+2. 執行 `gitnexus wiki .` 更新結構文件
+3. 執行 `openwiki --update` 更新 Agent Wiki
+4. 檢查是否有破壞既有 Layout / Router / Store 結構
+5. 更新相關 OpenSpec specs，記錄新的資料流與依賴關係
+```
+
+## 目前狀態總結
+
+| 項目                               | 狀態     |
+| :--------------------------------- | :------- |
+| Backend (FastAPI + Alembic + CORS) | ✅ 正常   |
+| Frontend Layout + Dark Mode        | ✅ 正常   |
+| Dashboard 基本 UI                  | ✅ 正常   |
+| 測試基礎設施                       | ✅ 已建立 |
+| GitNexus → OpenSpec Specs          | ✅ 已完成 |
+| 真實資料串接                       | ❌ 尚未   |
+| Authentication                     | ❌ 尚未   |
+| AI Model 管理                      | ❌ 尚未   |
+
+
+
+
+## Dashboard 真實資料串接
+```Markdown
+
+/opsx:propose enhance-dashboard-with-real-api-data
+
+**目標：**
+讓 Dashboard 顯示真實資料，並完整串接 Backend API，同時同步更新 GitNexus 架構知識跟 openwiki規格。
+
+**目前狀態：**
+- Layout 與 Dashboard UI 已正確顯示
+- Backend 已有 /api/v1/health 等端點
+- 前端有 useApi composable
+- 已有 GitNexus + OpenSpec specs
+
+**這次要完成：**
+
+1. **Backend**
+   - 新增 GET /api/v1/dashboard/stats（回傳 Total Users、Active Sessions、API Calls）
+   - 新增 GET /api/v1/users（回傳假資料列表，之後可換成真實資料）
+
+2. **Frontend**
+   - Dashboard.vue 改成真正呼叫 API
+   - 指標卡片顯示真實數字
+   - Data Table 顯示資料
+   - 加上 Loading 與 Error 狀態處理
+
+3. **測試**
+   - Backend API 測試
+   - Frontend Dashboard 資料載入測試（使用 mock）
+
+4. **品質與架構確認（必須）：**
+ - 變更完成後執行 `gitnexus analyze .`，確認知識圖更新
+ - 執行 `gitnexus wiki .` 更新結構文件
+ - 執行 `openwiki --update` 更新 Agent Wiki
+ - 檢查是否有破壞既有 Layout / Router / Store 結構
+ - 更新相關 OpenSpec specs，記錄新的資料流與依賴關係
+
+5. 更新 README.md
+
+請先產生 proposal、design、tasks。
+
+```
+
+```opencode
+/opsx-apply enhance-dashboard-with-real-api-data
+/opsx-update 
+
+```
+
+```bash
+openspec view
 ```

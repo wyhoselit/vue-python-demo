@@ -14,14 +14,37 @@ A monorepo demo application with a Vue 3 + Vuetify frontend and FastAPI backend.
 .
 ├── backend/          # FastAPI backend
 │   ├── app/
-│   │   └── main.py
+│   │   ├── api/          # API versioning (v1)
+│   │   │   └── v1/
+│   │   │       ├── endpoints/
+│   │   │       │   ├── dashboard.py # Dashboard stats endpoint
+│   │   │       │   └── users.py     # Users list endpoint
+│   │   │       └── router.py    # Main API router
+│   │   ├── core/         # Core application logic
+│   │   │   ├── config.py
+│   │   │   ├── database.py
+│   │   │   └── security.py
+│   │   └── main.py       # FastAPI application entry
+│   ├── alembic/      # Alembic migration scripts
 │   ├── requirements.txt
-│   └── Dockerfile
+│   ├── Dockerfile
+│   └── tests/        # Backend tests
 ├── frontend/         # Vue 3 + Vuetify frontend
 │   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── composables/ # Reusable Vue functions (e.g., useApi)
+│   │   ├── layouts/     # Application layouts (e.g., DefaultLayout)
+│   │   ├── plugins/     # Vuetify, Pinia setup
+│   │   ├── router/      # Vue Router configuration
+│   │   ├── services/    # API service (axios)
+│   │   ├── stores/      # Pinia stores (theme, auth)
+│   │   └── views/       # Vue views (e.g., Dashboard.vue)
 │   ├── package.json
-│   └── Dockerfile
-├── docker/
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── Dockerfile
+│   └── src/__tests__/ # Frontend tests (Vitest)
 ├── docker-compose.yml
 └── .env.example
 ```
@@ -40,6 +63,8 @@ The FastAPI backend is structured for enterprise-grade scalability and maintaina
 - **API Versioning (`app/api/v1/`)**:
   - Uses `APIRouter` for versioned endpoints, mounted at `/api/v1`.
   - Health check is available at `/api/v1/health` and legacy `/health`.
+  - **New:** `GET /api/v1/dashboard/stats`: Returns platform statistics (Total Users, Active Sessions, API Calls).
+  - **New:** `GET /api/v1/users`: Returns a list of mock user data.
 - **Middleware**: Configured with CORS to allow frontend communication (e.g., from `http://localhost:5173`).
 - **Error Handling**: Global exception handlers for `HTTPException` and unhandled exceptions provide consistent JSON responses.
 - **Alembic**: Database migration tool configured to manage schema changes.
@@ -51,6 +76,9 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
 **Alembic Migrations in Docker/Podman:**
 
 For Alembic to function correctly within the containerized environment:
@@ -68,6 +96,17 @@ For Alembic to function correctly within the containerized environment:
 Backend runs at http://localhost:8000
 
 ### Frontend
+
+The Vue 3 frontend leverages Vuetify for a modern UI.
+
+**Architecture:**
+- **Layouts (`src/layouts/`)**: `DefaultLayout.vue` provides the main app structure, integrating the `v-app-bar`, `v-navigation-drawer`, and `<router-view />`.
+- **Stores (`src/stores/`)**: Pinia is used for state management, including `theme.ts` for dark/light mode persistence and `auth.ts` for user session.
+- **API Integration (`src/composables/useApi.ts`)**: An Axios-based composable simplifies API calls, handles base URL configuration, and error interception.
+- **Views (`src/views/`)**:
+  - `Dashboard.vue`: Displays key metrics and user data fetched from backend APIs. Handles loading and error states.
+
+**Setup & Run:**
 
 ```bash
 cd frontend
@@ -122,6 +161,9 @@ podman compose up
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
 - Health check: http://localhost:8000/health
+- **New API Endpoints:**
+  - `GET http://localhost:8000/api/v1/dashboard/stats`: Returns dashboard statistics.
+  - `GET http://localhost:8000/api/v1/users`: Returns a list of mock users.
 
 ## Frontend Layout Architecture
 
