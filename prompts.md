@@ -518,3 +518,11 @@ cd /code/vue-python-demo; podman-compose down; podman-compose up -d
 ```opencode
 /opsx-update 
 ```
+
+
+```bash
+gitnexus analyze
+```
+```opencode
+ /opsx:explore 根據 GitNexus 的結構分析，把功能整理成 OpenSpec specs
+```

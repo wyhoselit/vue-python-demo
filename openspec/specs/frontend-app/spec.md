@@ -1,35 +1,45 @@
-# Frontend Application Specification
+# Frontend Application Core Specification
 
 ## Purpose
-Provides a Vue 3 + TypeScript + Vite frontend project with Vuetify 3, focusing on correct layout integration.
+Defines the core structure and entry point of the Vue.js frontend application.
 
 ## Requirements
 
-### Requirement: Frontend project structure
-The system SHALL provide a Vue 3 + TypeScript + Vite frontend project under `frontend/`.
+### Requirement: Application entry point
+The system SHALL have a single entry point for the Vue.js application.
 
-#### Scenario: Project directory exists
-- **WHEN** the repository is cloned
-- **THEN** the `frontend/` directory SHALL contain a valid Vue 3 project with `package.json`, `tsconfig.json`, and `vite.config.ts`
+#### Scenario: `main.ts` initializes application
+- **WHEN** the application starts
+- **THEN** `frontend/src/main.ts` SHALL initialize the Vue application, register plugins (Vuetify, Pinia, Vue Router), and mount the root component.
 
-### Requirement: Vuetify 3 integration
-The frontend SHALL include Vuetify 3 as the UI framework with proper plugin registration.
+### Requirement: Root component
+The system SHALL have a root Vue component that orchestrates the main layout and routing.
 
-#### Scenario: Vuetify plugin is configured
-- **WHEN** the frontend application starts
-- **THEN** Vuetify 3 components SHALL be available for use
+#### Scenario: `App.vue` exists
+- **WHEN** the application loads
+- **THEN** `frontend/src/App.vue` SHALL be the root component.
 
-### Requirement: Layout integration
-The frontend `App.vue` SHALL correctly use `DefaultLayout` with a `<router-view />` component nested inside.
+#### Scenario: `App.vue` uses DefaultLayout
+- **WHEN** `App.vue` is rendered
+- **THEN** it SHALL use the `DefaultLayout` component.
 
-#### Scenario: Landing page renders
-- **WHEN** a user opens the application in a browser
-- **THEN** `App.vue` SHALL render `DefaultLayout`
-- **AND** `DefaultLayout` SHALL contain a `<router-view />` to display page content
+### Requirement: Vue Router integration
+The application SHALL use Vue Router for navigation.
 
-### Requirement: TypeScript configuration
-The frontend SHALL be configured with TypeScript in strict mode.
+#### Scenario: Router configured
+- **WHEN** `frontend/src/router/index.ts` defines routes
+- **THEN** the Vue application SHALL use this router instance.
 
-#### Scenario: TypeScript compiles without errors
-- **WHEN** `npx vue-tsc --noEmit` is run in `frontend/`
-- **THEN** the process SHALL exit with code 0
+### Requirement: Pinia for state management
+The application SHALL use Pinia for state management.
+
+#### Scenario: Pinia configured
+- **WHEN** `frontend/src/main.ts` initializes Pinia
+- **THEN** Pinia SHALL be available for use across components and stores.
+
+### Requirement: Vuetify for UI components
+The application SHALL use Vuetify 3 for its UI component library.
+
+#### Scenario: Vuetify configured
+- **WHEN** `frontend/src/plugins/vuetify.ts` configures Vuetify
+- **THEN** Vuetify components SHALL be available for use.
