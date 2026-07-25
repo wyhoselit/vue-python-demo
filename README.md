@@ -73,27 +73,38 @@ The FastAPI backend is structured for enterprise-grade scalability and maintaina
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+# Create environment and install dependencies
+uv sync
+# Run development server
+uv run uvicorn app.main:app --reload
 ```
 
 **Alembic Migrations in Docker/Podman:**
 
 For Alembic to function correctly within the containerized environment:
 
-1.  **Generate initial Alembic files**: If not already present, run `podman run --rm -v $(pwd)/backend:/app --entrypoint "alembic" localhost/demo_backend:latest init alembic` from the project root. This creates the `backend/alembic` directory and `backend/alembic.ini`. **Commit these generated files.**
+1.  **Generate initial Alembic files**: If not already present, run `docker compose exec backend uv run alembic init` from the project root. This creates the `backend/alembic` directory and `backend/alembic.ini`. **Commit these generated files.**
 2.  **Run migrations**:
-    -   To apply pending migrations: `podman exec -it demo_backend_1 alembic upgrade head`
-    -   To generate a new migration script (after model changes): `podman exec -it demo_backend_1 alembic revision --autogenerate -m "Description of changes"`
-    -   To rollback last migration: `podman exec -it demo_backend_1 alembic downgrade -1`
+    -   To apply pending migrations: `docker compose exec backend uv run alembic upgrade head`
+    -   To generate a new migration script (after model changes): `docker compose exec backend uv run alembic revision --autogenerate -m "Description"`
 3.  **Optional: Auto-run migrations on startup (for development)**:
     Set the environment variable `RUN_MIGRATIONS=true` when starting the backend service.
-    Example: `RUN_MIGRATIONS=true podman-compose up -d --build backend`
-    This uses the `docker-entrypoint.sh` script to run `alembic upgrade head` before starting the FastAPI app.
+    Example: `RUN_MIGRATIONS=true docker compose up -d --build backend`
+    This uses the `docker-entrypoint.sh` script to run `uv run alembic upgrade head` before starting the FastAPI app.
 
 Backend runs at http://localhost:8000
+
+**Environment Verification:**
+
+```bash
+# Verify uv installation
+uv --version
+
+# Verify backend environment
+cd backend
+uv run python --version
+uv run pytest --version
+```
 
 ### Frontend
 
@@ -122,8 +133,7 @@ Frontend runs at http://localhost:5173
 
 ```bash
 cd backend
-pip install pytest httpx pytest-asyncio
-pytest
+uv run pytest
 ```
 
 #### Frontend Tests
@@ -137,7 +147,7 @@ npm run test
 
 ```bash
 # Run backend tests
-cd backend && pytest
+cd backend && uv run pytest
 
 # Run frontend tests
 cd frontend && npm run test
