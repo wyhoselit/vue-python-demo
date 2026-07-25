@@ -21,7 +21,12 @@ dist-ssr/
 .turbo/
 .parcel-cache/
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
 
+.venv/
+.env
 
 # Nuxt / Next style build folders (if mixing frameworks)
 .nuxt/
