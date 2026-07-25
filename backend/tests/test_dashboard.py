@@ -1,10 +1,9 @@
 import pytest
-from httpx import AsyncClient
+from starlette.testclient import TestClient
 
 
-@pytest.mark.asyncio
-async def test_dashboard_stats(client: AsyncClient):
-    response = await client.get("/api/v1/dashboard/stats")
+def test_dashboard_stats(client: TestClient):
+    response = client.get("/api/v1/dashboard/stats")
     assert response.status_code == 200
     data = response.json()
     assert "total_users" in data

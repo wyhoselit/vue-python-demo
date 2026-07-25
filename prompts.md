@@ -624,3 +624,21 @@ openwiki --update
 ```bash
 openspec view
 ```
+```bash
+(cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
+
+podman exec demo_backend_1 python -m pytest /app/tests/ -v 2>&1 | grep -E "(PASSED|FAILED|ERROR|passed|failed)"
+(cd /code/vue-python-demo/frontend; npm run test )
+
+```
+
+### 檢查點
+```bash
+gitnexus analyze .
+gitnexus wiki .
+openwiki --update 
+```
+
+```opencode
+/opsx:propose 強制使用專案目錄下的 .venv，不要用系統 Python 環境
+```

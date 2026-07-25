@@ -1,10 +1,9 @@
 import pytest
-from httpx import AsyncClient
+from starlette.testclient import TestClient
 
 
-@pytest.mark.asyncio
-async def test_users_list(client: AsyncClient):
-    response = await client.get("/api/v1/users")
+def test_users_list(client: TestClient):
+    response = client.get("/api/v1/users")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

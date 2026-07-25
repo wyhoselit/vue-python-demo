@@ -116,8 +116,8 @@ describe('Dashboard', () => {
     })
 
     const wrapper = mount(Dashboard, {
-      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
-    )
+      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs }
+    })
 
     await flushPromises()
     await wrapper.vm.$nextTick()
