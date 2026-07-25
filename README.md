@@ -122,3 +122,46 @@ podman compose up
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000
 - Health check: http://localhost:8000/health
+
+## Frontend Layout Architecture
+
+The frontend uses a layout component pattern for consistent UI:
+
+### Layout Components
+
+- `src/layouts/DefaultLayout.vue` - Main application layout with Vuetify navigation
+  - Contains `<router-view />` for route content
+  - Includes navigation drawer, app bar, and theme toggle
+
+### App.vue Pattern
+
+App.vue must use the layout wrapper:
+
+```vue
+<template>
+  <DefaultLayout />
+</template>
+
+<script setup lang="ts">
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+</script>
+```
+
+**Do NOT** hardcode Vuetify components directly in App.vue - use layouts for consistent structure.
+
+### Available Layouts
+
+| Layout | Purpose |
+|--------|---------|
+| `DefaultLayout` | Main app with navigation drawer and theme toggle |
+
+### Adding New Layouts
+
+1. Create layout in `src/layouts/`
+2. Export from `src/layouts/index.ts`
+3. Update App.vue to use new layout
+4. Run `npm run typecheck` to verify
+
+### Pre-commit Check
+
+A pre-commit hook verifies App.vue uses a layout component. Commit will fail if hardcoded content is detected.

@@ -337,3 +337,184 @@ RUN npm ci
 COPY . .
 RUN npm run test
 但對於開發而言，本機測試已足夠。
+
+
+
+
+
+## Proposal 4：Vuetify 前端專業化
+
+```markdown
+/opsx:propose enhance-vuetify-frontend-with-tests
+
+**目標：**
+把現有 Vue + Vuetify 前端升級成專業 AI 平台介面，並為每個主要功能加入測試案例。
+
+**目前狀態：**
+- Backend 已穩定（API v1 + CORS + Alembic）
+- Frontend 為基本 Vuetify 專案
+
+**這次要完成的事項：**
+
+1. **Vuetify 完整配置**
+   - MD3 + 自訂主題（支援暗黑模式）
+   - Icons 完整設定
+
+2. **Layout 系統**
+   - DefaultLayout（AppBar + NavigationDrawer + RouterView）
+   - 響應式 Sidebar
+
+3. **狀態管理**
+   - Pinia Store：theme（暗黑模式）、auth（基本）
+
+4. **主要頁面**
+   - Dashboard.vue（使用多種 Vuetify 元件 + 呼叫 Backend API）
+
+5. **測試（必須包含）**
+   - 使用 Vitest + @vue/test-utils
+   - 測試案例：
+     - Layout 元件渲染測試
+     - Theme Store 狀態切換測試
+     - Dashboard 頁面 snapshot / 互動測試
+     - API service mock 測試
+   - vitest.config.ts 配置
+   - package.json 加入 test script
+
+**要求：**
+- UI 現代、美觀、適合 AI 平台
+- TypeScript 完整
+- 每個主要功能都要有對應測試
+- 更新 README.md（包含如何跑測試）
+- 先產生 proposal、design、tasks 讓我確認
+
+```
+
+
+```
+位置：openspec/changes/enhance-vuetify-frontend-with-tests/
+Artifacts 創建：
+- proposal.md - 為什麼需要這個升級
+- design.md - 如何實作的技術設計
+- specs/ - 4 個 capability 的規格書：
+- vuetify-layout/spec.md - Layout 系統
+- theme-management/spec.md - Theme Store
+- dashboard-ui/spec.md - Dashboard 介面
+- api-testing/spec.md - 測試與 API Service
+- tasks.md - 9 大類別、41 個步驟的實作清單
+準備就緒：所有 artifacts 完成！
+```
+
+
+```
+/opsx:propose fix-frontend-build-and-test-issues
+
+**問題：**
+1. vue-tsc 在 build 時檢查測試檔案，導致 Axios mock 型別錯誤
+2. Vitest 路徑處理小問題（normalizeWindowsPath）
+
+**解決方案：**
+
+1. **vite.config.ts** + **tsconfig.json**：
+   - 設定 `vite` 只在測試時排除型別檢查問題
+   - `vue-tsc` 只檢查 `src/`（排除 `__tests__`）
+
+2. **測試 Mock 修正**：
+   - 使用 `vi.mocked(axios)` 正確型別
+   - 改進 Axios mock 建立方式
+
+3. **Vitest 配置優化**：
+   - 修正 path 處理
+   - 加入 `environment: 'happy-dom'`
+
+4. **package.json scripts**：
+   - 分離 `build`（不跑測試型別）和 `test` 指令
+
+**要求：**
+- 確保 `npm run build` 成功
+- 測試仍能正常運行（17+ 通過）
+- 修正後 podman-compose up --build 能成功
+- 更新 README.md
+
+請直接修正。
+
+```
+
+修正內容：
+1. tsconfig.json - 排除 __tests__ 目錄，避免 vue-tsc 檢查測試檔案
+2. vite.config.ts - 分離構建配置，移除測試相關 alias
+3. vitest.config.ts - 優化測試環境配置
+4. package.json - 新增 typecheck script，build 不再包含型別檢查
+5. 測試 Mock 修正 - 使用動態 import 重置模組狀態，正確 mock axios
+6. 組件測試 - 完善 Vuetify 組件 stubs
+可用命令：
+npm run build       # 生產構建
+npm run typecheck   # 型別檢查  
+npm test            # 跑測試 (22 passed)
+npm run test:watch  # 監視模式
+npm run test:ui     # Vitest UI
+
+```
+/opsx:propose fix-app-vue-layout-integration
+
+**問題：**
+App.vue 還在使用舊的 Hello World 硬編碼，沒有正確使用 DefaultLayout 和 RouterView，導致開發模式與 build 後都看不到新 Dashboard。
+
+**解決方案：**
+1. 更新 `src/App.vue`：
+   - 使用 `<DefaultLayout>` 包裹 `<router-view />`
+   - 移除舊的硬編碼內容
+
+2. 確保 `DefaultLayout.vue` 能正常運作（已存在）
+
+3. 加強防護：
+   - 在未來所有前端 Proposal 中，強制檢查 App.vue 是否正確使用 Layout
+   - 更新 vitest 與 vue-tsc 配置，避免測試檔案干擾 build
+
+4. 測試：
+   - 確認 npm run dev 能顯示新 Layout + Dashboard
+   - 確認 podman-compose build 成功
+
+請先生成 proposal 和 tasks，修正後確認不會再出現同樣 Layout 未載入的錯誤。
+```
+/opsx-apply fix-app-vue-layout-integration
+
+# note: there are issues with llm corrupted.
+cd /code/vue-python-demo/frontend; npm run build
+cd /code/vue-python-demo/frontend; rm -rf node_modules/.vite
+cd /code/vue-python-demo/frontend; npm run dev
+
+dev page already normal. but docker frantend still old one.
+
+
+# 1. 停止所有容器
+cd /code/vue-python-demo; podman-compose down
+
+# 2. 強制重建 frontend（最重要）
+cd /code/vue-python-demo; podman-compose build frontend --no-cache
+
+# 3. 重新啟動
+cd /code/vue-python-demo; podman-compose up -d
+
+# 4. 確認 frontend 容器是否使用新 build
+podman ps | grep demo
+
+
+/opsx-update
+```
+變更 fix-app-vue-layout-integration 已修改 proposal、design、spec、tasks。  
+但流程違規：未逐項確認即寫入；且 App.vue 只渲染 <DefaultLayout />，router-view 在 DefaultLayout.vue:34。  
+下一步：審核 planning diff；確認後用 /opsx-apply fix-app-vue-layout-integration。
+```
+
+/opsx-apply fix-app-vue-layout-integration
+```   
+The fix-app-vue-layout-integration change is ready to be archived. Run /obsidian verify-done-claims next to finalize.
+Current status: changeName: fix-app-vue-layout-integration, all 12 tasks done, all planning artifacts finalized.
+```
+cd /code/vue-python-demo; podman-compose down; podman-compose up -d
+
+
+## need to check all tasks completed 
+```opencode
+/opsx-update 
+```

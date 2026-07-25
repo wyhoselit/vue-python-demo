@@ -8,6 +8,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: 'happy-dom',
+      include: ['src/**/*.test.ts', 'src/**/*.spec.ts'],
       exclude: [...configDefaults.exclude, 'e2e/*'],
       root: fileURLToPath(new URL('./', import.meta.url)),
       css: false,
@@ -16,6 +17,16 @@ export default mergeConfig(
       server: {
         deps: {
           inline: ['vuetify'],
+        },
+      },
+      alias: {
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+      deps: {
+        optimizer: {
+          web: {
+            enabled: true,
+          },
         },
       },
     },
