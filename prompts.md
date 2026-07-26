@@ -735,3 +735,29 @@ openwiki --update
 ```opencode
 continue
 ```
+
+
+```opencode
+/opsx:propose improve-auth-error-handling-and-logging
+
+**目標：**
+改善註冊 / 登入的錯誤處理，讓前端能顯示具體、可追溯的錯誤訊息，並在 Backend 加入完整 logging。
+
+**目前問題：**
+- 註冊失敗只顯示「Registration failed」
+- 缺少有意義的錯誤訊息（例如：Email 已存在、密碼太短、驗證失敗等）
+- 缺少 Backend 與 Frontend 的 log 記錄
+
+**要完成的事項：**
+
+### 1. Backend（FastAPI）
+- 加入 structured logging（使用 Python logging 或 loguru）
+- 自訂 Exception 類別（例如：EmailAlreadyExists、InvalidCredentials）
+- 統一錯誤回應格式：
+  ```json
+  {
+    "detail": "具體錯誤訊息",
+    "error_code": "EMAIL_ALREADY_EXISTS",
+    "timestamp": "..."
+  }
+```
