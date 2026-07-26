@@ -9,11 +9,11 @@
 
 ## 2. Frontend Implementation
 
-- [ ] 2.1 Create auth service for login/register API calls
-- [ ] 2.2 Implement Pinia `authStore` to manage session
-- [ ] 2.3 Build `RegistrationForm.vue`
-- [ ] 2.4 Build `LoginForm.vue`
-- [ ] 2.5 Integrate `authStore` in Dashboard and app layout
+- [x] 2.1 Create auth service for login/register API calls
+- [x] 2.2 Implement Pinia `authStore` to manage session
+- [x] 2.3 Build `RegistrationForm.vue`
+- [x] 2.4 Build `LoginForm.vue`
+- [x] 2.5 Integrate `authStore` in Dashboard and app layout
 
 ## 3. Testing and Documentation
 
