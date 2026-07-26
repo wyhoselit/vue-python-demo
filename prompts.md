@@ -656,3 +656,73 @@ openwiki --update
 (cd /code/vue-python-demo/; openwiki --update )
 ```
 
+## 目前狀態總結
+
+| 項目                               | 狀態     |
+| :--------------------------------- | :------- |
+| Backend (FastAPI + Alembic + CORS) | ✅ 正常   |
+| Frontend Layout + Dark Mode        | ✅ 正常   |
+| Dashboard 基本 UI                  | ✅ 正常   |
+| 測試基礎設施                       | ✅ 已建立 |
+| GitNexus → OpenSpec Specs          | ✅ 已完成 |
+| 真實資料串接                       | ✅ 已完成 |
+| Authentication                     | ❌ 尚未   |
+| AI Model 管理                      | ❌ 尚未   |
+
+
+
+/opsx-propose add-user-authentication-with-jwt-and-cookies
+
+**目標：**
+為 vue-python-demo 實作完整的用戶註冊、登入、JWT 簽發與 HTTP-only Cookie 儲存流程。此變更必須確保系統的認證安全性與前後端資料流一致性，並同步更新所有相關文件與知識圖。更新功能使用Gitnexus確認影響範圍並更新所有相關文件。
+
+**目前狀態：**
+- Backend 具備資料庫與 Alembic 環境
+- Frontend 具備基礎 UI 框架與 Axios 用戶端
+- 已有 Layout / Dashboard 基礎架構
+- 已建立 GitNexus → OpenSpec specs 知識管理流程
+
+**預計完成：**
+
+1. **Backend**
+   - 新增 User 模型與相關資料庫欄位
+   - 實作 /api/v1/auth/register endpoint：
+     - 接受 email/password，自動雜湊密碼（bcrypt 或 Argon2）
+     - 建立 User 紀錄
+     - 回傳 JWT Token
+   - 實作 /api/v1/auth/login endpoint：
+     - 驗證 email 和 password
+     - 簽發包含 user_id 的 JWT Token
+     - 回傳 JWT Token
+   - 更新 /api/v1/users 以顯示真實使用者列表
+
+2. **Frontend**
+   - 建立 AuthContext.js（或 Pinia Store）以管理登入狀態
+   - 實作 RegistrationForm.vue 與 LoginForm.vue
+   - 使用 Axios 呼叫新 Auth API
+   - 登入後儲存 JWT Token（透過 HttpOnly Cookie 或 localStorage）
+   - 保護 /dashboard 路由（如果原本是公共路由）
+
+3. **測試**
+   - 建立 backend 的單元測試（註冊/登入流程）
+   - 建立 frontend 的整合測試（表單提交 + Token 接收）
+
+4. **文件與知識管理（必須）**
+   - 更新 README.md（登入流程說明）
+   - 更新 setup.md（如需新依賴）
+   - 執行 `(cd /code/vue-python-demo/backend; uv run pytest -v)`
+   - 執行 `(cd /code/vue-python-demo/frontend; npm run test )`
+   - 執行 `(cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)`
+   - 執行 `(cd /code/vue-python-demo/; gitnexus analyze .)`
+   - 執行 `(cd /code/vue-python-demo/; gitnexus wiki .)`
+   - 執行 `(cd /code/vue-python-demo/; openwiki --update )`
+   - 更新相關 OpenSpec specs（使用者生命週期、認證流程、API endpoint）
+
+**品質與架構確認（必須）：**
+- 確保 JWT Token 採用適當的簽發算法與過期時間
+- 密碼雜湊必須安全（避免明碼儲存）
+- 所有 API 請求加上 Authorization header（當使用者已登入）
+- 確保登入後的 UI 狀態正確反映已登入狀態
+
+請先產生 proposal、design、tasks。
+```
