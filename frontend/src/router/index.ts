@@ -11,12 +11,14 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/LoginForm.vue')
+    component: () => import('@/views/LoginForm.vue'),
+    meta: { layout: 'auth' }
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('@/views/RegistrationForm.vue')
+    component: () => import('@/views/RegistrationForm.vue'),
+    meta: { layout: 'auth' }
   }
 ]
 

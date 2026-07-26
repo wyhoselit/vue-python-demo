@@ -736,6 +736,47 @@ openwiki --update
 continue
 ```
 
+在 Backend 容器內執行
+
+podman exec -it demo_backend_1 bash
+
+額外確認資料表是否建立成功
+
+```bash
+podman exec -it demo_backend_1 uv run python -c "
+from app.core.database import engine
+from sqlalchemy import inspect
+print(inspect(engine).get_table_names())
+"
+```
+
+
+進入後使用：
+```bash
+# 產生 User 資料表的 migration
+uv run alembic revision --autogenerate -m "create_users_table"
+
+# 執行 migration
+uv run alembic upgrade head
+
+# 確認目前狀態
+uv run alembic 
+```bash
+(cd /code/vue-python-demo/backend; uv run pytest -v)
+(cd /code/vue-python-demo/frontend; npm run test )
+(cd /code/vue-python-demo/frontend; npm run build )
+(cd /code/vue-python-demo/frontend; npm run dev )
+
+(cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "123abc", "full_name": "Test"}' \
+  -v
+
+curl http://localhost:5173 -v
+curl http://localhost:5173/login -v
+curl http://localhost:5173/register -v
+```
 
 ```opencode
 /opsx:propose improve-auth-error-handling-and-logging
@@ -760,4 +801,159 @@ continue
     "error_code": "EMAIL_ALREADY_EXISTS",
     "timestamp": "..."
   }
+```
+
+
+
+```opencode
+/opsx:propose fix-login-register-ref-and-404
+
+**目標：**
+修復 Login / Register 頁面的兩個錯誤：
+1. `ReferenceError: ref is not defined`
+2. `/login` 與 `/register` 出現 404
+
+**目前問題：**
+- LoginForm.vue 第 67 行使用 `ref` 但未 import
+- 路由 `/login` 和 `/register` 無法正確導向對應頁面
+
+**要完成的事項：**
+
+1. **修復 LoginForm.vue 與 RegistrationForm.vue**
+   - 正確引入 `ref`、`reactive`、`computed` 等（從 `vue`）
+   - 檢查是否有其他未引入的 Composition API
+
+2. **修復 Vue Router**
+   - 在 `src/router/index.ts` 正確新增：
+     - `/login` → LoginForm 或 Login 頁面
+     - `/register` → RegistrationForm 或 Register 頁面
+   - 確保路由名稱與路徑正確
+   - 未登入時可正常訪問這兩個頁面
+
+3. **Layout 處理**
+   - Login / Register 頁面不應被 DefaultLayout（有側邊欄）包住
+   - 可使用獨立的 AuthLayout，或直接不套用 DefaultLayout
+
+4. **測試**
+   - 確認 `/login` 與 `/register` 可以正常開啟
+   - 確認不再出現 `ref is not defined` 錯誤
+   - 相關 component 測試通過
+
+
+請先產生 proposal、design、tasks。
+
+```
+The infrastructure changes require a rebuild (docker compose up --build frontend). The router and layout changes are applied. You should rebuild to verify.
+
+
+
+(cd /code/vue-python-demo/frontend; npm run build )
+(cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
+(cd /code/vue-python-demo/; podman-compose ps )
+
+### TODO
+
+
+## fix-auto-migration-on-startup
+
+
+```Markdown
+/opsx:propose fix-auto-migration-on-startup
+
+**目標：**
+修正「資料表不會自動建立」的問題，讓每次 `podman-compose up -d --build` 時，Backend 都會自動執行 Alembic migration，確保 `users` 等資料表存在。
+
+**目前問題：**
+- 執行 `inspect(engine).get_table_names()` 回傳空列表 `[]`
+- 註冊時出現 `no such table: users`
+- 目前需要手動進入容器執行 migration
+
+**要完成的事項：**
+
+1. **確認 User Model 正確**
+   - 檢查 `app/models/user.py`（或對應位置）是否正確定義
+   - 確保 model 有被 Alembic 正確偵測
+
+2. **產生正確的 Migration**
+   - 建立 `create_users_table` 的 migration 檔案
+   - 確保 `alembic/env.py` 有正確 import 所有 models
+
+3. **自動執行 Migration（重點）**
+   - 修改 Backend 啟動方式（Dockerfile 或 entrypoint / docker-compose command）
+   - 在啟動 uvicorn 之前，先執行：
+      ```bash
+      uv run alembic upgrade head
+      ```
+   - 確保每次容器啟動都會自動建立 / 更新資料表
+
+
+**錯誤處理與 Log**
+- migration 失敗時要有清楚的 log
+- 不要讓應用程式在 table 不存在的情況下啟動
+
+**測試與驗證**
+- 執行 `(cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)`
+- 確認 users 資料表已自動建立
+- 確認註冊功能正常
+
+**更新文件**
+- 更新 README.md 說明自動 migration 機制
+
+**品質確認**
+- 確認不再需要手動進入容器跑 migration
+```
+
+
+
+
+```Markdown
+/opsx:propose create-admin-system-status-page
+
+**目標：**
+建立一個 Admin 系統狀態與除錯頁面，讓開發者可以直接在網頁上檢查系統健康狀況、Log 與相關環境資訊。
+
+**目前狀態：**
+- 已有 Authentication（登入 / 註冊）
+- 已有 Dashboard
+- Backend 使用 FastAPI + Alembic
+- Frontend 使用 Vue 3 + Vuetify
+
+**要完成的事項：**
+
+### 1. Backend（FastAPI）
+新增 `/api/v1/admin/` 相關端點（需登入保護）：
+- `GET /api/v1/admin/system-info`
+  - Python 版本、FastAPI 版本、作業系統、環境變數摘要
+  - 資料庫連線狀態、Alembic 目前 revision
+- `GET /api/v1/admin/logs`
+  - 回傳最近的應用程式 log（可限制行數）
+- `GET /api/v1/admin/docker-info`（可選）
+  - 容器名稱、狀態、資源使用摘要（如果可取得）
+- 統一錯誤處理與 logging
+
+### 2. Frontend（Vue + Vuetify）
+- 新增 `AdminStatus.vue` 頁面
+- 使用卡片呈現：
+  - 系統總覽（Backend / Frontend 狀態）
+  - Python / Vue / Docker 資訊
+  - 最近 Log（可捲動、可篩選錯誤）
+  - 快速健康檢查按鈕
+- 加入側邊欄選單項目「System Status」或「Admin」
+- 僅限已登入使用者可進入（之後可再加 Admin 角色）
+
+### 3. 測試
+- Backend API 測試
+- Frontend 頁面渲染與資料載入測試
+
+### 4. 文件與品質
+- 更新 README.md
+- 更新 OpenSpec specs
+- 變更完成後執行 `gitnexus analyze .` 與 `openwiki --update`
+
+**要求：**
+- UI 要清楚、適合除錯使用
+- 敏感資訊（密碼、完整 env）不要直接暴露
+- 錯誤訊息要有意義、可追溯
+
+請先產生 proposal、design、tasks。
 ```

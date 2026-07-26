@@ -27,19 +27,19 @@
         />
         
         <v-alert
-          v-if="error"
+          v-if="authStore.error"
           type="error"
           variant="tonal"
           class="mb-4"
         >
-          {{ error }}
+          {{ authStore.error }}
         </v-alert>
         
         <v-btn
           type="submit"
           color="primary"
-          :loading="loading"
-          :disabled="loading"
+          :loading="authStore.loading"
+          :disabled="authStore.loading"
           block
         >
           Register
@@ -59,35 +59,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-
-const form = ref<HTMLFormElement | null>(null)
-const email = ref('')
-const password = ref('')
-const loading = ref(false)
-const error = ref<string | null>(null)
 
 const router = useRouter()
 const authStore = useAuthStore()
 
+const email = ref('')
+const password = ref('')
+
 const onSubmit = async () => {
-  if (!form.value?.validate()) return
-  
-  loading.value = true
-  error.value = null
-  
   try {
     await authStore.register({
       email: email.value,
       password: password.value
     })
     router.push('/login')
-  } catch (e: any) {
-    error.value = e.response?.data?.detail || 'Registration failed'
-  } finally {
-    loading.value = false
+  } catch (e) {
+    // Error is handled in authStore
   }
 }
 </script>

@@ -11,17 +11,21 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const errorCode = ref<string | null>(null)
   
   const isAuthenticated = computed(() => !!user.value)
 
   const login = async (credentials: authService.LoginCredentials) => {
     loading.value = true
     error.value = null
+    errorCode.value = null
     try {
       await authService.login(credentials)
       user.value = await authService.getCurrentUser()
     } catch (e: any) {
-      error.value = e.response?.data?.detail || 'Login failed'
+      console.error('Auth error:', e)
+      error.value = e.detail || 'Login failed'
+      errorCode.value = e.error_code || 'LOGIN_FAILED'
       throw e
     } finally {
       loading.value = false
@@ -31,10 +35,12 @@ export const useAuthStore = defineStore('auth', () => {
   const register = async (credentials: authService.RegisterCredentials) => {
     loading.value = true
     error.value = null
+    errorCode.value = null
     try {
       await authService.register(credentials)
     } catch (e: any) {
-      error.value = e.response?.data?.detail || 'Registration failed'
+      error.value = e.detail || 'Registration failed'
+      errorCode.value = e.error_code || 'REGISTRATION_FAILED'
       throw e
     } finally {
       loading.value = false
@@ -61,6 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     error,
+    errorCode,
     isAuthenticated,
     login,
     register,

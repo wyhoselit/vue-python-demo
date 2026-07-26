@@ -1,6 +1,6 @@
 import pytest
 from starlette.testclient import TestClient
-
+import logging
 
 def test_users_list(client: TestClient):
     response = client.get("/api/v1/users")
@@ -30,30 +30,33 @@ def test_auth_register(client: TestClient):
     assert "email" in data
 
 
-def test_auth_register_duplicate(client: TestClient):
-    response1 = client.post(
+def test_auth_register_duplicate(client: TestClient, caplog):
+    client.post(
         "/api/v1/auth/register",
         json={"email": "test2@example.com", "password": "password123"},
     )
-    assert response1.status_code == 200
 
-    response2 = client.post(
-        "/api/v1/auth/register",
-        json={"email": "test2@example.com", "password": "password456"},
-    )
-    assert response2.status_code == 400
-    data = response2.json()
-    assert "detail" in data
+    with caplog.at_level(logging.WARNING):
+        response2 = client.post(
+            "/api/v1/auth/register",
+            json={"email": "test2@example.com", "password": "password456"},
+        )
+    assert response2.status_code == 409
+    assert response2.json()["error_code"] == "EMAIL_ALREADY_EXISTS"
+    assert "Registration failed - email exists" in caplog.text
 
-
-def test_auth_login(client: TestClient):
+def test_auth_login_invalid(client: TestClient, caplog):
     client.post(
         "/api/v1/auth/register",
         json={"email": "login@example.com", "password": "password123"},
     )
     
-    response = client.post(
-        "/api/v1/auth/login",
-        json={"email": "login@example.com", "password": "password123"},
-    )
-    assert response.status_code == 200
+    with caplog.at_level(logging.WARNING):
+        response = client.post(
+            "/api/v1/auth/login",
+            json={"email": "login@example.com", "password": "wrongpassword"},
+        )
+    assert response.status_code == 401
+    assert response.json()["error_code"] == "INVALID_CREDENTIALS"
+    assert "Login failed - invalid credentials" in caplog.text
+

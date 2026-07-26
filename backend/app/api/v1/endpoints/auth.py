@@ -1,42 +1,52 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Body
+import logging
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.core.security import hash_password, verify_password, create_access_token
-from datetime import timedelta
-from pydantic import BaseModel
+from app.core.exceptions import EmailAlreadyExistsError, InvalidCredentialsError
 
 router = APIRouter()
-
-class AuthCredentials(BaseModel):
-    email: str
-    password: str
+logger = logging.getLogger(__name__)
 
 @router.post("/register")
-def register(credentials: AuthCredentials, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == credentials.email).first()
-    if user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
+def register(credentials: dict, db: Session = Depends(get_db)):
+    email = credentials.get("email")
+    password = credentials.get("password")
     
-    hashed_pwd = hash_password(credentials.password)
-    new_user = User(email=credentials.email, hashed_password=hashed_pwd)
+    if not email or not password:
+        raise InvalidCredentialsError("Email and password are required")
+    
+    logger.info("Registration attempt", extra={"email": email})
+    
+    user = db.query(User).filter(User.email == email).first()
+    if user:
+        logger.warning("Registration failed - email exists", extra={"email": email})
+        raise EmailAlreadyExistsError()
+    
+    hashed_pwd = hash_password(password)
+    new_user = User(email=email, hashed_password=hashed_pwd)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     
+    logger.info("Registration successful", extra={"user_id": new_user.id, "email": email})
     return {"id": new_user.id, "email": new_user.email}
 
 @router.post("/login")
-def login(credentials: AuthCredentials, response: Response, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == credentials.email).first()
-    if not user or not verify_password(credentials.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
-        )
+def login(credentials: dict, response: Response, db: Session = Depends(get_db)):
+    email = credentials.get("email")
+    password = credentials.get("password")
+    
+    if not email or not password:
+        raise InvalidCredentialsError("Email and password are required")
+    
+    logger.info("Login attempt", extra={"email": email})
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user or not verify_password(password, user.hashed_password):
+        logger.warning("Login failed - invalid credentials", extra={"email": email})
+        raise InvalidCredentialsError()
     
     access_token = create_access_token(data={"sub": str(user.id)})
     
@@ -46,8 +56,8 @@ def login(credentials: AuthCredentials, response: Response, db: Session = Depend
         httponly=True,
         secure=True,
         samesite="strict",
-        max_age=15 * 60  # 15 minutes
+        max_age=15 * 60
     )
     
+    logger.info("Login successful", extra={"user_id": user.id, "email": email})
     return {"message": "Login successful"}
-

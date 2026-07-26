@@ -6,7 +6,13 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 
 from app.core.config import settings
+from app.core.logging import setup_logging
+from app.core.middleware import RequestIDMiddleware
+from app.core.exceptions import AuthException
 from app.api.router import api_router
+
+# Initialize logging
+setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +25,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Add Request ID middleware (must be first to capture request ID)
+app.add_middleware(RequestIDMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS.split(","),
@@ -28,11 +37,24 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(AuthException)
+async def auth_exception_handler(request: Request, exc: AuthException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "detail": exc.detail,
+            "error_code": exc.error_code,
+        },
+        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+    )
+
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail},
+        content={"detail": exc.detail, "error_code": "HTTP_ERROR"},
+        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
     )
 
 
@@ -40,7 +62,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def general_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": "Internal server error", "error_code": "INTERNAL_ERROR"},
+        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
     )
 
 

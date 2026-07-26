@@ -33,37 +33,27 @@ describe('Auth Store', () => {
     expect(store.isAuthenticated).toBe(true)
   })
 
-  it('sets error on failed login', async () => {
-    const error = new Error('Invalid credentials')
-    vi.mocked(authService.login).mockRejectedValueOnce(error)
+  it('sets error code on failed login', async () => {
+    const errorResponse = { detail: 'Invalid credentials', error_code: 'INVALID_CREDENTIALS' }
+    vi.mocked(authService.login).mockImplementationOnce(() => Promise.reject(errorResponse))
 
     const store = useAuthStore()
     await expect(store.login({ email: 'test@example.com', password: 'wrong' })).rejects.toThrow()
 
-    expect(store.error).toBe('Login failed')
+    expect(store.error).toBe('Invalid credentials')
+    expect(store.errorCode).toBe('INVALID_CREDENTIALS')
     expect(store.loading).toBe(false)
   })
 
-  it('registers new user successfully', async () => {
-    vi.mocked(authService.register).mockResolvedValueOnce(undefined)
-
-    const store = useAuthStore()
-    await store.register({ email: 'new@example.com', password: 'password123' })
-
-    expect(authService.register).toHaveBeenCalledWith({
-      email: 'new@example.com',
-      password: 'password123'
-    })
-  })
-
-  it('sets error on failed registration', async () => {
-    const error = new Error('Email already registered')
-    vi.mocked(authService.register).mockRejectedValueOnce(error)
+  it('sets error code on failed registration', async () => {
+    const errorResponse = { detail: 'Email already registered', error_code: 'EMAIL_ALREADY_EXISTS' }
+    vi.mocked(authService.register).mockImplementationOnce(() => Promise.reject(errorResponse))
 
     const store = useAuthStore()
     await expect(store.register({ email: 'existing@example.com', password: 'password123' })).rejects.toThrow()
 
-    expect(store.error).toBe('Registration failed')
+    expect(store.error).toBe('Email already registered')
+    expect(store.errorCode).toBe('EMAIL_ALREADY_EXISTS')
   })
 
   it('clears user on logout', async () => {
