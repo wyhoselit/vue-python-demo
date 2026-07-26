@@ -17,7 +17,7 @@
 
 ## 3. Testing and Documentation
 
-- [ ] 3.1 Backend unit tests for registration and login
-- [ ] 3.2 Frontend component tests for login/register forms
-- [ ] 3.3 Update `README.md` and `setup.md`
-- [ ] 3.4 Verification: run all tests, check migrations, verify authentication flow
+- [x] 3.1 Backend unit tests for registration and login
+- [x] 3.2 Frontend component tests for login/register forms
+- [x] 3.3 Update `README.md` and `setup.md`
+- [x] 3.4 Verification: run all tests, check migrations, verify authentication flow

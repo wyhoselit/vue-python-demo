@@ -172,8 +172,9 @@ podman compose up
 - Backend: http://localhost:8000
 - Health check: http://localhost:8000/health
 - **New API Endpoints:**
-  - `GET http://localhost:8000/api/v1/dashboard/stats`: Returns dashboard statistics.
-  - `GET http://localhost:8000/api/v1/users`: Returns a list of mock users.
+  - `POST /api/v1/auth/register`: Register new user.
+  - `POST /api/v1/auth/login`: Authenticate and set JWT cookie.
+  - `GET /api/v1/users/me`: Returns current user profile.
 
 ## Frontend Layout Architecture
 

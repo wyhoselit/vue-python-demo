@@ -1,58 +1,99 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
+import * as authService from '@/services/auth'
+
+vi.mock('@/services/auth')
 
 describe('Auth Store', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    localStorage.clear()
+    vi.clearAllMocks()
   })
 
   it('initializes with null user and no token', () => {
     const store = useAuthStore()
     expect(store.user).toBeNull()
-    expect(store.token).toBeNull()
+    expect(store.loading).toBe(false)
+    expect(store.error).toBeNull()
     expect(store.isAuthenticated).toBe(false)
   })
 
-  it('sets auth correctly', () => {
+  it('sets user on successful login', async () => {
+    const mockUser = { id: 1, email: 'test@example.com' }
+    vi.mocked(authService.login).mockResolvedValueOnce(undefined)
+    vi.mocked(authService.getCurrentUser).mockResolvedValueOnce(mockUser)
+
     const store = useAuthStore()
-    const user = {
-      id: '1',
-      email: 'test@example.com',
-      name: 'Test User',
-      roles: ['user'],
-    }
-    store.setAuth('test-token', user)
-    expect(store.token).toBe('test-token')
-    expect(store.user).toEqual(user)
+    await store.login({ email: 'test@example.com', password: 'password123' })
+
+    expect(store.user).toEqual(mockUser)
+    expect(store.loading).toBe(false)
+    expect(store.error).toBeNull()
     expect(store.isAuthenticated).toBe(true)
   })
 
-  it('persists token to localStorage', () => {
+  it('sets error on failed login', async () => {
+    const error = new Error('Invalid credentials')
+    vi.mocked(authService.login).mockRejectedValueOnce(error)
+
     const store = useAuthStore()
-    const user = {
-      id: '1',
-      email: 'test@example.com',
-      name: 'Test User',
-      roles: ['user'],
-    }
-    store.setAuth('test-token', user)
-    expect(localStorage.getItem('auth_token')).toBe('test-token')
+    await expect(store.login({ email: 'test@example.com', password: 'wrong' })).rejects.toThrow()
+
+    expect(store.error).toBe('Login failed')
+    expect(store.loading).toBe(false)
   })
 
-  it('clears auth on logout', () => {
+  it('registers new user successfully', async () => {
+    vi.mocked(authService.register).mockResolvedValueOnce(undefined)
+
     const store = useAuthStore()
-    store.setAuth('test-token', {
-      id: '1',
-      email: 'test@example.com',
-      name: 'Test User',
-      roles: ['user'],
+    await store.register({ email: 'new@example.com', password: 'password123' })
+
+    expect(authService.register).toHaveBeenCalledWith({
+      email: 'new@example.com',
+      password: 'password123'
     })
-    store.logout()
-    expect(store.token).toBeNull()
+  })
+
+  it('sets error on failed registration', async () => {
+    const error = new Error('Email already registered')
+    vi.mocked(authService.register).mockRejectedValueOnce(error)
+
+    const store = useAuthStore()
+    await expect(store.register({ email: 'existing@example.com', password: 'password123' })).rejects.toThrow()
+
+    expect(store.error).toBe('Registration failed')
+  })
+
+  it('clears user on logout', async () => {
+    vi.mocked(authService.logout).mockResolvedValueOnce()
+
+    const store = useAuthStore()
+    store.user = { id: 1, email: 'test@example.com' }
+    await store.logout()
+
     expect(store.user).toBeNull()
     expect(store.isAuthenticated).toBe(false)
-    expect(localStorage.getItem('auth_token')).toBeNull()
+  })
+
+  it('fetches current user', async () => {
+    const mockUser = { id: 2, email: 'current@example.com' }
+    vi.mocked(authService.getCurrentUser).mockResolvedValueOnce(mockUser)
+
+    const store = useAuthStore()
+    await store.fetchCurrentUser()
+
+    expect(store.user).toEqual(mockUser)
+  })
+
+  it('clears user when fetch fails', async () => {
+    vi.mocked(authService.getCurrentUser).mockRejectedValueOnce(new Error('Not authenticated'))
+
+    const store = useAuthStore()
+    store.user = { id: 1, email: 'test@example.com' }
+    await store.fetchCurrentUser()
+
+    expect(store.user).toBeNull()
   })
 })

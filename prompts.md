@@ -726,3 +726,12 @@ openwiki --update
 
 請先產生 proposal、design、tasks。
 ```
+
+```opencode
+/opsx-apply add-user-authentication-with-jwt-and-cookies 1. Backend Implement
+```
+
+** continue to complete all tasks**
+```opencode
+continue
+```
