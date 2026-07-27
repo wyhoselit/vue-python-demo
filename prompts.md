@@ -956,14 +956,16 @@ export const healthCheck = async () => {
 ```
 login fixed.
 
+
+
 ### TODO
-openwiki "Please generate documentation for this repository"  
+
 
 ```Markdown
-/opsx:propose create-admin-system-status-page
+/opsx-propose create-admin-system-status-page-with-roles
 
 **目標：**
-建立一個 Admin 系統狀態與除錯頁面，讓開發者可以直接在網頁上檢查系統健康狀況、Log 與相關環境資訊。
+建立完整的 Roles 權限系統 + Admin 系統狀態與除錯頁面。
 
 **目前狀態：**
 - 已有 Authentication（登入 / 註冊）
@@ -973,40 +975,47 @@ openwiki "Please generate documentation for this repository"
 
 **要完成的事項：**
 
-### 1. Backend（FastAPI）
-新增 `/api/v1/admin/` 相關端點（需登入保護）：
+### 1. Roles 權限系統（必須先做）
+- 在資料庫新增 `Role` 模型（例如：admin、user）
+- User 與 Role 的關聯（多對多或一對多）
+- 預設建立一個 Admin 使用者：
+  - username: `admin`
+  - password: `admin123`（開發用，可之後修改）
+  - role: `admin`
+- Backend 加入權限檢查 decorator / dependency（例如 `require_admin`）
+- 註冊新使用者時預設給予 `user` 角色
+
+### 2. Backend Admin API（需 Admin 權限）
+新增 `/api/v1/admin/` 端點：
 - `GET /api/v1/admin/system-info`
-  - Python 版本、FastAPI 版本、作業系統、環境變數摘要
-  - 資料庫連線狀態、Alembic 目前 revision
+  - Python / FastAPI 版本、OS、環境變數摘要、資料庫連線狀態、Alembic revision
 - `GET /api/v1/admin/logs`
-  - 回傳最近的應用程式 log（可限制行數）
-- `GET /api/v1/admin/docker-info`（可選）
-  - 容器名稱、狀態、資源使用摘要（如果可取得）
-- 統一錯誤處理與 logging
+  - 最近應用程式 log（可限制行數、篩選 level）
+- `GET /api/v1/admin/users`（可選）
+  - 列出使用者與角色
 
-### 2. Frontend（Vue + Vuetify）
-- 新增 `AdminStatus.vue` 頁面
-- 使用卡片呈現：
-  - 系統總覽（Backend / Frontend 狀態）
-  - Python / Vue / Docker 資訊
-  - 最近 Log（可捲動、可篩選錯誤）
-  - 快速健康檢查按鈕
-- 加入側邊欄選單項目「System Status」或「Admin」
-- 僅限已登入使用者可進入（之後可再加 Admin 角色）
+### 3. Frontend
+- 新增 `AdminStatus.vue` 頁面（僅 Admin 可進入）
+- 使用卡片清楚呈現：
+  - 系統總覽
+  - 環境與版本資訊
+  - 最近 Log（可捲動）
+  - 快速健康檢查
+- 側邊欄新增「System Status」選單（只有 Admin 看得到）
+- 路由加入權限守衛
 
-### 3. 測試
-- Backend API 測試
-- Frontend 頁面渲染與資料載入測試
+### 4. 測試
+- Backend：Roles、Admin API、權限測試
+- Frontend：Admin 頁面渲染與權限測試
 
-### 4. 文件與品質
-- 更新 README.md
-- 更新 OpenSpec specs
-- 變更完成後執行 `gitnexus analyze .` 與 `openwiki --update`
+### 5. 其他
+- 更新 README.md（包含預設 Admin 帳號說明）
+- 確保敏感資訊不會被暴露
+- 變更完成後可執行部署指令確認
 
 **要求：**
-- UI 要清楚、適合除錯使用
-- 敏感資訊（密碼、完整 env）不要直接暴露
-- 錯誤訊息要有意義、可追溯
-
-請先產生 proposal、design、tasks。
+- 預設 Admin 帳號必須在 migration 或啟動時自動建立
+- 權限檢查要嚴謹
+- UI 清楚適合除錯
+- 先產生 proposal、design、tasks 讓我確認
 ```
