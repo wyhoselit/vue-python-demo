@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md
+# openspec init --tools all
+# OpenSpec installs workflow artifacts based on selected workflows:
+#     Core profile (default): propose, explore, apply, sync, archive
+#     Custom selection: any subset of all workflow IDs: propose, explore, new, continue, apply, ff, sync, archive, bulk-archive, verify, onboard
+
+# openspec init --profile custom --tools all
+
 
 (cd /code/vue-python-demo/backend; uv run pytest -v)
 
@@ -13,7 +21,7 @@
 (cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
 (cd /code/vue-python-demo/; podman-compose ps )
 
-openspec list
+(cd /code/vue-python-demo/; openspec list)
 # openspec archive add-user-authentication-with-jwt-and-cookiesn
 # openspec archive fix-frontend-login-cookie 
 # openspec archive fix-login-register-ref-and-404
@@ -22,7 +30,9 @@ openspec list
 # openspec archive fix-auto-migration-on-startup
 # openspec list
 
-openspec status
+(cd /code/vue-python-demo/; openspec view)
+
+# (cd /code/vue-python-demo/; gitnexus status)
 # (cd /code/vue-python-demo/; gitnexus analyze .)
 # (cd /code/vue-python-demo/; gitnexus wiki .)
 # (cd /code/vue-python-demo/; openwiki --update )

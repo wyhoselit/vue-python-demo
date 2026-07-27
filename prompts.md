@@ -956,6 +956,19 @@ export const healthCheck = async () => {
 ```
 login fixed.
 
+## 目前狀態總結
+
+| 項目                               | 狀態     |
+| :--------------------------------- | :------- |
+| Backend (FastAPI + Alembic + CORS) | ✅ 正常   |
+| Frontend Layout + Dark Mode        | ✅ 正常   |
+| Dashboard 基本 UI                  | ✅ 正常   |
+| 測試基礎設施                       | ✅ 已建立 |
+| GitNexus → OpenSpec Specs          | ✅ 已完成 |
+| 真實資料串接                       | ✅ 已完成 |
+| Authentication                     | ✅ 已完成 |
+| Admin page with roles              | ❌ 尚未   |
+| AI Model 管理                      | ❌ 尚未   |
 
 
 ### TODO
