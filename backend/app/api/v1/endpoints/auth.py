@@ -54,7 +54,7 @@ def login(credentials: dict, response: Response, db: Session = Depends(get_db)):
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True,
+        secure=False,
         samesite="strict",
         max_age=15 * 60
     )

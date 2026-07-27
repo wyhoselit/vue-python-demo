@@ -839,19 +839,16 @@ curl http://localhost:5173/register -v
    - 確認不再出現 `ref is not defined` 錯誤
    - 相關 component 測試通過
 
-
 請先產生 proposal、design、tasks。
 
 ```
-The infrastructure changes require a rebuild (docker compose up --build frontend). The router and layout changes are applied. You should rebuild to verify.
 
-
-
+(cd /code/vue-python-demo/backend; uv run pytest -v)
 (cd /code/vue-python-demo/frontend; npm run build )
 (cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
 (cd /code/vue-python-demo/; podman-compose ps )
 
-### TODO
+
 
 
 ## fix-auto-migration-on-startup
@@ -902,9 +899,65 @@ The infrastructure changes require a rebuild (docker compose up --build frontend
 **品質確認**
 - 確認不再需要手動進入容器跑 migration
 ```
+```bash
+
+(cd /code/vue-python-demo/; podman-compose ps )
+podman exec -it demo_backend_1 uv run python -c "
+from app.core.database import engine
+from sqlalchemy import inspect
+print(inspect(engine).get_table_names())
+"
 
 
 
+curl -c /tmp/demoai_cookies.txt -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "demo@ai", "password": "123abc"}' && \
+curl -c /tmp/demoai_cookies.txt -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "demo@ai", "password": "123abc"}' && \
+curl -b /tmp/demoai_cookies.txt http://localhost:8000/api/v1/users/me
+
+
+```opencode
+目前 apply 後發現 bug。
+請先協助我判斷這是原 change 的修正，還是需要新增新的 proposal。
+若屬於原 change，請直接更新 tasks / spec / implementation 的修正內容。
+請保留原本範圍，不要擴大成新需求。
+bug http://localhost:5173/login 後好像沒有帶 cookie 資訊;直接用下面方式連線 /users/me
+curl 'http://localhost:8000/api/v1/users/me' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:152.0) Gecko/20100101 Firefox/152.0' \
+  -H 'Accept: application/json, text/plain, */*' \
+  -H 'Accept-Language: en-US,en;q=0.9' \
+  -H 'Accept-Encoding: gzip, deflate, br, zstd' \
+  -H 'Origin: http://localhost:5173' \
+  -H 'DNT: 1' \
+  -H 'Sec-GPC: 1' \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-site'
+
+```
+```
+此外，必須要在 frontend/src/services/api.ts 中啟用 withCredentials，否則瀏覽器不會帶上 cookie。
+← Edit frontend/src/services/api.ts
+import axios from 'axios'
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  withCredentials: true,
+})
+
+export const healthCheck = async () => {
+  const response = await api.get('/health')
+已修正。登入後自動帶 cookie 進行 /users/me 查詢。
+```
+login fixed.
+
+### TODO
+openwiki "Please generate documentation for this repository"  
 
 ```Markdown
 /opsx:propose create-admin-system-status-page

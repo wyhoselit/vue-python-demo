@@ -26,6 +26,7 @@ describe('useApi Composable', () => {
     expect(mockedAxios.create).toHaveBeenCalledWith({
       baseURL: 'http://localhost:8000/api/v1',
       timeout: 10000,
+      withCredentials: true,
       headers: { 'Content-Type': 'application/json' },
     })
   })

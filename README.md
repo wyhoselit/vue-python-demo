@@ -81,16 +81,10 @@ uv run uvicorn app.main:app --reload
 
 **Alembic Migrations in Docker/Podman:**
 
-For Alembic to function correctly within the containerized environment:
-
-1.  **Generate initial Alembic files**: If not already present, run `docker compose exec backend uv run alembic init` from the project root. This creates the `backend/alembic` directory and `backend/alembic.ini`. **Commit these generated files.**
-2.  **Run migrations**:
-    -   To apply pending migrations: `docker compose exec backend uv run alembic upgrade head`
-    -   To generate a new migration script (after model changes): `docker compose exec backend uv run alembic revision --autogenerate -m "Description"`
-3.  **Optional: Auto-run migrations on startup (for development)**:
-    Set the environment variable `RUN_MIGRATIONS=true` when starting the backend service.
-    Example: `RUN_MIGRATIONS=true docker compose up -d --build backend`
-    This uses the `docker-entrypoint.sh` script to run `uv run alembic upgrade head` before starting the FastAPI app.
+Migrations are now automatically run on backend container startup.
+- The `entrypoint.sh` script executes `alembic upgrade head` before starting the FastAPI application.
+- This ensures the database schema is always up-to-date upon startup.
+- To generate a new migration script (after model changes): `docker compose exec backend uv run alembic revision --autogenerate -m "Description"`
 
 Backend runs at http://localhost:8000
 

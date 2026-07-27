@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-if [ "$RUN_MIGRATIONS" = "true" ]; then
-    echo "Running Alembic migrations..."
-    uv run alembic upgrade head
-    echo "Migrations complete."
-fi
+echo "Running Alembic migrations..."
+uv run alembic upgrade head
 
+echo "Starting FastAPI application..."
 exec uv run "$@"

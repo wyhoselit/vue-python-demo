@@ -78,6 +78,8 @@ To run the backend service locally:
 ## Endpoints
 
 -   **`GET /health`**: Returns `{"status": "ok"}`.
+-   **`GET /api/v1/users`**: List all users.
+-   **`GET /api/v1/users/me`**: Get current user details.
 
 ## Testing
 

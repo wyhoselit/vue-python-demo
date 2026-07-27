@@ -23,7 +23,8 @@ export interface AuthError {
 export const login = async (credentials: LoginCredentials): Promise<User> => {
   try {
     const response = await api.post('/api/v1/auth/login', credentials)
-    return response.data
+    const userResponse = await api.get('/api/v1/users/me')
+    return userResponse.data
   } catch (error: any) {
     console.error('Service Login Error:', error)
     if (error.response && error.response.data) {

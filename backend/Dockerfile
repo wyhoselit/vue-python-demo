@@ -20,4 +20,5 @@ COPY pytest.ini .
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-CMD ["/usr/local/bin/docker-entrypoint.sh", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
