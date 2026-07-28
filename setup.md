@@ -63,3 +63,10 @@ npx agentic-awesome-skill
 npx agentic-awesome-skills --path .agents/skills --category development,backend --risk safe,none
 
 ```
+
+### OpenSpec
+https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md
+```bash
+openspec config profile
+openspec update
+```
