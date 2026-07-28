@@ -1,3 +1,26 @@
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import { useThemeStore } from '@/stores/theme'
+import { useDisplay } from 'vuetify'
+import { useAuthStore } from '@/stores/auth'
+
+const drawer = ref(false)
+const themeStore = useThemeStore()
+const authStore = useAuthStore()
+const { isDark } = themeStore
+const { smAndDown } = useDisplay()
+const isDesktop = computed(() => !smAndDown.value)
+const isAdmin = computed(() => authStore.user?.roles.includes('admin'))
+
+const toggleTheme = () => {
+  themeStore.toggleTheme()
+}
+
+watch(smAndDown, (value) => {
+  if (!value) drawer.value = false
+})
+</script>
+
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
@@ -19,6 +42,9 @@
         <v-list-item to="/">
           <v-list-item-title>Dashboard</v-list-item-title>
         </v-list-item>
+        <v-list-item v-if="isAdmin" to="/admin">
+          <v-list-item-title>Admin Status</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -26,6 +52,9 @@
       <v-list>
         <v-list-item to="/">
           <v-list-item-title>Dashboard</v-list-item-title>
+        </v-list-item>
+        <v-list-item v-if="isAdmin" to="/admin">
+          <v-list-item-title>Admin Status</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-side-navigation-drawer>
@@ -35,26 +64,6 @@
     </v-main>
   </v-app>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useThemeStore } from '@/stores/theme'
-import { useDisplay } from 'vuetify'
-
-const drawer = ref(false)
-const themeStore = useThemeStore()
-const { isDark } = themeStore
-const { smAndDown } = useDisplay()
-const isDesktop = computed(() => !smAndDown.value)
-
-const toggleTheme = () => {
-  themeStore.toggleTheme()
-}
-
-watch(smAndDown, (value) => {
-  if (!value) drawer.value = false
-})
-</script>
 
 <style scoped>
 .v-side-navigation-drawer {

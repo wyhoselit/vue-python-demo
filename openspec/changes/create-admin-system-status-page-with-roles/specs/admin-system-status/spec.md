@@ -1,3 +1,6 @@
+## Purpose
+To define the requirements for the Admin System Status and Log Retrieval functionality, ensuring secure and efficient system monitoring for administrators.
+
 ## ADDED Requirements
 
 ### Requirement: System status API

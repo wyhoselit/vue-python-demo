@@ -22,6 +22,12 @@ def session_fixture():
     with TestingSessionLocal() as session:
         yield session
 
+@pytest.fixture(name="db")
+def db_fixture(session):
+    yield session
+
+
+
 
 @pytest.fixture(name="client")
 def client_fixture(session):

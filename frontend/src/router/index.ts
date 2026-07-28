@@ -19,6 +19,12 @@ const routes = [
     name: 'Register',
     component: () => import('@/views/RegistrationForm.vue'),
     meta: { layout: 'auth' }
+  },
+  {
+    path: '/admin',
+    name: 'AdminStatus',
+    component: () => import('@/views/AdminStatus.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]
 
@@ -31,6 +37,8 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
+  } else if (to.meta.requiresAdmin && (!authStore.user || !authStore.user.roles.includes('admin'))) {
+    next('/')
   } else {
     next()
   }

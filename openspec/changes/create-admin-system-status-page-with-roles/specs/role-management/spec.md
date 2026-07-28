@@ -1,3 +1,6 @@
+## Purpose
+To define the requirements for Role-Based Access Control (RBAC) in the admin system, ensuring proper authorization for system monitoring and administrative functions.
+
 ## ADDED Requirements
 
 ### Requirement: Admin role definition

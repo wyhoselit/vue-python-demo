@@ -5,39 +5,35 @@ from app.models.user import User
 from app.core.security import verify_token
 from pydantic import BaseModel
 from typing import List
+from app.api.v1.deps import get_admin_user, get_current_user
 
 router = APIRouter()
 
 class UserOut(BaseModel):
     id: int
     email: str
+    roles: List[str] = []
 
-def get_current_user(request: Request, db: Session = Depends(get_db)):
-    token = request.cookies.get("access_token")
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
-        )
-    payload = verify_token(token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )
-    user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == int(user_id)).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-    return user
+    class Config:
+        from_attributes = True
 
 @router.get("/me", response_model=UserOut)
 def get_me(user: User = Depends(get_current_user)):
-    return user
+    user_data = UserOut(
+        id=user.id,
+        email=user.email,
+        roles=[role.name for role in user.roles]
+    )
+    return user_data
 
 @router.get("", response_model=List[UserOut])
-def get_users(db: Session = Depends(get_db)):
-    return db.query(User).all()
+def get_users(db: Session = Depends(get_db), admin: User = Depends(get_admin_user)):
+    users = db.query(User).all()
+    return [
+        UserOut(
+            id=user.id,
+            email=user.email,
+            roles=[role.name for role in user.roles]
+        )
+        for user in users
+    ]

@@ -2,8 +2,32 @@ import pytest
 from starlette.testclient import TestClient
 import logging
 
-def test_users_list(client: TestClient):
-    # Create test users first
+def test_users_list(client: TestClient, db):
+    from app.models.role import Role
+    from app.models.user import User
+    from app.core.security import hash_password
+    
+    admin_role = Role(name="admin")
+    db.add(admin_role)
+    db.commit()
+    
+    admin_user = User(
+        email="admin@example.com",
+        hashed_password=hash_password("admin123")
+    )
+    db.add(admin_user)
+    db.commit()
+    
+    admin_user.roles.append(admin_role)
+    db.commit()
+    
+    login_response = client.post(
+        "/api/v1/auth/login",
+        json={"email": "admin@example.com", "password": "admin123"}
+    )
+    access_token = login_response.cookies.get("access_token")
+    client.cookies.set("access_token", access_token)
+    
     client.post("/api/v1/auth/register", json={"email": "alice@example.com", "password": "password123"})
     client.post("/api/v1/auth/register", json={"email": "bob@example.com", "password": "password123"})
     

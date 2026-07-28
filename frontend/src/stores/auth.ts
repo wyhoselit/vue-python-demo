@@ -5,6 +5,7 @@ import * as authService from '../services/auth'
 export interface User {
   id: number
   email: string
+  roles: string[]
 }
 
 export const useAuthStore = defineStore('auth', () => {
