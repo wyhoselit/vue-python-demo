@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.api.v1.deps import get_admin_user
-from app.models.user import User
+from app.models.users.user import User
 import logging
 
 router = APIRouter()

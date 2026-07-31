@@ -1032,3 +1032,132 @@ login fixed.
 - UI 清楚適合除錯
 - 先產生 proposal、design、tasks 讓我確認
 ```
+
+
+```
+/opsx:propose restructure-to-module-architecture
+
+把目前專案調整為「業務功能 module」目錄架構，包含前端、後端與測試（testcase）三者對齊。
+
+技術棧：
+- Frontend: Vue
+- Backend: Python
+
+════════════════════════════════════
+一、目標目錄結構
+════════════════════════════════════
+
+【Frontend】
+frontend/src/
+├── modules/
+│   ├── admin/
+│   │   ├── components/
+│   │   ├── views/
+│   │   ├── api/
+│   │   ├── stores/ 或 composables/
+│   │   ├── types/
+│   │   └── index.ts
+│   ├── user/
+│   ├── system/
+│   ├── dashboard/
+│   └── [其他現有業務 module]/
+├── shared/                    # 僅真正跨模組共用
+└── router/
+
+【Backend】
+backend/app/                   # 若實際路徑不同請先掃描確認
+├── modules/
+│   ├── admin/
+│   │   ├── api/
+│   │   ├── services/
+│   │   ├── models/ 或 schemas/
+│   │   └── __init__.py
+│   ├── user/
+│   ├── system/
+│   ├── dashboard/
+│   └── [其他現有業務 module]/
+├── shared/
+└── core/
+
+【Testcase — 必須與業務 module 對齊】
+測試目錄同樣以業務 module 劃分，禁止全部測項堆在單一 tests/ 扁平結構。
+
+Frontend 測試（依專案慣例擇一，優先與現況一致）：
+frontend/
+├── tests/  或  frontend/src/modules/... 旁的 __tests__/
+│   ├── modules/
+│   │   ├── admin/
+│   │   │   ├── components/     # 元件測試
+│   │   │   ├── views/          # 頁面測試
+│   │   │   └── ...
+│   │   ├── user/
+│   │   ├── system/
+│   │   ├── dashboard/
+│   │   └── ...
+│   └── shared/                 # 僅 shared 的測試
+
+Backend 測試：
+backend/
+├── tests/
+│   ├── modules/
+│   │   ├── admin/
+│   │   │   ├── test_api.py     # 或依檔案對應拆分
+│   │   │   ├── test_services.py
+│   │   │   └── ...
+│   │   ├── user/
+│   │   ├── system/
+│   │   ├── dashboard/
+│   │   └── ...
+│   ├── shared/
+│   └── conftest.py             # 全域 fixture（真正跨模組才放這）
+
+原則：
+- 某個業務的單元 / 整合測試 → 必須放在對應 modules/<業務名>/ 下
+- 跨模組或全域 fixture → 才放 tests/shared/ 或根 conftest
+- 前後端、測試三者的 module 名稱必須一致（admin / user / system / dashboard…）
+
+════════════════════════════════════
+二、強制規則
+════════════════════════════════════
+
+1. 新增/修改功能時，先判定業務 module，再放到對應目錄（含測試）。
+2. 程式碼路徑必須落在：
+   - frontend/src/modules/<module-name>/
+   - backend/app/modules/<module-name>/
+   - 對應的 tests/.../modules/<module-name>/
+   - 或 shared/（僅限真正跨模組）
+3. 禁止依技術層扁平堆疊（全部 api、全部 components、全部 test 混在一起）。
+4. 前後端與 test 的 module 名稱必須一致。
+5. 搬移現有檔案時：只做結構重構與路徑/import 修正，不改業務邏輯。
+6. 現有測試必須一併搬到對應 module 測試目錄，並修正 import，確保測試仍可執行。
+
+════════════════════════════════════
+三、本次 Change 要做的事
+════════════════════════════════════
+
+1. 先掃描現有 frontend、backend、tests 目錄，整理「目前有哪些功能、檔案與測試大致落在哪」。
+2. 依業務（admin / user / system / dashboard 等）規劃：
+   - 每個原始檔案應搬到哪個 module
+   - 每個現有 testcase 應搬到哪個 module 測試目錄
+3. 只把真正跨多個業務共用的程式與測試放進 shared/。
+4. 搬移後必須更新所有 import / 引用路徑（含測試內的 import），確保應用與測試都能跑。
+5. 在 openspec 寫入完整架構規範：
+   - project.md
+   - AGENTS.md
+   - specs/architecture/spec.md
+   規範中必須包含「程式碼 + 測試」皆依 module 對齊的規則。
+6. design.md 與 tasks.md 必須列出：
+   - 現況 vs 目標路徑對照表（含 test 檔）
+   - 搬移步驟（建議分：前端 → 後端 → 測試，或按 module 分批）
+   - import / 測試路徑更新範圍
+7. 不要改業務邏輯與測試斷言內容，只做目錄與引用重構。
+
+════════════════════════════════════
+四、產出要求
+════════════════════════════════════
+
+- proposal.md：說明為何要 module 化（含測試對齊），範圍與非目標
+- design.md：前後端 + 測試的目標結構、搬移對照表、風險
+- tasks.md：可勾選的具體步驟（含「搬測試」「跑測試驗證」）
+- delta specs：更新 architecture 相關規格，明確寫入 testcase 目錄規則
+```

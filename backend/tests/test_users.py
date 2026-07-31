@@ -3,8 +3,8 @@ from starlette.testclient import TestClient
 import logging
 
 def test_users_list(client: TestClient, db):
-    from app.models.role import Role
-    from app.models.user import User
+    from app.models.admin.role.role import Role
+    from app.models.users.user import User
     from app.core.security import hash_password
     
     admin_role = Role(name="admin")

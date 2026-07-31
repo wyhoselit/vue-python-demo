@@ -1,7 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import axios from 'axios'
 
-vi.mock('axios')
+vi.mock('axios', () => ({
+  default: {
+    create: vi.fn(() => ({
+      get: vi.fn(),
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() }
+      }
+    }))
+  }
+}))
 
 describe('API Service', () => {
   beforeEach(() => {
@@ -11,7 +21,13 @@ describe('API Service', () => {
 
   it('healthCheck returns status ok', async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: { status: 'ok' } })
-    ;(axios.create as unknown as { mockReturnValue: (val: { get: ReturnType<typeof vi.fn> }) => void }).mockReturnValue({ get: mockGet })
+    ;(axios.create as ReturnType<typeof vi.fn>).mockReturnValue({
+      get: mockGet,
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() }
+      }
+    })
 
     const { healthCheck } = await import('../../services/api')
     const result = await healthCheck()
@@ -21,7 +37,13 @@ describe('API Service', () => {
 
   it('getApiHealth returns status ok', async () => {
     const mockGet = vi.fn().mockResolvedValue({ data: { status: 'ok' } })
-    ;(axios.create as unknown as { mockReturnValue: (val: { get: ReturnType<typeof vi.fn> }) => void }).mockReturnValue({ get: mockGet })
+    ;(axios.create as ReturnType<typeof vi.fn>).mockReturnValue({
+      get: mockGet,
+      interceptors: {
+        request: { use: vi.fn() },
+        response: { use: vi.fn() }
+      }
+    })
 
     const { getApiHealth } = await import('../../services/api')
     const result = await getApiHealth()

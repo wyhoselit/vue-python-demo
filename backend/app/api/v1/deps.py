@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from app.models.user import User
+from app.models.users.user import User
 from app.core.database import get_db
 from sqlalchemy.orm import Session
 from app.core.security import verify_token

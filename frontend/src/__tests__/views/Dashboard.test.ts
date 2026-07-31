@@ -97,6 +97,7 @@ describe('Dashboard', () => {
     })
 
     await flushPromises()
+    await new Promise(resolve => setTimeout(resolve, 50))
     await wrapper.vm.$nextTick()
 
     expect(wrapper.html()).toContain('載入失敗')
