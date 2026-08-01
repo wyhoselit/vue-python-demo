@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useApi } from '@/composables/useApi'
+import { useApi } from '@/shared/useApi'
 import axios from 'axios'
 
 vi.mock('axios')
@@ -42,7 +42,7 @@ describe('useApi Composable', () => {
     }
     mockedAxios.create.mockReturnValue(mockInstance)
 
-    const { useApi } = await import('@/composables/useApi')
+    const { useApi } = await import('@/shared/useApi')
     const api = useApi()
     const result = await api.get('/test')
     expect(mockGet).toHaveBeenCalledWith('/test')
@@ -60,7 +60,7 @@ describe('useApi Composable', () => {
     }
     mockedAxios.create.mockReturnValue(mockInstance)
 
-    const { useApi } = await import('@/composables/useApi')
+    const { useApi } = await import('@/shared/useApi')
     const api = useApi()
     const result = await api.post('/test', { name: 'test' })
     expect(mockPost).toHaveBeenCalledWith('/test', { name: 'test' })

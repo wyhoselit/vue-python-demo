@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints.admin.status import router as admin_router
-from app.api.v1.endpoints.admin.logs import router as logs_router
-from app.api.v1.endpoints.admin.tracing import router as tracing_router
-from app.api.v1.endpoints.auth.auth import router as auth_router
-from app.api.v1.endpoints.dashboard.dashboard import router as dashboard_router
-from app.api.v1.endpoints.health.health import router as health_router
-from app.api.v1.endpoints.users import router as users_router
+from app.modules.admin.api.status import router as admin_router
+from app.modules.admin.api.logs import router as logs_router
+from app.modules.admin.api.tracing import router as tracing_router
+from app.modules.user.api.auth.auth import router as auth_router
+from app.modules.dashboard.api.dashboard import router as dashboard_router
+from app.modules.system.api.health import router as health_router
+from app.modules.user.api.users import router as users_router
 
 api_router = APIRouter()
 

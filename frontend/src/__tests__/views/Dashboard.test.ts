@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import Dashboard from '@/views/Dashboard.vue'
+import Dashboard from '@/modules/dashboard/views/Dashboard.vue'
 import { createVuetify } from 'vuetify'
 import { createPinia } from 'pinia'
-import { useApi } from '@/composables/useApi'
+import * as useApiModule from '@/shared/useApi'
 
-vi.mock('@/composables/useApi')
+vi.mock('@/shared/useApi')
 
 const vuetify = createVuetify()
 
@@ -37,7 +37,7 @@ describe('Dashboard', () => {
     const statsPromise = new Promise((resolve) => { resolveStats = resolve })
     const usersPromise = new Promise((resolve) => { resolveUsers = resolve })
 
-    vi.mocked(useApi).mockReturnValue({
+    vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return statsPromise
         if (url === '/users') return usersPromise
@@ -63,7 +63,7 @@ describe('Dashboard', () => {
       { id: 2, name: 'Bob Smith', email: 'bob@example.com', status: 'active' },
     ]
 
-    vi.mocked(useApi).mockReturnValue({
+    vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return Promise.resolve(mockStats)
         if (url === '/users') return Promise.resolve(mockUsers)
@@ -88,7 +88,7 @@ describe('Dashboard', () => {
   })
 
   it('renders error state when API fails', async () => {
-    vi.mocked(useApi).mockReturnValue({
+    vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockRejectedValue(new Error('Network Error')),
     })
 
@@ -108,7 +108,7 @@ describe('Dashboard', () => {
     const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 }
     const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }]
 
-    vi.mocked(useApi).mockReturnValue({
+    vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return Promise.resolve(mockStats)
         if (url === '/users') return Promise.resolve(mockUsers)

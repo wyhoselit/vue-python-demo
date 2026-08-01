@@ -1,5 +1,4 @@
 import pytest
-from httpx import AsyncClient
 from starlette.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -15,7 +14,7 @@ test_engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
 
-@pytest.fixture(name="session")
+@pytest.fixture(name="session", scope="function")
 def session_fixture():
     Base.metadata.drop_all(bind=test_engine)
     Base.metadata.create_all(bind=test_engine)
@@ -29,7 +28,7 @@ def db_fixture(session):
 
 
 
-@pytest.fixture(name="client")
+@pytest.fixture(name="client", scope="function")
 def client_fixture(session):
     def get_session_override():
         return session

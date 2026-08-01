@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@/stores/auth'
-import * as authService from '@/services/auth'
 
-vi.mock('@/services/auth')
+import * as authService from '@/modules/user/services/auth'
+
+vi.mock('@/modules/user/services/auth')
 
 describe('Auth Store', () => {
   beforeEach(() => {

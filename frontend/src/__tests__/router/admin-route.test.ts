@@ -1,4 +1,5 @@
 import { setActivePinia, createPinia } from 'pinia'
+import apiService from '@/shared/api'
 import { useAuthStore } from '@/stores/auth'
 import router from '@/router'
 import { createMemoryHistory, createRouter } from 'vue-router'
@@ -24,6 +25,7 @@ describe('Router Guard - Admin Route Protection', () => {
 
   it('redirects to dashboard when authenticated but not admin', async () => {
     const authStore = useAuthStore()
+    authStore.isAuthenticated = true
     authStore.user = {
       id: 1,
       email: 'user@example.com',
@@ -37,6 +39,7 @@ describe('Router Guard - Admin Route Protection', () => {
 
   it('allows admin user to access admin route', async () => {
     const authStore = useAuthStore()
+    authStore.isAuthenticated = true
     authStore.user = {
       id: 1,
       email: 'admin@example.com',
@@ -50,6 +53,7 @@ describe('Router Guard - Admin Route Protection', () => {
 
   it('allows admin user with multiple roles to access admin route', async () => {
     const authStore = useAuthStore()
+    authStore.isAuthenticated = true
     authStore.user = {
       id: 1,
       email: 'admin@example.com',

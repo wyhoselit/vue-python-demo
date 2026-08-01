@@ -5,25 +5,25 @@ const routes = [
   {
     path: '/',
     name: 'Dashboard',
-    component: () => import('@/views/Dashboard.vue'),
+    component: () => import('@/modules/dashboard/views/Dashboard.vue'),
     meta: { requiresAuth: true }
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/LoginForm.vue'),
+    component: () => import('@/modules/user/views/LoginForm.vue'),
     meta: { layout: 'auth' }
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('@/views/RegistrationForm.vue'),
+    component: () => import('@/modules/user/views/RegistrationForm.vue'),
     meta: { layout: 'auth' }
   },
   {
     path: '/admin',
     name: 'AdminStatus',
-    component: () => import('@/views/AdminStatus.vue'),
+    component: () => import('@/modules/admin/views/AdminStatus.vue'),
     meta: { requiresAuth: true, requiresAdmin: true }
   }
 ]

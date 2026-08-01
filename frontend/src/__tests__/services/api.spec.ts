@@ -29,7 +29,7 @@ describe('API Service', () => {
       }
     })
 
-    const { healthCheck } = await import('../../services/api')
+    const { healthCheck } = await import('@/shared/api')
     const result = await healthCheck()
     expect(result).toEqual({ status: 'ok' })
     expect(mockGet).toHaveBeenCalledWith('/health')
@@ -45,7 +45,7 @@ describe('API Service', () => {
       }
     })
 
-    const { getApiHealth } = await import('../../services/api')
+    const { getApiHealth } = await import('@/shared/api')
     const result = await getApiHealth()
     expect(result).toEqual({ status: 'ok' })
     expect(mockGet).toHaveBeenCalledWith('/api/v1/health')

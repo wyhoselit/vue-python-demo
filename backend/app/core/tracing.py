@@ -2,9 +2,9 @@ import time
 import functools
 import logging
 from typing import Callable, Any
-from app.models.admin.trace.trace_configuration import TraceConfiguration
+from app.modules.admin.models.trace.trace_configuration import TraceConfiguration
 
-from app.models.admin.trace.trace_entry import TraceEntry
+from app.modules.admin.models.trace.trace_entry import TraceEntry
 from app.core.database import get_db
 
 logger = logging.getLogger(__name__)
