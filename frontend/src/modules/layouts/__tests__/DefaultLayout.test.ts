@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import DefaultLayout from '@/modules/layouts/DefaultLayout.vue'
 import { createVuetify } from 'vuetify'
 import { createPinia, setActivePinia } from 'pinia'
 

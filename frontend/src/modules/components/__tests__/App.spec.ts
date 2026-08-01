@@ -5,7 +5,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createPinia, setActivePinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '../../App.vue'
+import App from '@/App.vue'
 
 const vuetify = createVuetify({
   components,

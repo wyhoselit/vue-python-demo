@@ -190,7 +190,7 @@ App.vue must use the layout wrapper:
 </template>
 
 <script setup lang="ts">
-import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import DefaultLayout from '@/modules/layouts/DefaultLayout.vue'
 </script>
 ```
 
@@ -198,8 +198,8 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 ### Available Layouts
 
-| Layout | Purpose |
-|--------|---------|
+| Layout          | Purpose                                          |
+| --------------- | ------------------------------------------------ |
 | `DefaultLayout` | Main app with navigation drawer and theme toggle |
 
 ### Adding New Layouts
