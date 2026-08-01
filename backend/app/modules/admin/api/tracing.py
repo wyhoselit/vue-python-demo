@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.api.v1.deps import get_admin_user
-from app.core.database import get_db
+from app.modules.core.database import get_db
 from app.modules.admin.models.trace.trace_configuration import TraceConfiguration, get_tracing_config
 
 router = APIRouter()

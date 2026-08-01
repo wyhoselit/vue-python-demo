@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 from alembic import op
 import sqlalchemy as sa
-from app.core.security import hash_password
+from app.modules.core.security import hash_password
 
 def upgrade() -> None:
     # Seed roles

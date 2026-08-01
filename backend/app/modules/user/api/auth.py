@@ -1,10 +1,10 @@
 import logging
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
-from app.core.database import get_db
+from app.modules.core.database import get_db
 from app.modules.user.user import User
-from app.core.security import hash_password, verify_password, create_access_token
-from app.core.exceptions import EmailAlreadyExistsError, InvalidCredentialsError
+from app.modules.core.security import hash_password, verify_password, create_access_token
+from app.modules.core.exceptions import EmailAlreadyExistsError, InvalidCredentialsError
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

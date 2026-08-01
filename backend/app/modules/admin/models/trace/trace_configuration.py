@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, Session
-from app.core.database import Base
+from app.modules.core.database import Base
 
 class TraceConfiguration(Base):
     __tablename__ = "trace_configurations"

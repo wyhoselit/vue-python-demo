@@ -5,10 +5,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 
-from app.core.config import settings
-from app.core.logging import setup_logging
-from app.core.middleware import RequestIDMiddleware
-from app.core.exceptions import AuthException
+from app.modules.core.config import settings
+from app.modules.core.logging import setup_logging
+from app.modules.core.middleware import RequestIDMiddleware
+from app.modules.core.exceptions import AuthException
 from app.api.router import api_router
 
 # Initialize logging

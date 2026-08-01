@@ -1,7 +1,7 @@
 import pytest
 from datetime import timedelta
-from app.core.security import hash_password, verify_password, create_access_token, verify_token
-from app.core.config import settings
+from app.modules.core.security import hash_password, verify_password, create_access_token, verify_token
+from app.modules.core.config import settings
 
 
 class TestHashPassword:

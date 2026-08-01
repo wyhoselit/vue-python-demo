@@ -2,8 +2,8 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy import create_engine
 
-from app.core.database import engine, get_db, Base, SessionLocal
-from app.core.config import settings
+from app.modules.core.database import engine, get_db, Base, SessionLocal
+from app.modules.core.config import settings
 
 
 @pytest.fixture(scope="module")

@@ -2,7 +2,7 @@ import bcrypt
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
-from app.core.config import settings
+from app.modules.core.config import settings
 
 def hash_password(password: str) -> str:
     pwd_bytes = password.encode('utf-8')

@@ -14,7 +14,6 @@ RUN uv sync --frozen --no-install-project
 COPY alembic/ ./alembic/
 COPY alembic.ini .
 COPY app/ ./app/
-COPY tests/ ./tests/
 COPY pytest.ini .
 
 COPY docker-entrypoint.sh /usr/local/bin/

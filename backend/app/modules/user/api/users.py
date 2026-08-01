@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from app.core.database import get_db
+from app.modules.core.database import get_db
 from app.modules.user.user import User
-from app.core.security import verify_token
+from app.modules.core.security import verify_token
 from pydantic import BaseModel
 from typing import List
 from app.api.v1.deps import get_admin_user, get_current_user

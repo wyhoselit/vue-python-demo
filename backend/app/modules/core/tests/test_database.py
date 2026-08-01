@@ -1,5 +1,5 @@
 import pytest
-from app.core.database import get_db
+from app.modules.core.database import get_db
 
 def test_get_db():
     db_gen = get_db()

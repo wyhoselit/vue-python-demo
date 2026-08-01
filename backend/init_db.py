@@ -1,9 +1,9 @@
 import logging
 from sqlalchemy.orm import Session
-from app.core.database import SessionLocal, Base, engine
+from app.modules.core.database import SessionLocal, Base, engine
 from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
-from app.core.security import hash_password
+from app.modules.core.security import hash_password
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

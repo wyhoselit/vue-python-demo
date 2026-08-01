@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from app.core.tracing import trace_execution
+from app.modules.core.tracing import trace_execution
 
 
 class TestTraceExecution:
@@ -14,7 +14,7 @@ class TestTraceExecution:
         def get_db_generator():
             yield mock_db
     
-        with patch('app.core.tracing.get_db', return_value=get_db_generator()):
+        with patch('app.modules.core.tracing.get_db', return_value=get_db_generator()):
             async def dummy_func():
                 return "success"
     
@@ -41,7 +41,7 @@ class TestTraceExecution:
         def get_db_generator():
             yield mock_db
     
-        with patch('app.core.tracing.get_db', return_value=get_db_generator()):
+        with patch('app.modules.core.tracing.get_db', return_value=get_db_generator()):
             wrapper = trace_execution(dummy_func)
             result = await wrapper()
             assert result == "success"
@@ -61,7 +61,7 @@ class TestTraceExecution:
         def get_db_generator():
             yield mock_db
     
-        with patch('app.core.tracing.get_db', return_value=get_db_generator()):
+        with patch('app.modules.core.tracing.get_db', return_value=get_db_generator()):
             wrapper = trace_execution(dummy_func)
             result = await wrapper()
             assert result == "success"
@@ -79,8 +79,8 @@ class TestTraceExecution:
         def get_db_generator():
             yield mock_db
     
-        with patch('app.core.tracing.get_db', return_value=get_db_generator()):
-            with patch('app.core.tracing.time.perf_counter') as mock_time:
+        with patch('app.modules.core.tracing.get_db', return_value=get_db_generator()):
+            with patch('app.modules.core.tracing.time.perf_counter') as mock_time:
                 mock_time.side_effect = [0.0, 1.5]
     
                 async def dummy_func():

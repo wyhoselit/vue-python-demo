@@ -1,6 +1,6 @@
 import pytest
 import os
-from app.core.config import Settings, settings
+from app.modules.core.config import Settings, settings
 
 
 class TestSettings:

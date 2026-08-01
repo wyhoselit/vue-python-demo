@@ -1,9 +1,9 @@
 import pytest
 from starlette.testclient import TestClient
-from app.core.database import get_db
+from app.modules.core.database import get_db
 from app.modules.admin.models.role.role import Role
 from app.modules.user.user import User
-from app.core.security import hash_password
+from app.modules.core.security import hash_password
 
 def test_admin_system_info_unauthorized(client: TestClient):
     response = client.get("/api/v1/admin/system-info")

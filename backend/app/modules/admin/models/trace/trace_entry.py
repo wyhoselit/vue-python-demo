@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy.sql import func
-from app.core.database import Base
+from app.modules.core.database import Base
 
 class TraceEntry(Base):
     __tablename__ = "trace_entries"

@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from starlette.requests import Request
 from starlette.responses import Response
-from app.core.middleware import RequestIDMiddleware
+from app.modules.core.middleware import RequestIDMiddleware
 
 
 class TestRequestIDMiddleware:

@@ -5,7 +5,7 @@ import logging
 def test_users_list(client: TestClient, db):
     from app.modules.admin.models.role.role import Role
     from app.modules.user.user import User
-    from app.core.security import hash_password
+    from app.modules.core.security import hash_password
     
     admin_role = Role(name="admin")
     db.add(admin_role)

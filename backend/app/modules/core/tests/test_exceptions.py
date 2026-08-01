@@ -1,5 +1,5 @@
 import pytest
-from app.core.exceptions import (
+from app.modules.core.exceptions import (
     AuthException,
     EmailAlreadyExistsError,
     InvalidCredentialsError,

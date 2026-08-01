@@ -3,7 +3,7 @@ from starlette.testclient import TestClient
 from app.modules.admin.models.trace.trace_configuration import TraceConfiguration
 from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
-from app.core.security import hash_password
+from app.modules.core.security import hash_password
 
 class TestTracingAPI:
     @pytest.fixture

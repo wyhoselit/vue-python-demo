@@ -1,7 +1,7 @@
 import platform
 from fastapi import APIRouter, Depends
 from app.api.v1.deps import get_admin_user
-from app.core.database import get_db
+from app.modules.core.database import get_db
 from sqlalchemy.orm import Session
 
 router = APIRouter()

@@ -5,7 +5,7 @@ from typing import Callable, Any
 from app.modules.admin.models.trace.trace_configuration import TraceConfiguration
 
 from app.modules.admin.models.trace.trace_entry import TraceEntry
-from app.core.database import get_db
+from app.modules.core.database import get_db
 
 logger = logging.getLogger(__name__)
 

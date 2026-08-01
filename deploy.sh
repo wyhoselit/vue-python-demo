@@ -22,10 +22,7 @@ echo "frontend npm test" >> $logfile
 
 # (cd ${PROJECT_ROOT}; podman-compose down && cd ${PROJECT_ROOT}/frontend; npm run dev )
 
-echo "podman-compose down && podman-compose up -d --build" >> $logfile
-(cd ${PROJECT_ROOT}; podman-compose down && podman-compose up -d --build 2>&1 | tee -a "$logfile")
-echo "podman-compose ps" >> $logfile
-(cd ${PROJECT_ROOT}; podman-compose ps 2>&1 | tee -a "$logfile")
+
 
 echo "openspec list" >> $logfile
 (cd ${PROJECT_ROOT}; openspec list 2>&1 | tee -a "$logfile")
@@ -42,3 +39,9 @@ echo "openspec view" >> $logfile
 
 (cd ${PROJECT_ROOT}; podman logs --tail 50 demo_backend_1 2>&1 | tee -a "$logfile")
 (cd ${PROJECT_ROOT}; podman logs --tail 50 demo_frontend_1 2>&1 | tee -a "$logfile")
+
+
+echo "podman-compose down && podman-compose up -d --build" >> $logfile
+(cd ${PROJECT_ROOT}; podman-compose down && podman-compose up -d --build 2>&1 | tee -a "$logfile")
+echo "podman-compose ps" >> $logfile
+(cd ${PROJECT_ROOT}; podman-compose ps 2>&1 | tee -a "$logfile")

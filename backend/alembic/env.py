@@ -9,8 +9,8 @@ from alembic import context
 
 # Add the app directory to the system path to allow imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from app.core.config import settings
-from app.core.database import Base # Import your Base from database.py
+from app.modules.core.config import settings
+from app.modules.core.database import Base # Import your Base from database.py
 from app.modules.user.user import User # Import model for autogenerate
 
 
@@ -27,7 +27,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata # Use the Base from your app.core.database
+target_metadata = Base.metadata # Use the Base from your app.modules.core.database
 
 
 # other values from the config, defined by the needs of env.py,
