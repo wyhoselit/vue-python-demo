@@ -1,22 +1,26 @@
+import json
+import os
 from fastapi import APIRouter, Depends
 from app.api.v1.deps import get_admin_user
-from app.modules.user.user import User
-import logging
+from app.modules.core.config import settings
 
 router = APIRouter()
 
 @router.get("/logs")
-def get_logs(
-    admin: User = Depends(get_admin_user)
+def get_tracing_logs(
+    tail: int = 100,
+    admin=Depends(get_admin_user)
 ):
-    # Retrieve recent logs from the root logger's handlers.
-    # In a real app, read from a file or external log aggregator.
-    root_logger = logging.getLogger()
+    log_file_path = settings.LOG_FILE_PATH
     logs = []
-    for handler in root_logger.handlers:
-        if isinstance(handler, logging.FileHandler):
-            with open(handler.baseFilename, 'r') as f:
-                logs = f.readlines()[-100:]
-            break
-    
+    if os.path.exists(log_file_path):
+        with open(log_file_path, "r") as f:
+            # Read last lines, assume pythonjsonlogger format (one JSON per line)
+            all_lines = f.readlines()
+            for line in all_lines[-tail:]:
+                try:
+                    logs.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+            
     return {"logs": logs}

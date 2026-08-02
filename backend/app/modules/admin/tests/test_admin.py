@@ -5,10 +5,11 @@ from app.modules.admin.models.role.role import Role
 from app.modules.user.user import User
 from app.modules.core.security import hash_password
 
+# (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_admin.py::TestAdminAPI::test_admin_system_info_unauthorized)
 def test_admin_system_info_unauthorized(client: TestClient):
     response = client.get("/api/v1/admin/system-info")
     assert response.status_code == 401
-
+# (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_admin.py::TestAdminAPI::test_admin_system_info_forbidden)
 def test_admin_system_info_forbidden(client: TestClient):
     client.post("/api/v1/auth/register", json={"email": "user@example.com", "password": "password123"})
     login_response = client.post("/api/v1/auth/login", json={"email": "user@example.com", "password": "password123"})
@@ -17,7 +18,7 @@ def test_admin_system_info_forbidden(client: TestClient):
     
     response = client.get("/api/v1/admin/system-info")
     assert response.status_code == 403
-
+# (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_admin.py::TestAdminAPI::test_admin_system_info_success)
 def test_admin_system_info_success(client: TestClient, db):
     admin_role = Role(name="admin")
     db.add(admin_role)

@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     CORS_ORIGINS: str = "http://localhost:5173"
     API_V1_PREFIX: str = "/api/v1"
+    LOG_FILE_PATH: str = "app.log"
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra='ignore')
 

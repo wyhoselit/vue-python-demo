@@ -11,20 +11,18 @@ currentdate="$(date +"%Y-%m-%d.%H.%M")"
 logfile="${PROJECT_ROOT}/todo/check.$currentdate.log"    
 
 # openspec init --profile custom --tools all
-echo "backend pytest  uv run pytest -v " >> $logfile
+echo "backend (cd ${PROJECT_ROOT}/backend; uv run pytest -v)" >> $logfile
 (cd ${PROJECT_ROOT}/backend; uv run pytest -v 2>&1 | tee -a "$logfile")
 
 
-echo "frontend npm run build" >> $logfile
+echo "frontend (cd ${PROJECT_ROOT}/frontend; npm run build)" >> $logfile
 (cd ${PROJECT_ROOT}/frontend; npm run build 2>&1 | tee -a "$logfile")
-echo "frontend npm test" >> $logfile
+echo "frontend (cd ${PROJECT_ROOT}/frontend; npm test)" >> $logfile
 (cd ${PROJECT_ROOT}/frontend; npm test 2>&1 | tee -a "$logfile")
 
-# (cd ${PROJECT_ROOT}; podman-compose down && cd ${PROJECT_ROOT}/frontend; npm run dev )
 
 
-
-echo "openspec list" >> $logfile
+echo "(cd ${PROJECT_ROOT}; openspec list)" >> $logfile
 (cd ${PROJECT_ROOT}; openspec list 2>&1 | tee -a "$logfile")
 # openspec archive add-user-authentication-with-jwt-and-cookiesn
 # openspec archive fix-frontend-login-cookie 
@@ -34,14 +32,16 @@ echo "openspec list" >> $logfile
 # openspec archive fix-auto-migration-on-startup
 # openspec list
 
-echo "openspec view" >> $logfile
+echo "(cd ${PROJECT_ROOT}; openspec view)" >> $logfile
 (cd ${PROJECT_ROOT}; openspec view 2>&1 | tee -a "$logfile")
 
+echo "(cd ${PROJECT_ROOT}; podman logs --tail 50 demo_backend_1)" >> $logfile
 (cd ${PROJECT_ROOT}; podman logs --tail 50 demo_backend_1 2>&1 | tee -a "$logfile")
+echo "(cd ${PROJECT_ROOT}; podman logs --tail 50 demo_frontend_1)" >> $logfile
 (cd ${PROJECT_ROOT}; podman logs --tail 50 demo_frontend_1 2>&1 | tee -a "$logfile")
 
 
-echo "podman-compose down && podman-compose up -d --build" >> $logfile
+echo "(cd ${PROJECT_ROOT}; podman-compose down && podman-compose up -d --build)" >> $logfile
 (cd ${PROJECT_ROOT}; podman-compose down && podman-compose up -d --build 2>&1 | tee -a "$logfile")
-echo "podman-compose ps" >> $logfile
+echo "(cd ${PROJECT_ROOT}; podman-compose ps)" >> $logfile
 (cd ${PROJECT_ROOT}; podman-compose ps 2>&1 | tee -a "$logfile")

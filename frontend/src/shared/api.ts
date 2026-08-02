@@ -10,8 +10,8 @@ export const healthCheck = async () => {
   return response.data
 }
 
-export const getApiHealth = async () => {
-  const response = await api.get('/api/v1/health')
+export const getApiHealth = async (version: 'v1' | 'v2' = 'v1') => {
+  const response = await api.get(`/api/${version}/health`)
   return response.data
 }
 

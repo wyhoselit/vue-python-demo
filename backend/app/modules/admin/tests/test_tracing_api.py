@@ -5,6 +5,7 @@ from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
 from app.modules.core.security import hash_password
 
+# (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_tracing_api.py::TestTracingAPI)
 class TestTracingAPI:
     @pytest.fixture
     def admin_client(self, client: TestClient, db):
