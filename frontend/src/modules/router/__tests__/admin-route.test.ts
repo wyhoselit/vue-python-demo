@@ -46,9 +46,9 @@ describe('Router Guard - Admin Route Protection', () => {
       roles: ['admin']
     }
     
-    await router.push('/admin')
+    await router.push('/admin/info')
     
-    expect(router.currentRoute.value.name).toBe('AdminStatus')
+    expect(router.currentRoute.value.name).toBe('AdminInfo')
   })
 
   it('allows admin user with multiple roles to access admin route', async () => {
@@ -60,8 +60,8 @@ describe('Router Guard - Admin Route Protection', () => {
       roles: ['user', 'admin', 'moderator']
     }
     
-    await router.push('/admin')
+    await router.push('/admin/logs')
     
-    expect(router.currentRoute.value.name).toBe('AdminStatus')
+    expect(router.currentRoute.value.name).toBe('AdminLogs')
   })
 })

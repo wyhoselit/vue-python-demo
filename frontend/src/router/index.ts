@@ -22,9 +22,30 @@ const routes = [
   },
   {
     path: '/admin',
-    name: 'AdminStatus',
-    component: () => import('@/modules/admin/views/AdminStatus.vue'),
+    redirect: '/admin/info',
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/admin',
+    component: () => import('@/modules/admin/views/AdminLayout.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: 'info',
+        name: 'AdminInfo',
+        component: () => import('@/modules/admin/views/SystemInfo.vue')
+      },
+      {
+        path: 'logs',
+        name: 'AdminLogs',
+        component: () => import('@/modules/admin/views/LogsView.vue')
+      },
+      {
+        path: 'settings',
+        name: 'AdminSettings',
+        component: () => import('@/modules/admin/views/SettingsView.vue')
+      }
+    ]
   }
 ]
 
@@ -45,4 +66,3 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
-
