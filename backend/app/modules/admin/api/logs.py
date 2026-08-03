@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, Depends
 from app.api.v1.deps import get_admin_user
 from app.modules.core.config import settings
+from app.modules.admin.utils.redactor import redact_sensitive_data
 
 router = APIRouter()
 
@@ -22,5 +23,6 @@ def get_tracing_logs(
                     logs.append(json.loads(line))
                 except json.JSONDecodeError:
                     continue
-            
-    return {"logs": logs}
+    
+    return {"logs": redact_sensitive_data(logs)}
+

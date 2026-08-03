@@ -33,20 +33,16 @@ class TestLogsAPI:
         client.cookies.set("access_token", access_token)
         return client
 
-    def test_get_tracing_logs(self, admin_client, db):
+    def test_get_tracing_logs_redaction(self, admin_client, db):
         mock_log_lines = [
-            json.dumps({"timestamp": "2025-01-01T00:00:00", "level": "INFO", "message": "Tracing started"}),
-            json.dumps({"timestamp": "2025-01-01T00:01:00", "level": "DEBUG", "message": "Processing request"}),
+            json.dumps({"level": "INFO", "message": "Login", "password": "secret_password"}),
         ]
         mock_file_content = "\n".join(mock_log_lines)
         
         with patch("os.path.exists", return_value=True), \
              patch("builtins.open", mock_open(read_data=mock_file_content)):
-
-            response = admin_client.get("/api/v1/admin/logs")
             
+            response = admin_client.get("/api/v1/admin/logs")
             assert response.status_code == 200
-            assert "logs" in response.json()
-            assert len(response.json()["logs"]) == 2
-            assert response.json()["logs"][0]["level"] == "INFO"
-            assert response.json()["logs"][1]["message"] == "Processing request"
+            log = response.json()["logs"][0]
+            assert log["password"] == "[REDACTED]"

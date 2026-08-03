@@ -23,17 +23,24 @@ The backend service is a FastAPI application providing a RESTful API.
 
 ## Architecture
 
-The backend is structured as follows:
+The backend is structured as a modular application under `backend/app/modules/`:
 
 ```
 backend/
 ├── app/
 │   ├── main.py           # Main FastAPI application entry point
-│   ├── api/              # API routers and endpoints
-│   │   ├── v1/
-│   │   │   └── endpoints/ # Versioned API endpoints
-│   │   └── router.py
-│   └── core/             # Core configuration and database
+│   ├── api/              # API routing and versioning
+│   │   ├── v1/           # API v1 endpoints (legacy)
+│   │   ├── v2/           # API v2 endpoints (current)
+│   │   └── version_router.py
+│   │   └── versioning.py
+│   ├── modules/          # Feature modules (see below)
+│   │   ├── admin/        # Admin API (logs, tracing, status)
+│   │   ├── core/         # Core functionality (config, database, security)
+│   │   ├── dashboard/    # Dashboard API
+│   │   ├── system/       # System health and configuration
+│   │   └── user/         # User management and authentication
+│   └── core/             # Legacy core module references
 │       ├── config.py     # Pydantic Settings configuration
 │       ├── database.py   # SQLAlchemy engine and session
 │       └── security.py
@@ -47,6 +54,19 @@ backend/
 ├── docker-entrypoint.sh  # Container entrypoint with migration support
 └── alembic/              # Database migrations
 ```
+
+### Modules Structure
+
+- **admin**: Admin-only endpoints for logs, tracing, and system status
+- **core**: Shared configuration, database, and security utilities
+- **dashboard**: Dashboard API for statistics and data
+- **system**: System settings service and configuration management
+- **user**: User authentication and profile management
+
+### System Module
+
+The system module centralizes application-wide configuration and settings storage. It replaces legacy feature-specific configuration tables (like tracing) with a unified `SystemSetting` model, providing a consistent service-based interface for settings management.
+
 
 ### Docker Entrypoint
 
@@ -75,11 +95,14 @@ To run the backend service locally:
     ```
     The backend will be accessible at `http://localhost:8000`.
 
-## Endpoints
+## API Versioning
 
--   **`GET /health`**: Returns `{"status": "ok"}`.
--   **`GET /api/v1/users`**: List all users.
--   **`GET /api/v1/users/me`**: Get current user details.
+The backend supports multi-version API routing via `backend/app/api/version_router.py`.
+
+- **v1**: Deprecated/legacy endpoints.
+- **v2**: Current active API.
+
+All versioning logic is centralized in `backend/app/api/versioning.py`.
 
 ## Testing
 

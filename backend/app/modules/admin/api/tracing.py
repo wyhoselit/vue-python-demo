@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from app.api.v1.deps import get_admin_user
 from app.modules.core.database import get_db
-from app.modules.admin.models.trace.trace_configuration import TraceConfiguration, get_tracing_config
+from app.modules.system.services.setting_service import get_setting, set_setting, delete_setting
 
 router = APIRouter()
 
@@ -11,21 +11,14 @@ def get_tracing_config_api(
     admin=Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
-    config = get_tracing_config(db)
-    return {"enabled": config.enabled if config else False}
+    value = get_setting(db, "tracing.admin")
+    return {"enabled": value.get("enabled", False) if value else False}
 
 @router.put("/config")
 def update_tracing_config(
-    enabled: bool,
+    enabled: bool = Query(...),
     admin=Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
-    config = get_tracing_config(db)
-    if not config:
-        config = TraceConfiguration(service_name="admin", enabled=enabled)
-        db.add(config)
-    else:
-        config.enabled = enabled
-    db.commit()
-    db.refresh(config)
-    return {"enabled": config.enabled}
+    set_setting(db, "tracing.admin", {"enabled": enabled})
+    return {"enabled": enabled}

@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from app.modules.core.config import settings
 from app.modules.core.database import Base # Import your Base from database.py
 from app.modules.user.user import User # Import model for autogenerate
+from app.modules.system.models.system_setting import SystemSetting
 
 
 # this is the Alembic Config object, which provides

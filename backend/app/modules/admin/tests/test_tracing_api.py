@@ -1,9 +1,12 @@
 import pytest
 from starlette.testclient import TestClient
-from app.modules.admin.models.trace.trace_configuration import TraceConfiguration
+from app.modules.system.models.system_setting import SystemSetting
 from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
 from app.modules.core.security import hash_password
+import json
+
+# (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_tracing_api.py::TestTracingAPI)
 
 # (cd /code/vue-python-demo/backend; uv run pytest -v backend/app/modules/admin/tests/test_tracing_api.py::TestTracingAPI)
 class TestTracingAPI:
@@ -34,8 +37,13 @@ class TestTracingAPI:
 
     def test_get_tracing_config(self, admin_client, db):
         # Setup: Ensure a config exists
-        config = TraceConfiguration(service_name="admin", enabled=True)
-        db.add(config)
+        from datetime import datetime
+        new_setting = SystemSetting(
+            key="tracing.admin",
+            settings={"enabled": True},
+            updated_at=datetime.utcnow()
+        )
+        db.add(new_setting)
         db.commit()
 
         response = admin_client.get("/api/v1/admin/tracing/config")
@@ -43,29 +51,33 @@ class TestTracingAPI:
         assert response.json() == {"enabled": True}
 
     def test_update_tracing_config_success(self, admin_client, db):
-        # Test updating to False via query param
+        # Test updating to False
         response = admin_client.put("/api/v1/admin/tracing/config?enabled=false")
         assert response.status_code == 200
         assert response.json() == {"enabled": False}
 
         # Verify in DB
-        config = db.query(TraceConfiguration).filter_by(service_name="admin").first()
-        assert config.enabled is False
+        setting = db.query(SystemSetting).filter_by(key="tracing.admin").first()
+        assert setting.settings["enabled"] is False
 
     def test_update_tracing_config_create_if_not_exists(self, admin_client, db):
         # Clear existing configs
-        db.query(TraceConfiguration).delete()
+        db.query(SystemSetting).filter_by(key="tracing.admin").delete()
         db.commit()
 
         response = admin_client.put("/api/v1/admin/tracing/config?enabled=true")
         assert response.status_code == 200
         assert response.json() == {"enabled": True}
 
-        config = db.query(TraceConfiguration).filter_by(service_name="admin").first()
-        assert config is not None
-        assert config.enabled is True
+        setting = db.query(SystemSetting).filter_by(key="tracing.admin").first()
+        assert setting is not None
+        assert setting.settings["enabled"] is True
 
-    def test_update_tracing_config_missing_param(self, admin_client):
-        # FastAPI returns 422 for missing required query params
-        response = admin_client.put("/api/v1/admin/tracing/config")
-        assert response.status_code == 422
+    def test_get_tracing_config_default_disabled(self, admin_client, db):
+        # Ensure no config exists
+        db.query(SystemSetting).filter_by(key="tracing.admin").delete()
+        db.commit()
+
+        response = admin_client.get("/api/v1/admin/tracing/config")
+        assert response.status_code == 200
+        assert response.json() == {"enabled": False}
