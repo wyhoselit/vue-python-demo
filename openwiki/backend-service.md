@@ -65,7 +65,10 @@ backend/
 
 ### System Module
 
-The system module centralizes application-wide configuration and settings storage. It replaces legacy feature-specific configuration tables (like tracing) with a unified `SystemSetting` model, providing a consistent service-based interface for settings management.
+The system module centralizes application-wide configuration and settings storage. It provides a consistent service-based interface (`SettingService`) for managing settings, replacing fragmented configuration tables (like tracing configuration) with a unified `SystemSetting` model.
+
+- **`SystemSetting` model**: Defines storage for system-wide configuration keys and values (`backend/app/modules/system/models/system_setting.py`).
+- **`SettingService`**: Implements CRUD and management logic for system settings (`backend/app/modules/system/services/setting_service.py`).
 
 
 ### Docker Entrypoint
