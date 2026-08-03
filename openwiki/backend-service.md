@@ -55,13 +55,14 @@ backend/
 └── alembic/              # Database migrations
 ```
 
-### Modules Structure
+### Admin Module
 
-- **admin**: Admin-only endpoints for logs, tracing, and system status
-- **core**: Shared configuration, database, and security utilities
-- **dashboard**: Dashboard API for statistics and data
-- **system**: System settings service and configuration management
-- **user**: User authentication and profile management
+The `admin` module provides administrative endpoints for managing system diagnostics, logging, and tracing configuration.
+
+- **Status Service**: Provides system information (`/system-info`).
+- **Log Service**: Provides access to application logs (`/logs`).
+- **Tracing Service**: Provides management of tracing configuration (`/tracing/config`).
+
 
 ### System Module
 
