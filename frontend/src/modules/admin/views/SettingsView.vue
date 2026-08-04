@@ -11,38 +11,60 @@
         </label>
         <p class="tracing-status">Current status: {{ tracingEnabled ? 'Enabled' : 'Disabled' }}</p>
       </div>
+      <div class="setting-item">
+        <label>
+          Logfile Path:
+          <input type="text" v-model="logfilePath" @change="updateLogfilePath" />
+        </label>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import api from '@/shared/api'
+import { getTracingConfig, updateTracingConfig } from '@/modules/admin/tracing-endpoints'
+import { getSystemConfig, updateSystemConfig } from '@/modules/admin/config-endpoints'
 
 const tracingEnabled = ref<boolean>(false)
+const logfilePath = ref<string>('')
 const loading = ref(true)
 const error = ref<string | null>(null)
 
 const toggleTracing = async () => {
   try {
-    const response = await api.put('/api/v1/admin/tracing/config', { enabled: tracingEnabled.value })
-    tracingEnabled.value = response.data.enabled
+    const data = await updateTracingConfig(tracingEnabled.value)
+    tracingEnabled.value = data.enabled
   } catch (e: any) {
     error.value = 'Failed to update tracing configuration'
   }
 }
 
+const updateLogfilePath = async () => {
+  try {
+    const data = await updateSystemConfig('system.logfile_path', { path: logfilePath.value })
+    logfilePath.value = data.path
+  } catch (e: any) {
+    error.value = 'Failed to update logfile path'
+  }
+}
+
 onMounted(async () => {
   try {
-    const response = await api.get('/api/v1/admin/tracing/config')
-    tracingEnabled.value = response.data.enabled
+    const [tracing, logfile] = await Promise.all([
+      getTracingConfig(),
+      getSystemConfig('system.logfile_path')
+    ])
+    tracingEnabled.value = tracing.enabled
+    logfilePath.value = logfile.path
   } catch (e: any) {
-    error.value = 'Failed to load tracing configuration'
+    error.value = 'Failed to load configuration'
   } finally {
     loading.value = false
   }
 })
 </script>
+
 
 <style scoped>
 .admin-settings {
