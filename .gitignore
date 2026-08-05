@@ -25,3 +25,6 @@ build/
 # Databases
 *.db
 test.db
+
+
+jobs/

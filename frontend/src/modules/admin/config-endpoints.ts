@@ -6,11 +6,11 @@ export const getSystemConfig = async (key: string) => {
 }
 
 export const updateSystemConfig = async (key: string, value: any) => {
-  const response = await api.put(`/api/v1/system/config/${key}`, value)
+  const response = await api.put(`/api/v1/system/config/${key}`, { value })
   return response.data
 }
 
-export const deleteSystemConfig = async (key: string) => {
-  const response = await api.delete(`/api/v1/system/config/${key}`)
+export const getAllConfig = async () => {
+  const response = await api.get('/api/v1/system/config/')
   return response.data
 }

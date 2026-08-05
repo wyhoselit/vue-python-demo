@@ -30,3 +30,7 @@ def delete_setting(db_session: Session, key: str) -> None:
     if setting:
         db_session.delete(setting)
         db_session.commit()
+
+def get_all_settings(db_session: Session) -> dict[str, Any]:
+    settings = db_session.query(SystemSetting).all()
+    return {s.key: s.settings for s in settings}

@@ -64,7 +64,16 @@ describe('Admin Endpoints - Config', () => {
 
     const result = await configEndpoints.updateSystemConfig('system.logfile_path', { path: '/tmp/new.log' })
 
-    expect(api.put).toHaveBeenCalledWith('/api/v1/system/config/system.logfile_path', { path: '/tmp/new.log' })
+    expect(api.put).toHaveBeenCalledWith('/api/v1/system/config/system.logfile_path', { value: { path: '/tmp/new.log' } })
     expect(result).toEqual({ path: '/tmp/new.log' })
+  })
+
+  it('getAllConfig calls correct endpoint', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { 'test.key': { value: 'v1' } } })
+
+    const result = await configEndpoints.getAllConfig()
+
+    expect(api.get).toHaveBeenCalledWith('/api/v1/system/config/')
+    expect(result).toEqual({ 'test.key': { value: 'v1' } })
   })
 })

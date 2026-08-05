@@ -1,14 +1,12 @@
 Proposal 1：建立專案基礎結構（最優先）
 
-
 /opsx:propose setup-project-skeleton
-
-
 
 **目標：**
 建立乾淨的 Monorepo 專案骨架，為 Vuetify + FastAPI 全端 Demo 打好基礎。
 
 **要做的事情：**
+
 1. 在 root 建立以下資料夾結構：
    - backend/
    - frontend/
@@ -35,12 +33,12 @@ Proposal 1：建立專案基礎結構（最優先）
 5. README.md 寫清楚啟動指令
 
 **要求：**
+
 - 使用 TypeScript（frontend）
 - 保持結構清晰、加上註解
 - 暫時不要加入複雜功能（Auth、資料庫等留到後面）
 
 請產生 proposal、design、tasks 文件，確認後再 apply。
-
 
 ## Proposal 2：Backend 核心設定（下一個做這個）
 
@@ -50,6 +48,7 @@ Proposal 1：建立專案基礎結構（最優先）
 在現有骨架基礎上，強化 Backend 成為企業級可維護結構。
 
 **目前狀態：**
+
 - 已存在基本的 FastAPI 專案（app/main.py 有 /health 端點）
 - 使用 Podman 運行
 
@@ -66,7 +65,7 @@ Proposal 1：建立專案基礎結構（最優先）
    - 把 health 端點移到 v1 底下，或保留 root
 
 3. **其他基礎**
-   - 中間件：CORS（允許 http://localhost:5173）
+   - 中間件：CORS（允許 <http://localhost:5173）>
    - 全局例外處理
    - `main.py` 乾淨整合所有模組
    - 更新 requirements.txt（加入 sqlalchemy, alembic, psycopg2-binary, python-jose[cryptography], passlib[bcrypt] 等）
@@ -75,6 +74,7 @@ Proposal 1：建立專案基礎結構（最優先）
    - 產生 alembic 目錄與基本 migration 配置
 
 **要求：**
+
 - 保持與現有結構完全相容
 - 所有新檔案加上清楚註解
 - 更新 README.md 的 Backend 部分
@@ -82,25 +82,24 @@ Proposal 1：建立專案基礎結構（最優先）
 
 請先生成 proposal、design、tasks 文件，供我審核後再 apply。
 
-
 ## 執行完 Proposal 2 後的建議
 
 執行 /opsx:apply
-
 
 Change: enhance-fastapi-backend
 Schema: spec-driven
 Progress: 22/22 tasks complete ✓
 Completed This Session
-- 1.1 Create backend/app/core/__init__.py
+
+- 1.1 Create backend/app/core/**init**.py
 - 1.2 Create backend/app/core/config.py with Pydantic Settings class
 - 1.3 Add pydantic-settings to backend/requirements.txt
 - 2.1 Create backend/app/core/database.py with SQLAlchemy engine setup
 - 2.2 Add database dependencies: sqlalchemy, psycopg2-binary to backend/requirements.txt
 - 2.3 Create backend/app/core/security.py with JWT stub
-- 3.1 Create backend/app/api/__init__.py
-- 3.2 Create backend/app/api/v1/__init__.py with APIRouter
-- 3.3 Create backend/app/api/v1/endpoints/__init__.py
+- 3.1 Create backend/app/api/**init**.py
+- 3.2 Create backend/app/api/v1/**init**.py with APIRouter
+- 3.3 Create backend/app/api/v1/endpoints/**init**.py
 - 3.4 Create backend/app/api/v1/endpoints/health.py with health endpoint
 - 4.1 Add CORS middleware configuration to main.py
 - 4.2 Add global exception handlers to main.py
@@ -116,31 +115,36 @@ Completed This Session
 - 6.6 Verify CORS headers present for localhost:5173
 All tasks complete! You can archive this change with /opsx-archive.
 
-
 立即驗證 Checklist（依序執行）
 請在終端機執行以下指令：
+
 1. 重啟 Backend（重要）
 Bash# 如果使用 podman-compose
 podman-compose down
 podman-compose up -d --build
 
 # 或直接用 uvicorn 開發模式測試
+
 cd backend
 uvicorn app.main:app --reload --port 8000
 
-2. 基本健康檢查
+1. 基本健康檢查
+
 ```Bash
 # Root health
 curl http://localhost:8000/health
 ```
 
 # v1 API health
-```
+
+```Bash
 curl http://localhost:8000/api/v1/health
 ```
 
 預期結果：兩個都回傳 {"status":"ok"}
-3. 驗證 CORS（最重要）
+
+1. 驗證 CORS（最重要）
+
 ```Bash
 curl -H "Origin: http://localhost:5173" \
      -H "Access-Control-Request-Method: GET" \
@@ -148,16 +152,20 @@ curl -H "Origin: http://localhost:5173" \
 ```
 
 檢查 Response Headers 中是否有：
-Access-Control-Allow-Origin: http://localhost:5173
+Access-Control-Allow-Origin: <http://localhost:5173>
 Access-Control-Allow-Methods: ...
 Access-Control-Allow-Headers: ...
 
-4. 檢查設定檔是否正確載入
+1. 檢查設定檔是否正確載入
+
 ```bash
 curl http://localhost:8000/api/v1/config/debug   # 如果有這個端點
 ```
+
 # 或直接看 l   ogs 是否有正確載入 DATABASE_URL 等設定
+
 1. 檢查資料庫連線（Alembic）
+
 ```bash
 # 進入正在運行的 backend 容器
 podman exec -it demo_backend_1 bash
@@ -199,6 +207,7 @@ alembic upgrade head     # 執行 migration（如果還沒跑）
 請先生成 proposal 和 design 讓我確認。
 
 ```
+
 /opsx-apply
 
 ```
@@ -226,13 +235,12 @@ podman-compose exec backend alembic upgrade head     # 執行 migration（如果
 1. Swagger 文件確認
 開啟瀏覽器訪問：
 
-http://localhost:8000/docs
-http://localhost:8000/redoc
+<http://localhost:8000/docs>
+<http://localhost:8000/redoc>
 
 應該能看到乾淨的 API 文件，且有 health 端點。
 
-/opsx-archive 
-
+/opsx-archive
 
 ## Proposal 3：加入測試框架與測試案例
 
@@ -290,7 +298,6 @@ npm install pinia 失敗，因為 Pinia 4.x 需要 typescript >= 5.6.0，但目�
 請直接修正，不要產生新功能。
 ```
 
-
 /opsx-apply
 
 Implementation Complete
@@ -298,6 +305,7 @@ Change: add-tests-for-all-features
 Schema: spec-driven
 Progress: 28/28 tasks complete ✓
 Completed This Session
+
 - Backend: pytest setup (conftest, test_config, test_database, test_api_health, test_api_cors, test_api_errors)
 - Frontend: Vitest setup with Vue Test Utils and happy-dom
 - Frontend tests:
@@ -320,7 +328,9 @@ cd frontend && npm run test
 ```
 
 ## 常見的 Vue + Docker 開發模式
+
 一般做法：
+
 - 前端測試在本機開發環境執行（npm run test）
 - Docker 只負責建置靜態檔案（npm run build）
 - CI/CD 流水線在測試階段執行測試
@@ -329,7 +339,9 @@ cd frontend && npm run test
 - 容器保持輕量，僅作為靜態檔案伺服器
 - 測試快速，不需要重建容器
 如果需要在容器內測試：
+
 # 新增測試階段到 Dockerfile
+
 FROM node:18-alpine AS test
 WORKDIR /app
 COPY package*.json ./
@@ -337,10 +349,6 @@ RUN npm ci
 COPY . .
 RUN npm run test
 但對於開發而言，本機測試已足夠。
-
-
-
-
 
 ## Proposal 4：Vuetify 前端專業化
 
@@ -389,7 +397,6 @@ RUN npm run test
 
 ```
 
-
 ```
 位置：openspec/changes/enhance-vuetify-frontend-with-tests/
 Artifacts 創建：
@@ -403,7 +410,6 @@ Artifacts 創建：
 - tasks.md - 9 大類別、41 個步驟的實作清單
 準備就緒：所有 artifacts 完成！
 ```
-
 
 ```
 /opsx:propose fix-frontend-build-and-test-issues
@@ -440,7 +446,8 @@ Artifacts 創建：
 ```
 
 修正內容：
-1. tsconfig.json - 排除 __tests__ 目錄，避免 vue-tsc 檢查測試檔案
+
+1. tsconfig.json - 排除 **tests** 目錄，避免 vue-tsc 檢查測試檔案
 2. vite.config.ts - 分離構建配置，移除測試相關 alias
 3. vitest.config.ts - 優化測試環境配置
 4. package.json - 新增 typecheck script，build 不再包含型別檢查
@@ -476,30 +483,35 @@ App.vue 還在使用舊的 Hello World 硬編碼，沒有正確使用 DefaultLay
 
 請先生成 proposal 和 tasks，修正後確認不會再出現同樣 Layout 未載入的錯誤。
 ```
+
 /opsx-apply fix-app-vue-layout-integration
 
-# note: there are issues with llm corrupted.
+# note: there are issues with llm corrupted
+
 cd /code/vue-python-demo/frontend; npm run build
 cd /code/vue-python-demo/frontend; rm -rf node_modules/.vite
 cd /code/vue-python-demo/frontend; npm run dev
 
 dev page already normal. but docker frantend still old one.
 
-
 # 1. 停止所有容器
+
 cd /code/vue-python-demo; podman-compose down
 
 # 2. 強制重建 frontend（最重要）
+
 cd /code/vue-python-demo; podman-compose build frontend --no-cache
 
 # 3. 重新啟動
+
 cd /code/vue-python-demo; podman-compose up -d
 
 # 4. 確認 frontend 容器是否使用新 build
+
 podman ps | grep demo
 
-
 /opsx-update
+
 ```
 變更 fix-app-vue-layout-integration 已修改 proposal、design、spec、tasks。  
 但流程違規：未逐項確認即寫入；且 App.vue 只渲染 <DefaultLayout />，router-view 在 DefaultLayout.vue:34。  
@@ -507,27 +519,28 @@ podman ps | grep demo
 ```
 
 /opsx-apply fix-app-vue-layout-integration
-```   
+
+```
 The fix-app-vue-layout-integration change is ready to be archived. Run /obsidian verify-done-claims next to finalize.
 Current status: changeName: fix-app-vue-layout-integration, all 12 tasks done, all planning artifacts finalized.
 ```
+
 cd /code/vue-python-demo; podman-compose down; podman-compose up -d
 
+## need to check all tasks completed
 
-## need to check all tasks completed 
 ```opencode
 /opsx-update 
 ```
-
 
 ```bash
 gitnexus analyze .
 gitnexus wiki .
 ```
+
 ```opencode
  /opsx:explore 根據 GitNexus 的結構分析，把功能整理成 OpenSpec specs
 ```
-
 
 ```bash
 openwiki --update
@@ -535,6 +548,7 @@ openwiki --update
 
 1. 固定工作流（推薦做成習慣）
 每次重要功能開發，都照這個順序：
+
 ```text
 1. gitnexus analyze .          ← 更新知識圖
 2. /opsx:propose ...           ← 寫 Proposal（可參考 GitNexus 結構）
@@ -545,8 +559,10 @@ openwiki --update
 7. openwiki --update           ← 更新 Agent Wiki
 8. 手動或用 AI 把重要變更同步回 OpenSpec specs
 ```
-2. 在 Proposal 裡強制加入品質檢查項目
+
+1. 在 Proposal 裡強制加入品質檢查項目
 之後每次寫 Proposal 時，固定加上這一段：
+
 ```Markdown
 **品質與架構確認（必須）：**
 1. 變更完成後執行 `gitnexus analyze .`，確認知識圖更新
@@ -556,11 +572,8 @@ openwiki --update
 5. 更新相關 OpenSpec specs，記錄新的資料流與依賴關係
 ```
 
-
-
-
-
 ## Dashboard 真實資料串接
+
 ```Markdown
 
 /opsx:propose enhance-dashboard-with-real-api-data
@@ -612,6 +625,7 @@ openwiki --update
 ```bash
 openspec view
 ```
+
 ```bash
 (cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
 
@@ -621,6 +635,7 @@ podman exec demo_backend_1 python -m pytest /app/tests/ -v 2>&1 | grep -E "(PASS
 ```
 
 ### 檢查點
+
 ```bash
 gitnexus analyze .
 gitnexus wiki .
@@ -669,14 +684,13 @@ openwiki --update
 | Authentication                     | ❌ 尚未   |
 | AI Model 管理                      | ❌ 尚未   |
 
-
-
 /opsx-propose add-user-authentication-with-jwt-and-cookies
 
 **目標：**
 為 vue-python-demo 實作完整的用戶註冊、登入、JWT 簽發與 HTTP-only Cookie 儲存流程。此變更必須確保系統的認證安全性與前後端資料流一致性，並同步更新所有相關文件與知識圖。更新功能使用Gitnexus確認影響範圍並更新所有相關文件。
 
 **目前狀態：**
+
 - Backend 具備資料庫與 Alembic 環境
 - Frontend 具備基礎 UI 框架與 Axios 用戶端
 - 已有 Layout / Dashboard 基礎架構
@@ -719,19 +733,22 @@ openwiki --update
    - 更新相關 OpenSpec specs（使用者生命週期、認證流程、API endpoint）
 
 **品質與架構確認（必須）：**
+
 - 確保 JWT Token 採用適當的簽發算法與過期時間
 - 密碼雜湊必須安全（避免明碼儲存）
 - 所有 API 請求加上 Authorization header（當使用者已登入）
 - 確保登入後的 UI 狀態正確反映已登入狀態
 
 請先產生 proposal、design、tasks。
+
 ```
 
 ```opencode
 /opsx-apply add-user-authentication-with-jwt-and-cookies 1. Backend Implement
 ```
 
-** continue to complete all tasks**
+**continue to complete all tasks**
+
 ```opencode
 continue
 ```
@@ -750,8 +767,8 @@ print(inspect(engine).get_table_names())
 "
 ```
 
-
 進入後使用：
+
 ```bash
 # 產生 User 資料表的 migration
 uv run alembic revision --autogenerate -m "create_users_table"
@@ -803,8 +820,6 @@ curl http://localhost:5173/register -v
   }
 ```
 
-
-
 ```opencode
 /opsx:propose fix-login-register-ref-and-404
 
@@ -848,11 +863,7 @@ curl http://localhost:5173/register -v
 (cd /code/vue-python-demo/; podman-compose down && podman-compose up -d --build)
 (cd /code/vue-python-demo/; podman-compose ps )
 
-
-
-
 ## fix-auto-migration-on-startup
-
 
 ```Markdown
 /opsx:propose fix-auto-migration-on-startup
@@ -899,6 +910,7 @@ curl http://localhost:5173/register -v
 **品質確認**
 - 確認不再需要手動進入容器跑 migration
 ```
+
 ```bash
 
 (cd /code/vue-python-demo/; podman-compose ps )
@@ -940,6 +952,7 @@ curl 'http://localhost:8000/api/v1/users/me' \
   -H 'Sec-Fetch-Site: same-site'
 
 ```
+
 ```
 此外，必須要在 frontend/src/services/api.ts 中啟用 withCredentials，否則瀏覽器不會帶上 cookie。
 ← Edit frontend/src/services/api.ts
@@ -954,6 +967,7 @@ export const healthCheck = async () => {
   const response = await api.get('/health')
 已修正。登入後自動帶 cookie 進行 /users/me 查詢。
 ```
+
 login fixed.
 
 ## 目前狀態總結
@@ -970,9 +984,7 @@ login fixed.
 | Admin page with roles              | ❌ 尚未   |
 | AI Model 管理                      | ❌ 尚未   |
 
-
 ### TODO
-
 
 ```Markdown
 /opsx-propose create-admin-system-status-page-with-roles
@@ -1032,7 +1044,6 @@ login fixed.
 - UI 清楚適合除錯
 - 先產生 proposal、design、tasks 讓我確認
 ```
-
 
 ```
 /opsx:propose restructure-to-module-architecture

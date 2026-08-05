@@ -4,17 +4,10 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
-      <div class="setting-item">
-        <label class="toggle-label">
-          <input type="checkbox" v-model="tracingEnabled" @change="toggleTracing" />
-          <span>Enable Tracing</span>
-        </label>
-        <p class="tracing-status">Current status: {{ tracingEnabled ? 'Enabled' : 'Disabled' }}</p>
-      </div>
-      <div class="setting-item">
+      <div class="setting-item" v-for="(setting, key) in settings" :key="key">
         <label>
-          Logfile Path:
-          <input type="text" v-model="logfilePath" @change="updateLogfilePath" />
+          <span class="setting-key">{{ key }}</span>
+          <SettingControl :setting="{ ...setting, key }" @update="updateSetting" />
         </label>
       </div>
     </div>
@@ -23,48 +16,44 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getTracingConfig, updateTracingConfig } from '@/modules/admin/tracing-endpoints'
-import { getSystemConfig, updateSystemConfig } from '@/modules/admin/config-endpoints'
+import { getAllConfig, updateSystemConfig } from '@/modules/admin/config-endpoints'
+import SettingControl from '../components/SettingControl.vue'
 
-const tracingEnabled = ref<boolean>(false)
-const logfilePath = ref<string>('')
+interface Setting {
+  type: 'string' | 'boolean' | 'number' | 'object'
+  value: any
+}
+
+const settings = ref<Record<string, Setting>>({})
 const loading = ref(true)
 const error = ref<string | null>(null)
 
-const toggleTracing = async () => {
+const updateSetting = async (key: string, value: any) => {
   try {
-    const data = await updateTracingConfig(tracingEnabled.value)
-    tracingEnabled.value = data.enabled
+    await updateSystemConfig(key, value)
+    settings.value[key].value = value
   } catch (e: any) {
-    error.value = 'Failed to update tracing configuration'
+    error.value = `Failed to update ${key}: ${e.message}`
   }
 }
 
-const updateLogfilePath = async () => {
+const loadSettings = async () => {
   try {
-    const data = await updateSystemConfig('system.logfile_path', { path: logfilePath.value })
-    logfilePath.value = data.path
-  } catch (e: any) {
-    error.value = 'Failed to update logfile path'
-  }
-}
-
-onMounted(async () => {
-  try {
-    const [tracing, logfile] = await Promise.all([
-      getTracingConfig(),
-      getSystemConfig('system.logfile_path')
-    ])
-    tracingEnabled.value = tracing.enabled
-    logfilePath.value = logfile.path
+    const data = await getAllConfig()
+    const parsed: Record<string, Setting> = {}
+    for (const [key, item] of Object.entries(data)) {
+      parsed[key] = item as Setting
+    }
+    settings.value = parsed
   } catch (e: any) {
     error.value = 'Failed to load configuration'
   } finally {
     loading.value = false
   }
-})
-</script>
+}
 
+onMounted(loadSettings)
+</script>
 
 <style scoped>
 .admin-settings {
@@ -80,16 +69,38 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
-.toggle-label {
+.setting-key {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.setting-control {
   display: flex;
   align-items: center;
   gap: 10px;
-  cursor: pointer;
 }
 
-.tracing-status {
-  margin-top: 5px;
-  font-size: 0.9em;
-  color: #666;
+.setting-control input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.setting-control input[type="text"],
+.setting-control input[type="number"],
+.setting-control textarea {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+}
+
+.setting-control textarea {
+  min-height: 80px;
+  resize: vertical;
+  font-family: monospace;
 }
 </style>

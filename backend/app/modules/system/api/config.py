@@ -1,14 +1,22 @@
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, HTTPException
 from sqlalchemy.orm import Session
 from app.api.v1.deps import get_admin_user
 from app.modules.core.database import get_db
-from app.modules.system.services.setting_service import get_setting, set_setting, sync_token_to_file
+from app.modules.system.services.setting_service import get_setting, set_setting, sync_token_to_file, get_all_settings
+from app.modules.system.models.system_setting import SystemSetting
 from typing import Any
 import os
 
 TOKEN_FILE = ".token"
 
 router = APIRouter()
+
+@router.get("/")
+def get_all_configs(
+    admin=Depends(get_admin_user),
+    db: Session = Depends(get_db)
+):
+    return get_all_settings(db)
 
 @router.get("/{key}")
 def get_config(
@@ -39,10 +47,19 @@ def get_config(
 @router.put("/{key}")
 def update_config(
     key: str,
-    value: dict = Body(...),
+    payload: dict = Body(...),
     admin=Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
+    if "value" not in payload:
+        raise HTTPException(status_code=422, detail="Value is required in payload")
+    
+    value = payload["value"]
+        
+    setting = db.query(SystemSetting).filter(SystemSetting.key == key).first()
+    if not setting:
+        raise HTTPException(status_code=404, detail="Setting not found")
+        
     set_setting(db, key, value)
     
     # Sync token to file if writing default bearer token
