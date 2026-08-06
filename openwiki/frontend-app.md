@@ -32,11 +32,11 @@ frontend/
 ├── public/                 # Static assets
 ├── src/
 │   ├── assets/             # Images, icons, etc.
-│   ├── components/         # Reusable Vue components
-│   ├── plugins/            # Vue plugins (e.g., Vuetify)
-│   ├── router/             # Vue Router configuration
-│   ├── services/           # API service clients
-│   ├── stores/             # Pinia state management
+│   ├── modules/          # Feature modules
+│   │   ├── admin/        # Admin functionality
+│   │   ├── ai/           # AI Chat and LLM integration
+│   │   ├── layouts/      # Application layouts
+│   │   └── user/         # User auth and profiles
 │   ├── __tests__/          # Vitest test suite
 │   │   ├── setup.ts        # Test setup and mocks
 │   │   ├── components/     # Component tests

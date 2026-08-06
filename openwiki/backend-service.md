@@ -36,6 +36,7 @@ backend/
 │   │   └── versioning.py
 │   ├── modules/          # Feature modules (see below)
 │   │   ├── admin/        # Admin API (logs, tracing, status)
+│   │   ├── ai/           # AI/Large Language Model integration
 │   │   ├── core/         # Core functionality (config, database, security)
 │   │   ├── dashboard/    # Dashboard API
 │   │   ├── system/       # System health and configuration
@@ -71,6 +72,16 @@ The system module centralizes application-wide configuration and settings storag
 - **`SystemSetting` model**: Defines storage for system-wide configuration keys and values (`backend/app/modules/system/models/system_setting.py`).
 - **`SettingService`**: Implements CRUD and management logic for system settings (`backend/app/modules/system/services/setting_service.py`).
 
+
+### AI Module
+
+The AI module manages integration with Large Language Models (LLMs) and vector search capabilities. It includes model management, prompt orchestration, and system rate-limiting for LLM requests.
+
+- **Model Registry**: Maps model names to LLM configurations (`backend/app/modules/ai/models/model_registry.py`).
+- **LLM Service**: Handles interfacing with language models (`backend/app/modules/ai/services/llm_service.py`).
+- **Vector Service**: Provides embedding and vector search (`backend/app/modules/ai/services/vector_service.py`).
+- **API Endpoints**: Chat endpoints for AI interaction (`backend/app/modules/ai/api/chat.py`).
+- **Rate Limiting Middleware**: Throttles requests to LLMs (`backend/app/modules/ai/rate_limiting.py`).
 
 ### Docker Entrypoint
 
