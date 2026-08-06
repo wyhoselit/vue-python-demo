@@ -8,6 +8,8 @@ from fastapi.exceptions import HTTPException
 from app.modules.core.config import settings
 from app.modules.core.logging import setup_logging
 from app.modules.core.middleware import RequestIDMiddleware
+from app.modules.ai.middleware import CostTrackingMiddleware
+from app.modules.ai.rate_limiting import RateLimitingMiddleware
 from app.modules.core.exceptions import AuthException
 from app.api.router import api_router
 
@@ -27,6 +29,8 @@ app = FastAPI(
 
 # Add Request ID middleware (must be first to capture request ID)
 app.add_middleware(RequestIDMiddleware)
+app.add_middleware(CostTrackingMiddleware)
+app.add_middleware(RateLimitingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

@@ -70,11 +70,11 @@ const password = ref('')
 
 const onSubmit = async () => {
   try {
-    await authStore.login({
+    const redirectPath = await authStore.login({
       email: email.value,
       password: password.value
     })
-    router.push('/dashboard')
+    router.push(redirectPath || '/')
   } catch (e) {
     // Error is handled in authStore
   }

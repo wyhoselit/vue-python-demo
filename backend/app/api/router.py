@@ -8,6 +8,7 @@ from app.modules.admin.api.status import router as admin_status_router
 from app.modules.admin.api.logs import router as admin_logs_router
 from app.modules.dashboard.api.dashboard import router as dashboard_router
 from app.modules.user.api.users import router as user_router
+from app.modules.ai.api import router as ai_router
 
 api_router = APIRouter()
 
@@ -23,6 +24,8 @@ v1_router.include_router(admin_status_router, prefix="/admin", tags=["admin"])
 v1_router.include_router(admin_logs_router, prefix="/admin", tags=["admin"])
 v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 v1_router.include_router(user_router, prefix="/users", tags=["users"])
+v1_router.include_router(ai_router, prefix="/ai", tags=["ai"])
+v2_router.include_router(ai_router, prefix="/ai", tags=["ai"])
 
 # v2 routes
 v2_router.include_router(health_router, prefix="/health", tags=["health"])

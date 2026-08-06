@@ -23,6 +23,8 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       await authService.login(credentials)
       user.value = await authService.getCurrentUser()
+      // Redirect to chat page after successful login
+      return '/chat'
     } catch (e: any) {
       console.error('Auth error:', e)
       error.value = e.detail || 'Login failed'

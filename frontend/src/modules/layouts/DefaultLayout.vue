@@ -42,6 +42,9 @@ watch(smAndDown, (value) => {
         <v-list-item to="/">
           <v-list-item-title>Dashboard</v-list-item-title>
         </v-list-item>
+        <v-list-item to="/chat">
+          <v-list-item-title>Chat</v-list-item-title>
+        </v-list-item>
         <v-list-item v-if="isAdmin" to="/admin">
           <v-list-item-title>Admin Status</v-list-item-title>
         </v-list-item>
@@ -52,6 +55,9 @@ watch(smAndDown, (value) => {
       <v-list>
         <v-list-item to="/">
           <v-list-item-title>Dashboard</v-list-item-title>
+        </v-list-item>
+        <v-list-item to="/chat">
+          <v-list-item-title>Chat</v-list-item-title>
         </v-list-item>
         <v-list-item v-if="isAdmin" to="/admin">
           <v-list-item-title>Admin Status</v-list-item-title>
