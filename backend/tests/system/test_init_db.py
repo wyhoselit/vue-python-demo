@@ -7,8 +7,7 @@ from app.modules.system.models.system_setting import SystemSetting
 from init_db import init_db, TOKEN_FILE
 
 @patch("init_db.SessionLocal")
-@patch("init_db.Base.metadata.create_all")
-def test_init_db_seeds_token_from_file(mock_create_all, mock_session_local, tmp_path):
+def test_init_db_seeds_token_from_file(mock_session_local, tmp_path):
     """Test seeding token from existing .token file."""
     # Setup
     mock_db = MagicMock(spec=Session)

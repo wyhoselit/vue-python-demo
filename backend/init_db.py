@@ -3,7 +3,7 @@ import os
 import secrets
 from dotenv import dotenv_values
 from sqlalchemy.orm import Session
-from app.modules.core.database import SessionLocal, Base, engine
+from app.modules.core.database import SessionLocal
 from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
 from app.modules.core.security import hash_password
@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 TOKEN_FILE = ".token"
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     
     # Check if admin role exists, if not, create it
@@ -51,16 +50,6 @@ def init_db():
         db.add(tracing)
         db.commit()
         logger.info("Default tracing seeded to database")
-
-    #Check if logfile path is exists, if not, create it with default value
-    log_file_path = db.query(SystemSetting).filter(SystemSetting.key == "system.log_file_path").first()
-    if not log_file_path:
-        log_file_path = SystemSetting(key="system.log_file_path", settings="./backend/logs")
-        db.add(log_file_path)
-        db.commit()
-        logger.info("Default logfile path seeded to database")
-
-    
 
     # Sync default bearer token
     token = None

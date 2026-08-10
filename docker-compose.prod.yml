@@ -7,8 +7,8 @@ services:
       - .env
     volumes:
       - ./backend/app:/app/app
-      - ./dockerdata/dev/backend/data:/app/data
-      - ./dockerdata/dev/backend/logs:/app/logs
+      - ./dockerdata/prod/backend/data:/app/data
+      - ./dockerdata/prod/backend/logs:/app/logs
     logging:
       driver: "json-file"
       options:
@@ -17,12 +17,13 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./data/app.db
       - LOG_FILE_PATH=/app/logs/server.log
+      - APP_ENV=prod
 
   frontend:
     build: ./frontend
     ports:
       - "5173:80"
     volumes:
-      - ./dockerdata/dev/frontend/nginx:/etc/nginx/conf.d:ro
+      - ./dockerdata/prod/frontend/nginx:/etc/nginx/conf.d:ro
     depends_on:
       - backend

@@ -21,17 +21,18 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     conn = op.get_bind()
-    results = conn.execute(sa.text("SELECT service_name, enabled FROM trace_configurations")).fetchall()
-    
-    for row in results:
-        conn.execute(
-            sa.text("INSERT INTO system_settings (key, settings, updated_at) VALUES (:key, :settings, :updated_at)"),
-            {
-                "key": f"tracing.{row.service_name}",
-                "settings": {"enabled": row.enabled},
-                "updated_at": sa.func.now()
-            }
-        )
+    inspector = sa.inspect(conn)
+    if 'trace_configurations' in inspector.get_table_names():
+        results = conn.execute(sa.text("SELECT service_name, enabled FROM trace_configurations")).fetchall()
+        for row in results:
+            conn.execute(
+                sa.text("INSERT INTO system_settings (key, settings, updated_at) VALUES (:key, :settings, :updated_at)"),
+                {
+                    "key": f"tracing.{row.service_name}",
+                    "settings": {"enabled": row.enabled},
+                    "updated_at": sa.func.now()
+                }
+            )
 
 def downgrade() -> None:
     """Downgrade schema."""

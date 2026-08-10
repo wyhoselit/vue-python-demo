@@ -1,4 +1,5 @@
 import logging
+import os
 from pythonjsonlogger import jsonlogger
 
 from app.modules.core.config import settings
@@ -6,7 +7,14 @@ from app.modules.core.config import settings
 def setup_logging():
     logger = logging.getLogger()
     logHandler = logging.StreamHandler()
-    fileHandler = logging.FileHandler(settings.LOG_FILE_PATH)
+    
+    # Ensure log directory exists
+    log_path = settings.LOG_FILE_PATH
+    log_dir = os.path.dirname(log_path)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    
+    fileHandler = logging.FileHandler(log_path)
     formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(name)s %(message)s')
     logHandler.setFormatter(formatter)
     fileHandler.setFormatter(formatter)

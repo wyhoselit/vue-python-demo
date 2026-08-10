@@ -1,7 +1,11 @@
+import os
 import pytest
 from starlette.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+# Setup test env before importing app
+os.environ["LOG_FILE_PATH"] = "./test.log"
 
 from app.main import app
 from app.modules.core.config import settings
