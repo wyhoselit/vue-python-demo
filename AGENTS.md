@@ -52,3 +52,10 @@ This project is indexed by GitNexus as **demo.vuejspython** (2851 symbols, 3309 
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Tool priority for this repo
+- Structure / call graph / change impact → codebase-memory first, GitNexus second
+- Human-readable architecture docs → OpenWiki + GitNexus generate_map
+- Feature workflow → OpenSpec (opsx) is the spine
+- Alignment, domain language, TDD, architecture deepening → mattpocock skills
+- Prefer graph tools over reading many files

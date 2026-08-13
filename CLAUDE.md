@@ -33,12 +33,12 @@ This project is indexed by GitNexus as **demo.vuejspython** (2851 symbols, 3309 
 
 ## Resources
 
-| Resource | Use for |
-|----------|---------|
-| `gitnexus://repo/demo.vuejspython/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/demo.vuejspython/clusters` | All functional areas |
-| `gitnexus://repo/demo.vuejspython/processes` | All execution flows |
-| `gitnexus://repo/demo.vuejspython/process/{name}` | Step-by-step execution trace |
+| Resource                                          | Use for                                  |
+| ---------------------------------------------------| ------------------------------------------|
+| `gitnexus://repo/demo.vuejspython/context`        | Codebase overview, check index freshness |
+| `gitnexus://repo/demo.vuejspython/clusters`       | All functional areas                     |
+| `gitnexus://repo/demo.vuejspython/processes`      | All execution flows                      |
+| `gitnexus://repo/demo.vuejspython/process/{name}` | Step-by-step execution trace             |
 
 ## CLI
 
@@ -52,3 +52,20 @@ This project is indexed by GitNexus as **demo.vuejspython** (2851 symbols, 3309 
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked as GitHub issues using the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context layout: a root CONTEXT.md and docs/adr/. See `docs/agents/domain.md`.
+
+## Tool priority for this repo
+- Structure / call graph / change impact → codebase-memory first, GitNexus second
+- Human-readable architecture docs → OpenWiki + GitNexus generate_map
+- Feature workflow → OpenSpec (opsx) is the spine
+- Alignment, domain language, TDD, architecture deepening → mattpocock skills
+- Prefer graph tools over reading many files
