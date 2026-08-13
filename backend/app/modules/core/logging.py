@@ -11,10 +11,10 @@ def setup_logging():
     # Ensure log directory exists
     log_path = settings.LOG_FILE_PATH
     log_dir = os.path.dirname(log_path)
-    if log_dir and not os.path.exists(log_dir):
+    if log_dir and not os.path.exists(log_dir) and not os.environ.get("TESTING"):
         os.makedirs(log_dir, exist_ok=True)
     
-    fileHandler = logging.FileHandler(log_path)
+    fileHandler = logging.FileHandler(log_path) if not os.environ.get("TESTING") else logging.NullHandler()
     formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(name)s %(message)s')
     logHandler.setFormatter(formatter)
     fileHandler.setFormatter(formatter)
