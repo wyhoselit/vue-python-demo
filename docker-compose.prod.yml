@@ -27,3 +27,5 @@ services:
       - ./dockerdata/prod/frontend/nginx:/etc/nginx/conf.d:ro
     depends_on:
       - backend
+    environment:
+      - VITE_OTEL_COLLECTOR_URL=http://localhost:4318/v1/traces
