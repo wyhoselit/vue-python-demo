@@ -2,6 +2,11 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import patch, MagicMock
 
+# Set the environment variable BEFORE importing the app
+import os
+os.environ["TESTING"] = "1"
+os.environ["LOG_FILE_PATH"] = "/dev/null"
+
 from app.main import app
 
 @pytest.fixture
