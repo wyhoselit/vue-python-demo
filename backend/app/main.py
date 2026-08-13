@@ -12,12 +12,15 @@ from app.modules.ai.middleware import CostTrackingMiddleware
 from app.modules.ai.rate_limiting import RateLimitingMiddleware
 from app.modules.core.exceptions import AuthException
 from app.api.router import api_router
+from app.modules.core.database import engine
+from app.observability import setup_observability
 
 # Initialize logging
 setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    setup_observability(app, engine)
     yield
 
 

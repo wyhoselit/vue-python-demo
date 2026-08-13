@@ -4,6 +4,9 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import { createPinia } from 'pinia'
 import { useThemeStore } from './stores/theme'
+import { setupObservability } from './observability'
+
+setupObservability()
 
 const app = createApp(App)
 
