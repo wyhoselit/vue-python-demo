@@ -62,14 +62,13 @@ if [ "$COMPOSE_CMD" = "podman-compose" ]; then
 else
     LOGS_CMD="docker logs"
 fi
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_backend_1" "backend logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_frontend_1" "frontend logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_otel_collector_1" "otel-collector logs"
-
-vue-python-demo_prometheus_1
-vue-python-demo_grafana_1
-vue-python-demo_loki_1
-vue-python-demo_tempo_1
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 backend" "backend logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 frontend" "frontend logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 otel-collector" "otel-collector logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 prometheus" "prometheus logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 grafana" "grafana logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 loki" "loki logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 tempo" "tempo logs"
 
 
 run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD ps" "$COMPOSE_CMD ps"
