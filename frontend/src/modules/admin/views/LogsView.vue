@@ -4,7 +4,8 @@
     <div v-if="loading">Loading...</div>
     <div v-else-if="error">{{ error }}</div>
     <div v-else>
-      <pre>{{ logs }}</pre>
+      <div v-if="logs.length === 0">No logs found.</div>
+      <pre v-else>{{ JSON.stringify(logs, null, 2) }}</pre>
     </div>
   </div>
 </template>
@@ -13,7 +14,7 @@
 import { ref, onMounted } from 'vue'
 import api from '@/shared/api'
 
-const logs = ref<string>('')
+const logs = ref<any[]>([])
 const loading = ref(true)
 const error = ref<string | null>(null)
 

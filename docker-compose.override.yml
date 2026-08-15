@@ -26,17 +26,47 @@ services:
     ports:
       - "9090:9090"
 
+
   grafana:
     image: grafana/grafana:10.2.2
+    ports:
+      - "3000:3000"
     volumes:
       - ./dockerdata/observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./dockerdata/observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    ports:
-      - "3000:3000"
+    depends_on:
+      - postgres
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana
+      - GF_DATABASE_PASSWORD=grafana
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=grafana
+      - POSTGRES_USER=grafana
+      - POSTGRES_PASSWORD=grafana
+    volumes:
+      - ./dockerdata/observability/grafana/data/postgres:/var/lib/postgresql/data:Z
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U grafana -d grafana"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   loki:
     image: grafana/loki:2.9.2

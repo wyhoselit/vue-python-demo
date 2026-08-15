@@ -36,3 +36,5 @@ career/
 #dockerdata
 **/loki/data/*
 **/tempo/data/*
+**/grafana/data/*
+**/prometheus/data/*

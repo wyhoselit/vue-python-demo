@@ -21,6 +21,7 @@ datasources:
     editable: true
     version: 1
     uid: tempo
+    url_secure: true
     jsonData:
       httpHeaderName1: 'X-Scope-OrgID'
     secureJsonData:

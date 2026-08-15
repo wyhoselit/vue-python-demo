@@ -20,7 +20,7 @@ services:
     image: prom/prometheus:v2.48.0
     volumes:
       - ./dockerdata/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus # For data persistence
+      - ./dockerdata/observability/prometheus/data:/prometheus:Z
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-remote-write-receiver'
@@ -31,7 +31,7 @@ services:
   grafana:
     image: grafana/grafana:10.2.2
     volumes:
-      - grafana_data:/var/lib/grafana # For data persistence
+      - grafana_data:/var/lib/grafana
       - ./dockerdata/observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./dockerdata/observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     ports:
@@ -40,6 +40,12 @@ services:
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -84,5 +90,4 @@ services:
       - otel-collector
 
 volumes:
-  prometheus_data:
-  grafana_data:
+

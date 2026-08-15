@@ -24,11 +24,13 @@ run_cmd() {
     local description="$2"
     echo "$cmd" | tee -a "$normal_logfile" "$error_logfile"
 
-    echo "[$description]" | tee -a "$normal_logfile" "$error_logfile"
+    echo "   [$description]" | tee -a "$normal_logfile" "$error_logfile"
     eval "$cmd" >>"$normal_logfile" 2>>"$error_logfile"
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
         echo "[$description] FAILED (exit code: $exit_code)" | tee -a "$normal_logfile" "$error_logfile"
+        exit 1
+
     else
         echo "[$description] OK" | tee -a "$normal_logfile"
     fi
@@ -56,19 +58,14 @@ run_cmd "cd ${PROJECT_ROOT}; openspec view" "openspec view"
 
 run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml down && $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml --verbose build" "$COMPOSE_CMD build"
 run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml --verbose up -d --build --force-recreate" "$COMPOSE_CMD up -d recreate build"
-# Use generic 'podman' or 'docker' logs based on COMPOSE_CMD
-if [ "$COMPOSE_CMD" = "podman-compose" ]; then
-    LOGS_CMD="podman logs"
-else
-    LOGS_CMD="docker logs"
-fi
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 backend" "backend logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 frontend" "frontend logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 otel-collector" "otel-collector logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 prometheus" "prometheus logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 grafana" "grafana logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 loki" "loki logs"
-run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD logs --tail 50 tempo" "tempo logs"
+
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 backend" "backend logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 frontend" "frontend logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 otel-collector" "otel-collector logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 prometheus" "prometheus logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 grafana" "grafana logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 loki" "loki logs"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 tempo" "tempo logs"
 
 
-run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD ps" "$COMPOSE_CMD ps"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD ps --format '{{.ID}} \t {{.Names}} \t {{.Status}}'" "$COMPOSE_CMD ps"

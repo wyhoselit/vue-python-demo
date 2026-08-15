@@ -21,7 +21,8 @@ def get_tracing_logs(
             for line in all_lines[-tail:]:
                 try:
                     logs.append(json.loads(line))
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
+                    print(f"Failed to decode log line: {line.strip()}, error: {e}")
                     continue
     
     return {"logs": redact_sensitive_data(logs)}
