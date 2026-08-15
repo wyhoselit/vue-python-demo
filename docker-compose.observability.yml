@@ -1,27 +1,45 @@
+version: '3.8'
+
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.90.1
+    command: [ --config=/etc/otel-collector-config.yml ]
     volumes:
-      - ./prometheus:/etc/prometheus
-      - prometheus_data:/prometheus
+      - ./dockerdata/observability/otel-collector/collector-config.yml:/etc/otel-collector-config.yml
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "8889:8889" # Prometheus metrics exporter
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+      - jaeger
+
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    volumes:
+      - ./dockerdata/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus # For data persistence
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-remote-write-receiver'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
 
   grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
+    image: grafana/grafana:10.2.2
+    volumes:
+      - grafana_data:/var/lib/grafana # For data persistence
+      - ./dockerdata/observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./dockerdata/observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
     ports:
       - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
 
   jaeger:
     image: jaegertracing/all-in-one:latest
@@ -32,25 +50,38 @@ services:
       - "14250:14250"
 
   loki:
-    image: grafana/loki:latest
-    container_name: loki
+    image: grafana/loki:2.9.2
+    command: -config.file=/etc/loki/local-config.yml
+    user: "0" # Important for Podman compatibility
+    volumes:
+      - ./dockerdata/observability/loki/loki-config.yml:/etc/loki/local-config.yml
+      - ./dockerdata/observability/loki/data:/tmp/loki:Z # For data persistence, preferred over named volume
     ports:
       - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
 
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: otel-collector
-    ports:
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
+  tempo:
+    image: grafana/tempo:2.2.2
+    command: -config.file=/etc/tempo/tempo.yml
     volumes:
-      - ./otel-collector:/etc/otelcol-contrib
-    command:
-      - '--config=/etc/otelcol-contrib/collector-config.yaml'
+      - ./dockerdata/observability/tempo/tempo-config.yml:/etc/tempo/tempo.yml
+      - ./dockerdata/observability/tempo/data:/tmp/tempo
+    ports:
+      - "14268:14268" # Jaeger gRPC
+      - "14250:14250" # Jaeger Thrift
+      - "3200:3200" # Tempo UI/HTTP
+      - "9411:9411" # Zipkin
+
+  test-sender:
+    image: alpine/curl
+    volumes:
+      - ./dockerdata/observability/otel-collector/test-sender.sh:/usr/local/bin/test-sender.sh
+    command: >
+      sh -c "
+        chmod +x /usr/local/bin/test-sender.sh &&
+        /usr/local/bin/test-sender.sh
+      "
     depends_on:
-      - jaeger
-      - loki
+      - otel-collector
 
 volumes:
   prometheus_data:

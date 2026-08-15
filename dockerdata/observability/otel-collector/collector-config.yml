@@ -3,6 +3,11 @@ receivers:
     protocols:
       grpc:
       http:
+        cors:
+          allowed_origins:
+            - "http://localhost:5173"
+          allowed_headers:
+            - "*"
 
 processors:
   batch:
@@ -16,10 +21,7 @@ exporters:
     endpoint: tempo:4317
     tls:
       insecure: true
-  jaeger: # This seems redundant if otlp exporter goes to Tempo, but keeping it based on original request.
-    endpoint: "jaeger:14250"
-    tls:
-      insecure: true
+
   loki:
     endpoint: http://loki:3100/api/v1/push
 
@@ -28,7 +30,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp, jaeger, logging] # otlp for Tempo, jaeger for direct Jaeger (if needed)
+      exporters: [otlp, logging] # otlp for Tempo, jaeger for direct Jaeger (if needed)
     metrics:
       receivers: [otlp]
       processors: [batch]

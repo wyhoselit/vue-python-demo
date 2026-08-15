@@ -83,6 +83,8 @@ def create_app(lifespan: Any = lifespan):
 
     app.include_router(api_router, prefix="/api")
 
+    setup_observability(app)
+
     return app
 
 app = create_app()

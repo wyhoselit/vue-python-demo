@@ -1,21 +1,15 @@
 server:
   http_listen_port: 3200
 
-metrics:
-  wal_path: /tmp/tempo/wal
-
 storage:
   trace:
     backend: local
-    filepath: /tmp/tempo/traces
+    local:
+      path: /tmp/tempo/traces
 
 compactor:
   compaction:
-    compacted_blocks_retention: 1h
-    block_retention: 1h
-
-querier:
-  max_query_parallelism: 200
+    block_retention: 168h
 
 distributor:
   receivers:

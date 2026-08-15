@@ -29,4 +29,5 @@ dependencies = [
     "opentelemetry-instrumentation-system-metrics",
     "opentelemetry-exporter-prometheus",
     "opentelemetry-sdk-extension-aws",
+    "prometheus-fastapi-instrumentator",
 ]
