@@ -36,7 +36,7 @@ describe('Frontend Observability', () => {
     delete import.meta.env.VITE_OTEL_COLLECTOR_URL
   })
 
-  it('should initialize the OTel SDK with default collector URL', () => {
+  it('should initialize the OTel SDK with default collector URL', async () => {
     const { TraceSDK } = await import('@opentelemetry/sdk-trace-web')
     const { setupObservability } = await import('../observability')
 
@@ -57,7 +57,7 @@ describe('Frontend Observability', () => {
     expect(sdkInstance.start).toHaveBeenCalled()
   })
 
-  it('should use custom collector URL from env var', () => {
+  it('should use custom collector URL from env var', async () => {
     import.meta.env.VITE_OTEL_COLLECTOR_URL = 'http://custom-collector:4318/v1/traces'
 
     const { OTLPTraceExporter } = await import('@opentelemetry/exporter-trace-otlp-http')

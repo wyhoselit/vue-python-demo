@@ -26,7 +26,13 @@ build/
 *.db
 *.sqlite
 
-
+#node_modules
+node_modules/
 
 jobs/
 career/
+
+
+#dockerdata
+**/loki/data/*
+**/tempo/data/*

@@ -33,7 +33,7 @@ def test_token_initialization_from_file(tmp_path):
     
     try:
         # Initialize DB
-        init_db()
+        init_db(skip_seed_data=True, cwd=str(tmp_path))
         
         # Check that token was seeded
         setting = db.query(SystemSetting).filter(SystemSetting.key == "system.default_bearer_token").first()

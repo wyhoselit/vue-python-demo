@@ -1,3 +1,4 @@
+from typing import Any
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -12,70 +13,76 @@ from app.modules.ai.middleware import CostTrackingMiddleware
 from app.modules.ai.rate_limiting import RateLimitingMiddleware
 from app.modules.core.exceptions import AuthException
 from app.api.router import api_router
-from app.modules.core.telemetry import setup_telemetry
+from init_db import init_db
+from app.modules.core.observability import setup_observability
+from app.modules.core.database import engine
 
 # Initialize logging
 setup_logging()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_telemetry(app)
+    init_db()
     yield
-
-
-app = FastAPI(
-    title="Backend API",
-    version="0.1.0",
-    lifespan=lifespan,
-)
-
-# Add Request ID middleware (must be first to capture request ID)
-app.add_middleware(RequestIDMiddleware)
-app.add_middleware(CostTrackingMiddleware)
-app.add_middleware(RateLimitingMiddleware)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(","),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-@app.exception_handler(AuthException)
-async def auth_exception_handler(request: Request, exc: AuthException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "detail": exc.detail,
-            "error_code": exc.error_code,
-        },
-        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+def create_app(lifespan: Any = lifespan):
+    app = FastAPI(
+        title="Backend API",
+        version="0.1.0",
+        lifespan=lifespan,
     )
 
+    # Add Request ID middleware (must be first to capture request ID)
+    app.add_middleware(RequestIDMiddleware)
+    app.add_middleware(CostTrackingMiddleware)
+    app.add_middleware(RateLimitingMiddleware)
 
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail, "error_code": "HTTP_ERROR"},
-        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.CORS_ORIGINS.split(","),
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
+    @app.exception_handler(AuthException)
+    async def auth_exception_handler(request: Request, exc: AuthException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "detail": exc.detail,
+                "error_code": exc.error_code,
+            },
+            headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+        )
 
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error", "error_code": "INTERNAL_ERROR"},
-        headers={"X-Request-ID": getattr(request.state, "request_id", "")}
-    )
+    @app.exception_handler(HTTPException)
+    async def http_exception_handler(request: Request, exc: HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "detail": exc.detail,
+                "error_code": "HTTP_ERROR"
+            },
+            headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+        )
 
+    @app.exception_handler(Exception)
+    async def general_exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=500,
+            content={
+                "detail": "Internal server error",
+                "error_code": "INTERNAL_ERROR"
+            },
+            headers={"X-Request-ID": getattr(request.state, "request_id", "")}
+        )
 
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
+    @app.get("/health")
+    async def health_check():
+        return {"status": "ok"}
 
+    app.include_router(api_router, prefix="/api")
 
-app.include_router(api_router, prefix="/api")
+    return app
+
+app = create_app()

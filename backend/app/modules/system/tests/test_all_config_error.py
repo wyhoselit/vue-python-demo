@@ -4,8 +4,7 @@ from app.modules.user.user import User
 from app.modules.admin.models.role.role import Role
 from app.modules.core.security import hash_password
 
-@pytest.fixture
-def admin_client(client: TestClient, db):
+def create_admin_client(client: TestClient, db):
     admin_role = Role(name="admin")
     db.add(admin_role)
     db.commit()
@@ -29,11 +28,13 @@ class TestSystemConfigAPIErrorHandling:
         response = client.get("/api/v1/system/config/")
         assert response.status_code == 401
 
-    def test_put_nonexistent_config(self, admin_client: TestClient):
+    def test_put_nonexistent_config(self, client: TestClient, db):
+        admin_client = create_admin_client(client, db)
         response = admin_client.put("/api/v1/system/config/nonexistent", json={"value": "new"})
         # Assuming the endpoint should return 404 if the key is not found
         assert response.status_code == 404
 
-    def test_put_invalid_payload(self, admin_client: TestClient):
+    def test_put_invalid_payload(self, client: TestClient, db):
+        admin_client = create_admin_client(client, db)
         response = admin_client.put("/api/v1/system/config/test.key", json={})
         assert response.status_code == 422

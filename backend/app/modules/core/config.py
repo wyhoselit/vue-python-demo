@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
     API_V1_PREFIX: str = "/api/v1"
     LOG_FILE_PATH: str = os.getenv("LOG_FILE_PATH", "/app/logs/server.log")
+    OTEL_COLLECTOR_ENDPOINT: str = "otel-collector:4317" 
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra='ignore')
 

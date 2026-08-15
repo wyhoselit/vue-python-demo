@@ -14,10 +14,16 @@ error_logfile="${PROJECT_ROOT}/todo/error.$currentdate.log"
 # Create log files
 touch "$normal_logfile" "$error_logfile"
 
+echo "--------------------------------------------------"
+echo "logs files: $normal_logfile, $error_logfile"
+echo "--------------------------------------------------"
+
 # Helper function to run command with separated stdout/stderr
 run_cmd() {
     local cmd="$1"
     local description="$2"
+    echo "$cmd" | tee -a "$normal_logfile" "$error_logfile"
+
     echo "[$description]" | tee -a "$normal_logfile" "$error_logfile"
     eval "$cmd" >>"$normal_logfile" 2>>"$error_logfile"
     local exit_code=$?
@@ -29,12 +35,35 @@ run_cmd() {
     return $exit_code
 }
 
-run_cmd "cd ${PROJECT_ROOT}/backend; uv run pytest -v" "backend pytest"
+run_cmd "cd ${PROJECT_ROOT}/backend; OTEL_COLLECTOR_ENDPOINT=localhost:4317 uv run python -m pytest -v" "backend pytest"
 run_cmd "cd ${PROJECT_ROOT}/frontend; npm run build" "frontend build"
 run_cmd "cd ${PROJECT_ROOT}/frontend; npm test" "frontend test"
 run_cmd "cd ${PROJECT_ROOT}; openspec list" "openspec list"
 run_cmd "cd ${PROJECT_ROOT}; openspec view" "openspec view"
-run_cmd "cd ${PROJECT_ROOT}; podman logs --tail 50 demo_backend_1" "backend logs"
-run_cmd "cd ${PROJECT_ROOT}; podman logs --tail 50 demo_frontend_1" "frontend logs"
-run_cmd "cd ${PROJECT_ROOT}; podman-compose down && podman-compose up -d --build" "podman-compose up"
-run_cmd "cd ${PROJECT_ROOT}; podman-compose ps" "podman-compose ps"
+
+
+# Detect compose command
+COMPOSE_CMD=""
+if command -v podman-compose &> /dev/null; then
+    COMPOSE_CMD="podman-compose"
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "Error: Neither podman-compose nor docker-compose found." | tee -a "$normal_logfile" "$error_logfile"
+    exit 1
+fi
+echo "Using compose command: $COMPOSE_CMD" | tee -a "$normal_logfile" "$error_logfile"
+
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml down && $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml --verbose build" "$COMPOSE_CMD build"
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD -f docker-compose.yml -f docker-compose.override.yml --verbose up -d --build --force-recreate" "$COMPOSE_CMD up -d recreate build"
+# Use generic 'podman' or 'docker' logs based on COMPOSE_CMD
+if [ "$COMPOSE_CMD" = "podman-compose" ]; then
+    LOGS_CMD="podman logs"
+else
+    LOGS_CMD="docker logs"
+fi
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_backend_1" "backend logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_frontend_1" "frontend logs"
+run_cmd "cd ${PROJECT_ROOT}; $LOGS_CMD --tail 50 demo_otel_collector_1" "otel-collector logs"
+
+run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD ps" "$COMPOSE_CMD ps"

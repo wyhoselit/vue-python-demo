@@ -2,11 +2,11 @@ import pytest
 from starlette.testclient import TestClient
 import logging
 
-def test_users_list(client: TestClient, db):
-    from app.modules.admin.models.role.role import Role
-    from app.modules.user.user import User
-    from app.modules.core.security import hash_password
-    
+from app.modules.admin.models.role.role import Role
+from app.modules.user.user import User
+from app.modules.core.security import hash_password
+
+def create_admin_client(client: TestClient, db):
     admin_role = Role(name="admin")
     db.add(admin_role)
     db.commit()
@@ -28,10 +28,15 @@ def test_users_list(client: TestClient, db):
     access_token = login_response.cookies.get("access_token")
     client.cookies.set("access_token", access_token)
     
-    client.post("/api/v1/auth/register", json={"email": "alice@example.com", "password": "password123"})
-    client.post("/api/v1/auth/register", json={"email": "bob@example.com", "password": "password123"})
+    return client
+
+def test_users_list(client: TestClient, db):
+    admin_client = create_admin_client(client, db)
     
-    response = client.get("/api/v1/users")
+    admin_client.post("/api/v1/auth/register", json={"email": "alice@example.com", "password": "password123"})
+    admin_client.post("/api/v1/auth/register", json={"email": "bob@example.com", "password": "password123"})
+    
+    response = admin_client.get("/api/v1/users")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -41,6 +46,8 @@ def test_users_list(client: TestClient, db):
         assert "email" in user
         assert isinstance(user["id"], int)
         assert isinstance(user["email"], str)
+    # The number of users should be 3 (admin, alice, bob)
+    assert len(data) == 3
 
 
 def test_users_me(client: TestClient):
