@@ -57,7 +57,7 @@ export const setupObservability = () => {
     meterProvider.addMetricReader(
       new PeriodicExportingMetricReader({
         exporter: metricExporter,
-        exportIntervalMillis: 1000, // Export every 1 second
+        exportIntervalMillis: 30000, // Export every 30 second
       }),
     );
 
@@ -72,6 +72,20 @@ export const setupObservability = () => {
   const loggerProvider = new LoggerProvider({ resource });
   loggerProvider.addLogRecordProcessor(new SimpleLogRecordProcessor(logExporter));
   logs.setGlobalLoggerProvider(loggerProvider);
+
+  // **** 添加測試日誌發送 ****
+  const frontendLogger = logs.getLogger(import.meta.env.VITE_SERVICE_NAME || 'frontend-app');
+  frontendLogger.emit({
+    severityNumber: 9, // INFO
+    severityText: 'INFO',
+    body: 'Frontend application initialized and sending a test log!',
+    attributes: {
+      'log.source': 'setupObservability',
+      'environment': import.meta.env.MODE,
+    },
+  });
+  console.log('Frontend: Test log emitted via OpenTelemetry SDK.');
+  // **** 添加測試日誌發送 END ****
 
   console.log('Observability SDK started', { metricsEnabled });
 };
