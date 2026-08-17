@@ -12,16 +12,18 @@ describe('useApi Composable', () => {
     vi.resetModules()
   })
 
-  it('creates axios instance with correct config', () => {
+  it('creates axios instance with correct config', async () => {
     const mockInstance = {
       get: vi.fn(),
       post: vi.fn(),
       put: vi.fn(),
       delete: vi.fn(),
       interceptors: { response: { use: vi.fn() } },
+      defaults: { baseURL: 'http://localhost:8000/api/v1' }
     }
     mockedAxios.create.mockReturnValue(mockInstance)
 
+    const { useApi } = await import('@/shared/useApi')
     useApi()
     expect(mockedAxios.create).toHaveBeenCalledWith({
       baseURL: 'http://localhost:8000/api/v1',
@@ -40,7 +42,10 @@ describe('useApi Composable', () => {
       delete: vi.fn(),
       interceptors: { response: { use: vi.fn() } },
     }
-    mockedAxios.create.mockReturnValue(mockInstance)
+    mockedAxios.create.mockReturnValue({
+      ...mockInstance,
+      defaults: { baseURL: 'http://localhost:8000/api/v1' },
+    })
 
     const { useApi } = await import('@/shared/useApi')
     const api = useApi()
@@ -58,7 +63,10 @@ describe('useApi Composable', () => {
       delete: vi.fn(),
       interceptors: { response: { use: vi.fn() } },
     }
-    mockedAxios.create.mockReturnValue(mockInstance)
+    mockedAxios.create.mockReturnValue({
+      ...mockInstance,
+      defaults: { baseURL: 'http://localhost:8000/api/v1' },
+    })
 
     const { useApi } = await import('@/shared/useApi')
     const api = useApi()

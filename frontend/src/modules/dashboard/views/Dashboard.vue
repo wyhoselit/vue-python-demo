@@ -58,6 +58,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useApi } from '@/shared/useApi'
+import { useComponentRenderMetrics } from '@/modules/core/metrics/useComponentRenderMetrics'
+
+useComponentRenderMetrics()
 
 // 型別定義
 interface DashboardStats {

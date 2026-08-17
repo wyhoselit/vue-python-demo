@@ -7,6 +7,7 @@ import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { metrics, trace, diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
+import { initializeMetrics } from './metrics/metrics';
 import { logs } from '@opentelemetry/api-logs';
 import { LoggerProvider, SimpleLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
@@ -61,6 +62,7 @@ export const setupObservability = () => {
     );
 
     metrics.setGlobalMeterProvider(meterProvider);
+    initializeMetrics();
   }
 
   // Logs

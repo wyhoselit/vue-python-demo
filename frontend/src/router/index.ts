@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { recordPageView } from '@/modules/core/metrics/metrics';
 
 const routes = [
   {
@@ -70,5 +71,9 @@ router.beforeEach((to, from, next) => {
     next()
   }
 })
+
+router.afterEach((to) => {
+  recordPageView(to.name as string, to.path);
+});
 
 export default router

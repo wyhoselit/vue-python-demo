@@ -40,6 +40,7 @@
           :loading="authStore.loading"
           :disabled="authStore.loading"
           block
+          @click="trackButtonClick('login-submit', 'button')"
         >
           Sign In
         </v-btn>
@@ -61,9 +62,11 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/modules/user/stores/auth'
+import { useMetrics } from '@/modules/core/metrics/useMetrics'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const { trackButtonClick, trackFormSubmit } = useMetrics()
 
 const email = ref('')
 const password = ref('')
@@ -74,6 +77,7 @@ const onSubmit = async () => {
       email: email.value,
       password: password.value
     })
+    trackFormSubmit('login')
     router.push(redirectPath || '/')
   } catch (e) {
     // Error is handled in authStore

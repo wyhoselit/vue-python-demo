@@ -77,7 +77,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(http_server_duration_milliseconds_count{exported_job=\"frontend-app\"}[5m])",
+          "expr": "sum by(job) (rate(frontend_app_page_view_total{}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "legendFormat": "Requests/sec",
@@ -86,7 +86,7 @@
           "useBackend": false
         }
       ],
-      "title": "Frontend - Request Rate",
+      "title": "Frontend - Page View Rate",
       "type": "gauge"
     },
     {
@@ -141,7 +141,7 @@
               }
             ]
           },
-          "unit": "req/s"
+          "unit": "page/s"
         },
         "overrides": []
       },
@@ -173,16 +173,16 @@
           },
           "disableTextWrap": false,
           "editorMode": "builder",
-          "expr": "rate(http_server_duration_milliseconds_count{exported_job=\"frontend-app\"}[5m])",
+          "expr": "sum by(route_path) (rate(frontend_app_page_view_total{}[$__rate_interval]))",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "{{method}} {{route}}",
+          "legendFormat": "{{route_path}}",
           "range": true,
           "refId": "A",
           "useBackend": false
         }
       ],
-      "title": "Frontend - Request Rate by Endpoint",
+      "title": "Frontend - Page View Rate by Path",
       "type": "timeseries"
     },
     {

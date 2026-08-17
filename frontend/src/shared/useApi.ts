@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type AxiosResponse } from 'axios'
+import { recordApiCall } from '@/modules/core/metrics/metrics';
 
 let apiInstance: AxiosInstance | null = null
 
@@ -28,13 +29,32 @@ const getApiInstance = (): AxiosInstance => {
 
 export const useApi = () => {
   const api = getApiInstance()
+  const baseURL = api.defaults.baseURL || ''
+  
+  const wrapCall = <T>(method: string, url: string, promise: Promise<T>) => {
+    const startTime = performance.now()
+    return promise
+      .then((data) => {
+        const duration = performance.now() - startTime
+        recordApiCall(method, baseURL + url, 200, duration)
+        return data
+      })
+      .catch((error) => {
+        const duration = performance.now() - startTime
+        const statusCode = error.response?.status || 0
+        recordApiCall(method, baseURL + url, statusCode, duration)
+        throw error
+      })
+  }
+
   return {
-    get: <T>(url: string) => api.get<T>(url).then((res) => res.data),
+    get: <T>(url: string) => wrapCall('GET', url, api.get<T>(url).then((res) => res.data)),
     post: <T>(url: string, data: unknown) =>
-      api.post<T>(url, data).then((res) => res.data),
+      wrapCall('POST', url, api.post<T>(url, data).then((res) => res.data)),
     put: <T>(url: string, data: unknown) =>
-      api.put<T>(url, data).then((res) => res.data),
-    delete: <T>(url: string) => api.delete<T>(url).then((res) => res.data),
+      wrapCall('PUT', url, api.put<T>(url, data).then((res) => res.data)),
+    delete: <T>(url: string) =>
+      wrapCall('DELETE', url, api.delete<T>(url).then((res) => res.data)),
   }
 }
 

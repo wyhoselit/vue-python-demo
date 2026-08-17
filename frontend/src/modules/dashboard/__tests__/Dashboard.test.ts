@@ -4,8 +4,16 @@ import Dashboard from '@/modules/dashboard/views/Dashboard.vue'
 import { createVuetify } from 'vuetify'
 import { createPinia } from 'pinia'
 import * as useApiModule from '@/shared/useApi'
+import * as vueRouter from 'vue-router'
 
 vi.mock('@/shared/useApi')
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useRoute: vi.fn(() => ({ path: '/', name: 'Dashboard' }))
+  }
+})
 
 const vuetify = createVuetify()
 
