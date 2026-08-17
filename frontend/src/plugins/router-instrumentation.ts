@@ -1,37 +1,32 @@
+import type { Router } from 'vue-router';
 import { tracer } from '@/modules/core/observability';
-import { SpanStatusCode } from '@opentelemetry/api';
+import { Span, SpanStatusCode } from '@opentelemetry/api';
 
-export const routerInstrumentation = (router) => {
+export const routerInstrumentation = (router: Router) => {
+  let currentSpan: Span | undefined;
+
   router.beforeEach((to, from, next) => {
-    const span = tracer.startSpan(`navigation: ${String(to.name)}`);
-    span.setAttribute('from', String(from.name));
-    span.setAttribute('to', String(to.name));
-
-    let spanEnded = false;
-    let errorHandled = false; // Add a flag for error handling
-
-    const endSpan = (error?: Error) => {
-      if (!spanEnded) {
-        if (error && !errorHandled) { // Only set error status if there was an error and it hasn't been handled
-          span.recordException(error);
-          span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
-          errorHandled = true;
-        } else {
-          span.setStatus({ code: SpanStatusCode.OK }); // Default to OK if no error
-        }
-        span.end();
-        spanEnded = true;
-      }
-    };
-
-    router.afterEach(() => {
-      endSpan();
-    });
-
-    router.onError((err) => {
-      endSpan(err); // Pass error to endSpan
-    });
-
+    currentSpan = tracer.startSpan(`Navigation to ${to.name?.toString() || to.path}`);
+    currentSpan.setAttribute('from', from.fullPath);
+    currentSpan.setAttribute('to', to.fullPath);
     next();
+  });
+
+  router.afterEach((to: any, from: any, failure: any) => {
+    if (currentSpan) {
+      if (failure) {
+        currentSpan.setStatus({ code: SpanStatusCode.ERROR, message: failure.message });
+      } else {
+        currentSpan.setStatus({ code: SpanStatusCode.OK });
+      }
+      currentSpan.end();
+    }
+  });
+
+  router.onError((error: Error) => {
+    if (currentSpan) {
+      currentSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+      currentSpan.end();
+    }
   });
 };

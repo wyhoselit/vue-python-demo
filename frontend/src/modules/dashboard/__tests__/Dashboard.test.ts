@@ -4,11 +4,11 @@ import Dashboard from '@/modules/dashboard/views/Dashboard.vue'
 import { createVuetify } from 'vuetify'
 import { createPinia } from 'pinia'
 import * as useApiModule from '@/shared/useApi'
-import * as vueRouter from 'vue-router'
+import { VDataTable } from 'vuetify/components' // Import VDataTable directly
 
 vi.mock('@/shared/useApi')
 vi.mock('vue-router', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal() as object;
   return {
     ...actual,
     useRoute: vi.fn(() => ({ path: '/', name: 'Dashboard' }))
@@ -28,9 +28,10 @@ const vuetifyStubs = {
   'v-card-text': { template: '<div><slot /></div>' },
   'v-progress-linear': { template: '<div />' },
   'v-progress-circular': { template: '<div />' },
-  'v-data-table': { template: '<div />' },
+  'v-data-table': VDataTable, // Use the actual component for better testing
   'v-alert': { template: '<div><slot /></div>' },
   'v-btn': { template: '<button><slot /></button>' },
+  'ApexChart': { template: '<div></div>' } // Stub ApexChart
 }
 
 describe('Dashboard', () => {
@@ -41,17 +42,20 @@ describe('Dashboard', () => {
   it('renders loading state initially', async () => {
     let resolveStats: (value: unknown) => void
     let resolveUsers: (value: unknown) => void
+    let resolveRealtime: (value: unknown) => void
 
     const statsPromise = new Promise((resolve) => { resolveStats = resolve })
     const usersPromise = new Promise((resolve) => { resolveUsers = resolve })
+    const realtimePromise = new Promise((resolve) => { resolveRealtime = resolve })
 
     vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return statsPromise
         if (url === '/users') return usersPromise
+        if (url === '/dashboard/realtime') return realtimePromise
         return Promise.resolve({})
       }),
-    })
+    } as any) // Cast to any to bypass type checking for the mock
 
     const wrapper = mount(Dashboard, {
       global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
@@ -61,6 +65,7 @@ describe('Dashboard', () => {
 
     resolveStats!({ total_users: 100, active_sessions: 10, api_calls_24h: 500 })
     resolveUsers!([{ id: 1, name: 'Test', email: 'test@example.com', status: 'active' }])
+    resolveRealtime!([])
     await flushPromises()
   })
 
@@ -70,14 +75,16 @@ describe('Dashboard', () => {
       { id: 1, name: 'Alice Chen', email: 'alice@example.com', status: 'active' },
       { id: 2, name: 'Bob Smith', email: 'bob@example.com', status: 'active' },
     ]
+    const mockRealtime = [{ timestamp: new Date().toISOString(), requests: 10, avgResponseTime: 50, status2xx: 5, status4xx: 2, status5xx: 1, activeUsers: 8 }]
 
     vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return Promise.resolve(mockStats)
         if (url === '/users') return Promise.resolve(mockUsers)
+        if (url === '/dashboard/realtime') return Promise.resolve(mockRealtime)
         return Promise.resolve({})
       }),
-    })
+    } as any) // Cast to any to bypass type checking for the mock
 
     const wrapper = mount(Dashboard, {
       global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
@@ -98,7 +105,7 @@ describe('Dashboard', () => {
   it('renders error state when API fails', async () => {
     vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockRejectedValue(new Error('Network Error')),
-    })
+    } as any) // Cast to any to bypass type checking for the mock
 
     const wrapper = mount(Dashboard, {
       global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
@@ -115,14 +122,16 @@ describe('Dashboard', () => {
   it('displays data table header', async () => {
     const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 }
     const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }]
+    const mockRealtime = [{ timestamp: new Date().toISOString(), requests: 10, avgResponseTime: 50, status2xx: 5, status4xx: 2, status5xx: 1, activeUsers: 8 }]
 
     vi.mocked(useApiModule.useApi).mockReturnValue({
       get: vi.fn().mockImplementation((url: string) => {
         if (url === '/dashboard/stats') return Promise.resolve(mockStats)
         if (url === '/users') return Promise.resolve(mockUsers)
+        if (url === '/dashboard/realtime') return Promise.resolve(mockRealtime)
         return Promise.resolve({})
       }),
-    })
+    } as any) // Cast to any to bypass type checking for the mock
 
     const wrapper = mount(Dashboard, {
       global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs }
@@ -133,4 +142,29 @@ describe('Dashboard', () => {
 
     expect(wrapper.html()).toContain('使用者列表')
   })
-})
+
+  it('stops realtime updates on unmount', async () => {
+    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
+    const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 };
+    const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }];
+    const mockRealtime = [{ timestamp: new Date().toISOString(), requests: 10, avgResponseTime: 50, status2xx: 5, status4xx: 2, status5xx: 1, activeUsers: 8 }];
+
+    vi.mocked(useApiModule.useApi).mockReturnValue({
+      get: vi.fn().mockImplementation((url: string) => {
+        if (url === '/dashboard/stats') return Promise.resolve(mockStats);
+        if (url === '/users') return Promise.resolve(mockUsers);
+        if (url === '/dashboard/realtime') return Promise.resolve(mockRealtime);
+        return Promise.resolve({});
+      }),
+    } as any);
+
+    const wrapper = mount(Dashboard, {
+      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
+    });
+
+    await flushPromises();
+    wrapper.unmount();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+});

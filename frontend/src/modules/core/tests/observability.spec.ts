@@ -36,7 +36,7 @@ describe('OpenTelemetry Frontend Instrumentation', () => {
       spanContext: vi.fn(() => ({ traceId: 'mock-trace-id' })),
     } as any);
 
-    const { instrumentRouter } = await import('@/modules/core/router-observability');
+    const { routerInstrumentation: instrumentRouter } = await import('@/modules/core/router-observability');
     
     router = createRouter({
       history: createWebHistory(),

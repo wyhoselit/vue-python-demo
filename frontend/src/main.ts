@@ -7,10 +7,13 @@ import { useThemeStore } from './stores/theme'
 import { setupObservability } from './modules/core/observability'
 import { axiosInstrumentation } from './plugins/axios-instrumentation'
 import { routerInstrumentation } from './plugins/router-instrumentation'
+import VueApexCharts from 'vue3-apexcharts'
 
 setupObservability()
 
 const app = createApp(App)
+
+app.use(VueApexCharts)
 
 axiosInstrumentation()
 routerInstrumentation(router)

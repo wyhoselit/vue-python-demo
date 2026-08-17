@@ -13,7 +13,6 @@ import { LoggerProvider, SimpleLogRecordProcessor } from '@opentelemetry/sdk-log
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-
 export const tracer = trace.getTracer('vue-frontend-tracer');
 
 export const setupObservability = () => {
@@ -44,6 +43,7 @@ export const setupObservability = () => {
       new UserInteractionInstrumentation(),
     ],
   });
+
 
   // Metrics (optional)
   if (metricsEnabled) {

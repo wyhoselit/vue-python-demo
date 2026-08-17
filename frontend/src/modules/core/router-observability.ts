@@ -1,19 +1,32 @@
+import type { Router } from 'vue-router';
 import { tracer } from '@/modules/core/observability';
-import { Span } from '@opentelemetry/api';
+import { Span, SpanStatusCode } from '@opentelemetry/api';
 
-export function instrumentRouter(router) {
-  let span: Span | undefined;
+export const routerInstrumentation = (router: Router) => {
+  let currentSpan: Span | undefined;
 
   router.beforeEach((to, from, next) => {
-    span = tracer.startSpan(`Navigation to ${to.name}`);
-    span.setAttribute('from', from.fullPath);
-    span.setAttribute('to', to.fullPath);
+    currentSpan = tracer.startSpan(`Navigation to ${to.name?.toString() || to.path}`);
+    currentSpan.setAttribute('from', from.fullPath);
+    currentSpan.setAttribute('to', to.fullPath);
     next();
   });
 
-  router.afterEach(() => {
-    if (span) {
-      span.end();
+  router.afterEach((to, from, failure) => {
+    if (currentSpan) {
+      if (failure) {
+        currentSpan.setStatus({ code: SpanStatusCode.ERROR, message: failure.message });
+      } else {
+        currentSpan.setStatus({ code: SpanStatusCode.OK });
+      }
+      currentSpan.end();
     }
   });
-}
+
+  router.onError((error: Error) => {
+    if (currentSpan) {
+      currentSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+      currentSpan.end();
+    }
+  });
+};
