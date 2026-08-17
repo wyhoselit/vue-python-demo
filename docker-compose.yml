@@ -17,6 +17,7 @@ services:
     environment:
       - DATABASE_URL=sqlite:///./data/app.db
       - LOG_FILE_PATH=/app/logs/server.log
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 
   frontend:
     build: ./frontend
@@ -27,4 +28,8 @@ services:
     depends_on:
       - backend
     environment:
-      - VITE_OTEL_COLLECTOR_URL=http://localhost:4318/v1/traces
+      - VITE_OTEL_COLLECTOR_URL=http://otel-collector:4318/v1/traces
+      - VITE_OTEL_COLLECTOR_METRICS_URL=http://otel-collector:4318/v1/metrics
+      - VITE_OTEL_COLLECTOR_LOGS_URL=http://otel-collector:4318/v1/logs
+      - VITE_OTEL_METRICS_ENABLED=true
+      - VITE_SERVICE_NAME=frontend-app

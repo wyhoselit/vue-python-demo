@@ -81,12 +81,7 @@ def create_app(lifespan: Any = lifespan):
     async def health_check():
         return {"status": "ok"}
 
-    @app.get("/test-metrics")
-    async def test_metrics():
-        from prometheus_client import Counter
-        c = Counter('http_server_duration_milliseconds_count', 'A test counter')
-        c.inc()
-        return {"status": "ok"}
+
     
     app.include_router(api_router, prefix="/api")
 

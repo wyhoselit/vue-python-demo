@@ -28,36 +28,32 @@ from app.modules.core.config import settings
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # 服務名稱，將在 Otel 中顯示
-SERVICE_NAME = environ.get("SERVICE_NAME", "backend-service")
-
-# Otel Collector 的 gRPC 端點
-OTEL_COLLECTOR_ENDPOINT = environ.get("OTEL_COLLECTOR_ENDPOINT", "otel-collector:4317")
-
 tracer = trace.get_tracer(__name__)
 
 
 def is_otel_collector_available(endpoint: str = settings.OTEL_COLLECTOR_ENDPOINT, timeout: float = 1.0) -> bool:
+    logging.getLogger(__name__).info(f"Checking OTEL Collector gRPC endpoint: {endpoint}...")
     try:
-        # Prepend 'http://' if scheme is missing for urlparse to work correctly
-        if not endpoint.startswith("http://") and not endpoint.startswith("https://"):
-            endpoint = f"http://{endpoint}"
-
         parsed_url = urlparse(endpoint)
-        hostname = parsed_url.hostname
-        port = parsed_url.port
+        hostname = parsed_url.hostname or endpoint.split(':')[0]
+        port = parsed_url.port or int(endpoint.split(':')[1]) if ':' in endpoint else 4317 # Default gRPC port
+
         if not hostname or not port:
-            logging.getLogger(__name__).error(f"OTEL Collector not available at {endpoint}")
+            logging.getLogger(__name__).error(f"OTEL Collector gRPC endpoint {endpoint} is malformed.")
             return False
-        
-        logging.getLogger(__name__).info(f"Checking OTEL Collector at {endpoint}...")
+
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(timeout)
         result = sock.connect_ex((hostname, port))
         sock.close()
-        logging.getLogger(__name__).info(f"OTEL Collector available: {result == 0}")
-        return result == 0
-    except Exception:
-        logging.getLogger(__name__).error(f"OTEL Collector not available at {endpoint}")
+        if result == 0:
+            logging.getLogger(__name__).info(f"OTEL Collector gRPC endpoint {endpoint} is available.")
+            return True
+        else:
+            logging.getLogger(__name__).warning(f"OTEL Collector gRPC endpoint {endpoint} is NOT available. Connection error: {result}")
+            return False
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Error checking OTEL Collector gRPC availability at {endpoint}: {e}")
         return False
 
 def traced(name: str = None):
@@ -84,23 +80,24 @@ def traced(name: str = None):
 
 
 def setup_observability(app: FastAPI, engine=None):
+    logging.getLogger(__name__).info("Setting up observability...")
     """
     為 FastAPI 應用程式設定 OpenTelemetry。
     """
     resource = Resource.create(
         {
-            "service.name": SERVICE_NAME,
+            "service.name": settings.SERVICE_NAME,
             "service.version": "0.1.0",
         }
     )
 
-    otel_collector_endpoint = settings.OTEL_COLLECTOR_ENDPOINT
-    otlp_grpc_endpoint = otel_collector_endpoint
+    otlp_grpc_endpoint = settings.OTEL_COLLECTOR_ENDPOINT
+    otlp_http_endpoint = settings.OTEL_COLLECTOR_HTTP_ENDPOINT
     
-    if not otel_collector_endpoint.startswith("http://") and not otel_collector_endpoint.startswith("https://"):
-        otlp_connectivity_check_endpoint = f"http://{otel_collector_endpoint}"
+    if not otlp_http_endpoint.startswith("http://") and not otlp_http_endpoint.startswith("https://"):
+        otlp_connectivity_check_endpoint = f"http://{otlp_http_endpoint}"
     else:
-        otlp_connectivity_check_endpoint = otel_collector_endpoint
+        otlp_connectivity_check_endpoint = otlp_http_endpoint
 
     otel_available = is_otel_collector_available(endpoint=otlp_connectivity_check_endpoint)
     logging.getLogger(__name__).info(f"OTEL Collector available: {otel_available} at {otlp_connectivity_check_endpoint}")
@@ -124,29 +121,29 @@ def setup_observability(app: FastAPI, engine=None):
         logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
         set_logger_provider(logger_provider)
         
-        # Add OtelHandler to the root logger
+        # Clear existing handlers and add OtelHandler to the root logger
+        root_logger = logging.getLogger()
+        for handler in root_logger.handlers[:]:
+            root_logger.removeHandler(handler)
+        
         handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
-        logging.getLogger().addHandler(handler)
+        formatter = jsonlogger.JsonFormatter(
+            "%(asctime)s %(name)s %(levelname)s %(message)s %(otelTraceID)s %(otelSpanID)s"
+        )
+        handler.setFormatter(formatter)
+        root_logger.addHandler(handler)
 
         FastAPIInstrumentor.instrument_app(app, tracer_provider=tracer_provider, meter_provider=meter_provider)
     else:
         meter_provider = MeterProvider(resource=resource)
         FastAPIInstrumentor.instrument_app(app, meter_provider=meter_provider)
 
-    # Configure logger to use jsonlogger
-    log = getLogger()
-    json_handler = log.handlers[0]
-    formatter = jsonlogger.JsonFormatter(
-        "%(asctime)s %(name)s %(levelname)s %(message)s %(otelTraceID)s %(otelSpanID)s"
-    )
-    json_handler.setFormatter(formatter)
-    
     # Instrumentations
     HTTPXClientInstrumentor().instrument()
     if engine is not None:
         SQLAlchemyInstrumentor().instrument(engine=engine)
     SystemMetricsInstrumentor().instrument()
-    Instrumentator().instrument(app).expose(app)
 
-    # 返回 meter_provider 以便在應用程式中手動創建 meters
+
+    logging.getLogger(__name__).info("Observability setup complete.")
     return meter_provider

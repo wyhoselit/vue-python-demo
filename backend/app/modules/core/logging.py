@@ -7,9 +7,9 @@ from app.modules.core.config import settings
 def setup_logging():
     logger = logging.getLogger()
     
-    # Clear existing handlers
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # # Clear existing handlers
+    # if logger.hasHandlers():
+    #     logger.handlers.clear()
 
     logHandler = logging.StreamHandler()
     

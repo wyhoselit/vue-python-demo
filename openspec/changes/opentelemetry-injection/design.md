@@ -32,10 +32,12 @@ This design provides the technical implementation details for integrating OpenTe
 - **Library**: `@opentelemetry/sdk-trace-web` and other relevant JS packages.
 - **Configuration**: A new module `frontend/src/observability.ts` will handle OTel initialization.
 - **Instrumentation**:
+  - `@opentelemetry/sdk-metrics` and `@opentelemetry/exporter-metrics-otlp-http` for app-level metrics.
   - `instrumentation-xml-http-request` and `instrumentation-fetch` for tracing browser API calls.
   - Custom wrappers for Vue Router and Pinia will be created to generate spans for navigation and state changes.
-- **Exporters**: Use `OTLPTraceExporter` to send telemetry to the OTel Collector.
-- **Unit Tests**: Tests in `frontend/tests/observability.spec.ts` will ensure that user interactions and component lifecycles generate the correct traces.
+- **Exporters**: Use `OTLPTraceExporter` and `OTLPMetricExporter` to send telemetry to the OTel Collector.
+- **Unit Tests**: Tests in `frontend/tests/observability.spec.ts` will ensure that user interactions and component lifecycles generate the correct traces and metrics.
+- **E2E Tests**: Tests in `frontend/cypress/e2e/observability.cy.ts` will verify that metrics are correctly sent to the OTel Collector.
 
 ### 3. Observability Stack Deployment
 

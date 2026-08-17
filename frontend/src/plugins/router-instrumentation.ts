@@ -7,14 +7,29 @@ export const routerInstrumentation = (router) => {
     span.setAttribute('from', String(from.name));
     span.setAttribute('to', String(to.name));
 
+    let spanEnded = false;
+    let errorHandled = false; // Add a flag for error handling
+
+    const endSpan = (error?: Error) => {
+      if (!spanEnded) {
+        if (error && !errorHandled) { // Only set error status if there was an error and it hasn't been handled
+          span.recordException(error);
+          span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+          errorHandled = true;
+        } else {
+          span.setStatus({ code: SpanStatusCode.OK }); // Default to OK if no error
+        }
+        span.end();
+        spanEnded = true;
+      }
+    };
+
     router.afterEach(() => {
-      span.end();
+      endSpan();
     });
 
     router.onError((err) => {
-        span.recordException(err);
-        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-        span.end();
+      endSpan(err); // Pass error to endSpan
     });
 
     next();

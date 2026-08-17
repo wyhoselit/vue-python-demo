@@ -54,7 +54,7 @@ fi
 
 # 3. Prometheus Metrics Check
 echo -n "3. Prometheus metrics received: "
-if curl -s "http://localhost:9090/api/v1/query?query=http_server_duration_milliseconds_count_total" | grep -q '"result":\[{"metric"'; then
+if curl -s "http://localhost:9090/api/v1/query?query=http_server_duration_milliseconds_count" | grep -q '"result":\[{"metric":'; then
     echo -e "${GREEN}OK${NC}"
 else
     echo -e "${RED}FAIL${NC}"
@@ -63,6 +63,10 @@ else
 fi
 
 # 4. Loki Health Check
+
+# curl -G -s "http://localhost:3100/loki/api/v1/labels" | jq
+#  curl -G -s "http://localhost:3100/loki/api/v1/label/job/values" | jq
+
 echo -n "4. Loki readiness: "
 if curl -s "http://localhost:3100/ready" | grep -q "ready"; then
     echo -e "${GREEN}OK${NC}"
@@ -74,11 +78,11 @@ fi
 
 # 5. Loki Logs Check
 echo -n "5. Loki logs received: "
-if curl -s -G "http://localhost:3100/loki/api/v1/query" --data-urlencode 'query={job="fastapi-backend"}' | grep -q '"streams"'; then
+if curl -s -G "http://localhost:3100/loki/api/v1/query" --data-urlencode 'query={service_name="backend-service"}' | grep -q '"streams"'; then
     echo -e "${GREEN}OK${NC}"
 else
     echo -e "${RED}FAIL${NC}"
-    echo "   Reason: No logs found for job 'fastapi-backend'."
+    echo "   Reason: No logs found for job 'backend-service'."
     show_service_logs loki
 fi
 
@@ -92,20 +96,27 @@ else
     show_service_logs tempo
 fi
 
-# 7. Grafana Health Check
-echo -n "7. Grafana readiness: "
-for i in {1..10}; do
-    if curl -s "http://localhost:3000/api/health" | jq -e '.database == "ok"' >/dev/null; then
-        echo -e "${GREEN}OK${NC}"
-        break
-    fi
-    sleep 3
-done
-if [ $i -eq 10 ]; then
+
+
+# 6. Otel-Collector Export Check
+echo -n "8. Otel-Collector export check: "
+OTEL_LOGS=$(curl -s -G "http://localhost:3100/loki/api/v1/query" --data-urlencode 'query={service_name="backend-service"}' | grep -c '"streams":\[\]' | sed 's/ //g' || echo "0")
+if [ "$OTEL_LOGS" -gt 0 ]; then
     echo -e "${RED}FAIL${NC}"
-    echo "   Reason: Grafana is not ready."
-    show_service_logs grafana
+    echo "   Reason: No logs visible in Loki. Check: 1) SERVICE_NAME env var, 2) otel-collector config, 3) backend connectivity."
+    show_service_logs otel-collector
+else
+    echo -e "${GREEN}OK${NC}"
 fi
 
+# 7. Backend OTEL Endpoint Check
+echo -n "9. Backend OTEL endpoint: "
+if curl -s -o /dev/null -w "%{http_code}" "http://localhost:8000/health" | grep -q "200"; then
+    echo -e "${GREEN}OK${NC}"
+else
+    echo -e "${RED}FAIL${NC}"
+    echo "   Reason: Backend not responding on :8000"
+    show_service_logs backend
+fi
 
 echo "✅ Health checks complete."

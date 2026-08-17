@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useThemeStore } from '@/stores/theme'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/stores/auth'
+import { metrics } from '@opentelemetry/api'
 
 const drawer = ref(false)
 const themeStore = useThemeStore()
@@ -12,8 +13,13 @@ const { smAndDown } = useDisplay()
 const isDesktop = computed(() => !smAndDown.value)
 const isAdmin = computed(() => authStore.user?.roles.includes('admin'))
 
+const themeToggleCounter = metrics.getMeter('frontend-app').createCounter('theme_toggle_count', {
+  description: 'Counts theme toggles',
+});
+
 const toggleTheme = () => {
   themeStore.toggleTheme()
+  themeToggleCounter.add(1, { theme: isDark ? 'light' : 'dark' });
 }
 
 watch(smAndDown, (value) => {

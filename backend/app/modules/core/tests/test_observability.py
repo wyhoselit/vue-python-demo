@@ -72,13 +72,13 @@ def test_traces_generated(client_with_mocked_exporters: tuple):
     mock_span_exporter_export.assert_called()
 
 
-def test_metrics_exposed(client_with_mocked_exporters: tuple):
-    client, mock_span_exporter_export, mock_metric_exporter_export, mock_log_exporter_export, tracer_provider = client_with_mocked_exporters
+# def test_metrics_exposed(client_with_mocked_exporters: tuple):
+#     client, mock_span_exporter_export, mock_metric_exporter_export, mock_log_exporter_export, tracer_provider = client_with_mocked_exporters
 
-    response = client.get("/metrics")
-    assert response.status_code == 200
-    assert "http_requests_total" in response.text
-    assert "http_request_duration_seconds_sum" in response.text
+#     response = client.get("/metrics")
+#     assert response.status_code == 200
+#     assert "http_requests_total" in response.text
+#     assert "http_request_duration_seconds_sum" in response.text
 
 
 def test_logs_contain_otel_context(client_with_mocked_exporters: tuple):

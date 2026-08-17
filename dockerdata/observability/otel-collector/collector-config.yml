@@ -6,11 +6,15 @@ receivers:
         cors:
           allowed_origins:
             - "http://localhost:5173"
+            - "http://localhost:4317"
           allowed_headers:
             - "*"
 
 processors:
   batch:
+  groupbyattrs:
+    keys:
+      - service.name
 
 exporters:
   logging:
@@ -23,7 +27,8 @@ exporters:
       insecure: true
 
   loki:
-    endpoint: http://loki:3100/api/v1/push
+    endpoint: http://loki:3100/loki/api/v1/push
+
 
 service:
   pipelines:
@@ -33,9 +38,9 @@ service:
       exporters: [otlp, logging] # otlp for Tempo, jaeger for direct Jaeger (if needed)
     metrics:
       receivers: [otlp]
-      processors: [batch]
+      processors: [groupbyattrs, batch]
       exporters: [prometheus, logging]
     logs:
       receivers: [otlp]
-      processors: [batch]
+      processors: [groupbyattrs, batch]
       exporters: [loki, logging]

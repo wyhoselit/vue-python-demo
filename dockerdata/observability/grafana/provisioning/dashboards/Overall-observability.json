@@ -15,264 +15,10 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
+  "id": 8,
   "links": [],
   "liveNow": false,
   "panels": [
-    {
-      "datasource": {
-        "type": "Prometheus",
-        "uid": "Prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "reqs/s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 0
-      },
-      "id": 8,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "justifySpaceBetween": true,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "limit": 0,
-          "values": false
-        },
-        "showLegend": false,
-        "sparkline": {
-          "full": false,
-          "show": true,
-          "yAxis": {}
-        },
-        "stacking": {
-          "group": "A",
-          "mode": "none"
-        },
-        "textMode": "value",
-        "title": "Request Rate (RPS)",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "Prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(http_server_request_size_bytes_count{exported_job=\"backend-service\"}[1m]))",
-          "legendFormat": "{{job}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "Prometheus",
-        "uid": "Prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 0.05
-              },
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 0
-      },
-      "id": 9,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "justifySpaceBetween": true,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "limit": 0,
-          "values": false
-        },
-        "showLegend": false,
-        "sparkline": {
-          "full": false,
-          "show": true,
-          "yAxis": {}
-        },
-        "stacking": {
-          "group": "A",
-          "mode": "none"
-        },
-        "textMode": "value",
-        "title": "Error Rate (5xx)",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "Prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(sum(rate(http_server_request_size_bytes_count{exported_job=\"backend-service\", http_status_code=~\"5..\"}[1m])) * 100) / sum(rate(http_server_request_size_bytes_count{exported_job=\"backend-service\"}[1m]))",
-          "legendFormat": "{{job}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 0
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "justifySpaceBetween": true,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "limit": 0,
-          "values": false
-        },
-        "showLegend": false,
-        "sparkline": {
-          "full": false,
-          "show": true,
-          "yAxis": {}
-        },
-        "stacking": {
-          "group": "A",
-          "mode": "none"
-        },
-        "textMode": "value",
-        "title": "Latency (p95)",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "wideLayout": true
-      },
-      "pluginVersion": "10.2.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "Prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{exported_job=\"backend-service\"}[1h])) by (le))",
-          "legendFormat": "{{job}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "type": "stat"
-    },
     {
       "datasource": {
         "type": "prometheus",
@@ -305,7 +51,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 0
       },
       "id": 2,
       "options": {
@@ -329,18 +75,25 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
-          "expr": "rate(http_server_duration_milliseconds_count[1h])",
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "rate(http_server_duration_milliseconds_count[5m])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "Requests/sec",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Backend - Request Rate",
+      "title": "Overall - Request Rate",
       "type": "gauge"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -396,7 +149,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 14
+        "y": 6
       },
       "id": 3,
       "options": {
@@ -414,12 +167,22 @@
       "pluginVersion": "10.0.0",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "expr": "rate(http_server_duration_milliseconds_count[5m])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "{{method}} {{route}}",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Backend - Request Rate by Endpoint",
+      "title": "Overall - Request Rate by Endpoint",
       "type": "timeseries"
     },
     {
@@ -457,7 +220,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 14
       },
       "id": 6,
       "options": {
@@ -488,12 +251,10 @@
             },
             {
               "id": "service-name",
-              "operator": "=",
+              "operator": "!=",
               "scope": "resource",
               "tag": "service.name",
-              "value": [
-                "backend-service"
-              ],
+              "value": [],
               "valueType": "string"
             }
           ],
@@ -504,7 +265,7 @@
           "tableType": "traces"
         }
       ],
-      "title": "Tempo Backend",
+      "title": "Tempo Traces",
       "type": "table"
     },
     {
@@ -545,7 +306,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 21
       },
       "id": 7,
       "options": {
@@ -568,13 +329,13 @@
             "type": "loki",
             "uid": "P8E80F9AEF21F6940"
           },
-          "editorMode": "code",
-          "expr": "{job=\"backend-service\"}\n| json\n| label_format body=`{{.body}}`\n| line_format `{{.body}}`\n| json",
+          "editorMode": "builder",
+          "expr": "{job=~\".+\"} | json | label_format body=`{{.body}}` | line_format `{{.body}}` | json",
           "queryType": "range",
           "refId": "A"
         }
       ],
-      "title": "Loki Backend",
+      "title": "Loki Traces",
       "transformations": [
         {
           "id": "extractFields",
@@ -589,7 +350,10 @@
       "type": "table"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -618,8 +382,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -630,7 +393,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 37
+        "y": 29
       },
       "id": 4,
       "options": {
@@ -650,16 +413,29 @@
       "pluginVersion": "10.2.2",
       "targets": [
         {
-          "expr": "rate(http_server_duration_milliseconds_count{http_status_code=~\"5..\"}[5m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "rate(http_server_duration_milliseconds_count{http_status_code=~\"5...\"}[5m])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "5xx Errors",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Backend - 5xx Error Rate",
+      "title": "Overall - 5xx Error Rate",
       "type": "gauge"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -670,8 +446,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -687,7 +462,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 37
+        "y": 29
       },
       "id": 5,
       "options": {
@@ -707,20 +482,30 @@
       "pluginVersion": "10.2.2",
       "targets": [
         {
-          "expr": "rate(http_server_duration_milliseconds_count{http_status_code=~\"5..\"}[5m]) / rate(http_server_duration_milliseconds_count[5m]) * 100",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "(rate(http_server_duration_milliseconds_count{http_status_code=~\"5..\"}[5m]) * 100) / rate(http_server_duration_milliseconds_count[5m])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "legendFormat": "Error Rate %",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
-      "title": "Backend - Error Rate %",
+      "title": "Overall - Error Rate %",
       "type": "gauge"
     }
   ],
   "refresh": "10s",
   "schemaVersion": 38,
   "tags": [
-    "backend",
-    "fastapi",
+    "overall",
+    "vue",
     "observability"
   ],
   "templating": {
@@ -732,8 +517,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Backend Observability",
-  "uid": "backend-observability",
-  "version": 8,
+  "title": "Overall Observability",
+  "uid": "overall-observability",
+  "version": 2,
   "weekStart": ""
 }
