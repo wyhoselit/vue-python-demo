@@ -1,8 +1,16 @@
 
+#!/bin/bash
 
-(cd /code/vue-python-demo/; gitnexus status)
-(cd /code/vue-python-demo/; gitnexus analyze .)
-(cd /code/vue-python-demo/; gitnexus wiki .)
-(cd /code/vue-python-demo/; openwiki --update )
+PROJECT_ROOT="$(dirname "$(realpath "$0")")"
 
-# (cd /code/vue-python-demo/; openwiki "Please generate documentation for this repository"  )
+echo "Generating knowledge graph for $PROJECT_ROOT"
+
+(cd "$PROJECT_ROOT"; gitnexus status)
+echo ""
+(cd "$PROJECT_ROOT"; gitnexus analyze .)
+echo ""
+(cd "$PROJECT_ROOT"; gitnexus wiki .)
+echo ""
+(cd "$PROJECT_ROOT"; openwiki --update )
+echo ""
+# (cd "$PROJECT_ROOT"; openwiki "Please generate documentation for this repository"  )

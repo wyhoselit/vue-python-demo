@@ -69,6 +69,7 @@ npm run dev
 - [Backend Service](/openwiki/backend-service.md) - FastAPI backend with health and AI endpoints
 - [Frontend App](/openwiki/frontend-app.md) - Vue 3 + Vuetify frontend application with chat capabilities
 - [Docker Orchestration](/openwiki/docker-orchestration.md) - Container configuration and deployment
+- [Kubernetes Deployment](/openwiki/kubernetes/overview.md) - Kubernetes deployment manifests and GKE deployment script
 - [Observability](/openwiki/observability.md) - OpenTelemetry, metrics, tracing, logging, and Grafana dashboards
 
 ## Development Workflow

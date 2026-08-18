@@ -11,3 +11,8 @@ description: "Files and subdirectories in OpenWiki."
 - [Frontend Application](frontend-app.md) - Vue 3 + Vuetify frontend single-page application built with Vite and TypeScript.
 - [Observability Overview](observability.md) - Comprehensive documentation for the application's observability stack, including OpenTelemetry, metrics, tracing, logging, and Grafana dashboards for both frontend and backend.
 - [Full-Stack Demo (Vuetify + FastAPI)](quickstart.md) - A monorepo demo application with Vue 3 + Vuetify frontend and FastAPI backend. Provides a clean skeleton for full-stack development with Docker orchestration.
+
+# Directories
+
+- [kubernetes](kubernetes/)
+- [rag](rag/)

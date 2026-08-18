@@ -66,6 +66,12 @@ This application is instrumented with a robust observability stack using OpenTel
 - **Structured Logging**: Ensures consistent log formats across services, enriched with trace IDs for easy correlation with traces.
 - **Custom Dashboards**: Pre-configured Grafana dashboards provide real-time views of frontend performance (component render times, user interactions) and backend health (API latency, error rates, resource usage).
 
+### Observability Features
+- **Distributed Tracing**: End-to-end request tracing allows visibility into how requests flow through the entire system, identifying bottlenecks and latency issues.
+- **Metrics**: Captures application-level and infrastructure metrics for performance monitoring, resource utilization, and health checks.
+- **Structured Logging**: Ensures consistent log formats across services, enriched with trace IDs for easy correlation with traces.
+- **Custom Dashboards**: Pre-configured Grafana dashboards provide real-time views of frontend performance (component render times, user interactions) and backend health (API latency, error rates, resource usage).
+
 ### Verification
 Detailed instructions for verifying the observability setup and accessing Grafana dashboards are provided in the `Observability Overview` documentation.
 
@@ -228,21 +234,6 @@ podman compose up
   - `POST /api/v1/auth/register`: Register new user.
   - `POST /api/v1/auth/login`: Authenticate and set JWT cookie.
   - `GET /api/v1/users/me`: Returns current user profile.
-
-## Kubernetes / GCP Deployment
-
-The application can be deployed to Kubernetes clusters with GKE support. See `@openwiki/kubernetes/overview.md` for full documentation.
-
-**Deploy Script:**
-```bash
-chmod +x deploy-k8s.sh
-./deploy-k8s.sh
-```
-
-The deployment includes:
-- Backend deployment with resource limits
-- Frontend deployment with Vuetify optimization
-- Ingress routing with HTTPS support
 
 ## Frontend Layout Architecture
 

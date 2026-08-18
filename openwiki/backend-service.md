@@ -80,6 +80,7 @@ The AI module manages integration with Large Language Models (LLMs) and vector s
 - **Model Registry**: Maps model names to LLM configurations (`backend/app/modules/ai/models/model_registry.py`).
 - **LLM Service**: Handles interfacing with language models (`backend/app/modules/ai/services/llm_service.py`).
 - **Vector Service**: Provides embedding and vector search (`backend/app/modules/ai/services/vector_service.py`).
+- **RAG Pipeline**: Integrates Retrieval-Augmented Generation for enhanced LLM capabilities. See [RAG Pipeline Overview](/openwiki/rag/overview.md) for details.
 - **API Endpoints**: Chat endpoints for AI interaction (`backend/app/modules/ai/api/chat.py`).
 - **Rate Limiting Middleware**: Throttles requests to LLMs (`backend/app/modules/ai/rate_limiting.py`).
 
