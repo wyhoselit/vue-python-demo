@@ -1,7 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
-from typing import List, Dict, AsyncGenerator, Optional
+from collections.abc import AsyncGenerator
 from dataclasses import dataclass
+
 from langchain_core.documents import Document
 
 
@@ -9,7 +10,7 @@ from langchain_core.documents import Document
 class LLMCompletion:
     text: str
     model: str
-    usage: Dict[str, int]
+    usage: dict[str, int]
     finish_reason: str = "stop"
 
 
@@ -27,7 +28,7 @@ class LLMProvider(ABC):
     async def generate(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
@@ -38,7 +39,7 @@ class LLMProvider(ABC):
     async def generate_stream(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
@@ -46,7 +47,7 @@ class LLMProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_models(self) -> List[str]:
+    async def get_models(self) -> list[str]:
         pass
 
     @abstractmethod
@@ -59,7 +60,7 @@ class OpenAIProvider(LLMProvider):
         self.api_key = api_key
         self.client = None  # Initialize OpenAI client as needed
     
-    async def generate(self, model: str, messages: List[Dict[str, str]],
+    async def generate(self, model: str, messages: list[dict[str, str]],
                       temperature: float = 0.7, max_tokens: int = 1000,
                       **kwargs) -> LLMCompletion:
         # Mock implementation for now
@@ -70,7 +71,7 @@ class OpenAIProvider(LLMProvider):
             finish_reason="stop"
         )
     
-    async def generate_stream(self, model: str, messages: List[Dict[str, str]],
+    async def generate_stream(self, model: str, messages: list[dict[str, str]],
                               temperature: float = 0.7, max_tokens: int = 1000,
                               **kwargs) -> AsyncGenerator[str, None]:
         response = await self.generate(model, messages, temperature, max_tokens, **kwargs)
@@ -80,7 +81,7 @@ class OpenAIProvider(LLMProvider):
             yield word + " "
             await asyncio.sleep(0.01)
     
-    async def get_models(self) -> List[str]:
+    async def get_models(self) -> list[str]:
         return ["gpt-3.5-turbo", "gpt-4"]
     
     async def health_check(self) -> bool:
@@ -91,7 +92,7 @@ class AnthropicProvider(LLMProvider):
     def __init__(self, api_key: str):
         self.api_key = api_key
     
-    async def generate(self, model: str, messages: List[Dict[str, str]],
+    async def generate(self, model: str, messages: list[dict[str, str]],
                       temperature: float = 0.7, max_tokens: int = 1000,
                       **kwargs) -> LLMCompletion:
         # Mock implementation for now
@@ -102,7 +103,7 @@ class AnthropicProvider(LLMProvider):
             finish_reason="stop"
         )
     
-    async def generate_stream(self, model: str, messages: List[Dict[str, str]],
+    async def generate_stream(self, model: str, messages: list[dict[str, str]],
                               temperature: float = 0.7, max_tokens: int = 1000,
                               **kwargs) -> AsyncGenerator[str, None]:
         response = await self.generate(model, messages, temperature, max_tokens, **kwargs)
@@ -111,7 +112,7 @@ class AnthropicProvider(LLMProvider):
             yield word + " "
             await asyncio.sleep(0.01)
     
-    async def get_models(self) -> List[str]:
+    async def get_models(self) -> list[str]:
         return ["claude-3-opus", "claude-3-sonnet"]
     
     async def health_check(self) -> bool:
@@ -122,7 +123,7 @@ class LocalProvider(LLMProvider):
     def __init__(self):
         pass
     
-    async def generate(self, model: str, messages: List[Dict[str, str]],
+    async def generate(self, model: str, messages: list[dict[str, str]],
                       temperature: float = 0.7, max_tokens: int = 1000,
                       **kwargs) -> LLMCompletion:
         # Mock implementation for now
@@ -133,7 +134,7 @@ class LocalProvider(LLMProvider):
             finish_reason="stop"
         )
     
-    async def generate_stream(self, model: str, messages: List[Dict[str, str]],
+    async def generate_stream(self, model: str, messages: list[dict[str, str]],
                               temperature: float = 0.7, max_tokens: int = 1000,
                               **kwargs) -> AsyncGenerator[str, None]:
         response = await self.generate(model, messages, temperature, max_tokens, **kwargs)
@@ -142,7 +143,7 @@ class LocalProvider(LLMProvider):
             yield word + " "
             await asyncio.sleep(0.01)
     
-    async def get_models(self) -> List[str]:
+    async def get_models(self) -> list[str]:
         return ["llama2", "mistral"]
     
     async def health_check(self) -> bool:
@@ -165,7 +166,7 @@ class LLMService:
     async def generate(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
@@ -176,14 +177,17 @@ class LLMService:
     async def generate_with_rag(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         query: str,
-        context_documents: List[Document],
+        context_documents: list[Document],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
     ) -> LLMCompletion:
-        from app.modules.llm.rag.llm_integrator import format_context_for_llm, generate_rag_prompt
+        from app.modules.llm.rag.llm_integrator import (
+            format_context_for_llm,
+            generate_rag_prompt,
+        )
         
         formatted_context = format_context_for_llm(context_documents)
         rag_prompt = generate_rag_prompt(query, formatted_context, RAG_PROMPT_TEMPLATE)
@@ -197,7 +201,7 @@ class LLMService:
     async def generate_stream(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
@@ -209,14 +213,17 @@ class LLMService:
     async def stream_chat_with_rag(
         self,
         model: str,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         query: str,
-        context_documents: List[Document],
+        context_documents: list[Document],
         temperature: float = 0.7,
         max_tokens: int = 1000,
         **kwargs
     ) -> AsyncGenerator[str, None]:
-        from app.modules.llm.rag.llm_integrator import format_context_for_llm, generate_rag_prompt
+        from app.modules.llm.rag.llm_integrator import (
+            format_context_for_llm,
+            generate_rag_prompt,
+        )
 
         formatted_context = format_context_for_llm(context_documents)
         rag_prompt = generate_rag_prompt(query, formatted_context, RAG_PROMPT_TEMPLATE)
@@ -228,7 +235,7 @@ class LLMService:
     
     async def generate_chat(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         model: str,
         temperature: float = 0.7,
         max_tokens: int = 1000,
@@ -239,7 +246,7 @@ class LLMService:
     
     async def stream_chat(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         model: str,
         temperature: float = 0.7,
         max_tokens: int = 1000,

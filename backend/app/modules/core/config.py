@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     OTEL_COLLECTOR_HTTP_ENDPOINT: str = os.getenv("OTEL_COLLECTOR_HTTP_ENDPOINT", "http://otel-collector:4318")
     SERVICE_NAME: str = os.getenv("SERVICE_NAME", "backend-service")
 
+    VECTOR_STORE: str = os.getenv("VECTOR_STORE", "chroma")
+    PGVECTOR_HNSW_M: int = int(os.getenv("PGVECTOR_HNSW_M", "16"))
+    PGVECTOR_HNSW_EF_CONSTRUCTION: int = int(os.getenv("PGVECTOR_HNSW_EF_CONSTRUCTION", "64"))
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra='ignore')
 
 

@@ -1,21 +1,29 @@
-from typing import List, Optional
-from dataclasses import dataclass
+from sentence_transformers import SentenceTransformer
 
-
-@dataclass
-class SearchResult:
-    id: str
-    text: str
-    score: float
-    metadata: dict
+from app.modules.ai.services.vector_store_factory import get_vector_store
 
 
 class VectorService:
-    async def generate_embedding(self, text: str, model: str = "text-embedding-ada-002") -> List[float]:
-        return [0.0] * 1536  # ponytail: stub; replace with real provider call when OpenAI dep wired
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self._model = SentenceTransformer(model_name)
 
-    async def store_embedding(self, id: str, text: str, embedding: List[float], metadata: Optional[dict] = None):
-        pass  # ponytail: stub; needs pgvector table + SQLAlchemy insert
+    async def generate_embedding(
+        self, text: str, model: str = "all-MiniLM-L6-v2"
+    ) -> list[float]:
+        return self._model.encode(text).tolist()
 
-    async def search(self, query_embedding: List[float], limit: int = 10) -> List[SearchResult]:
-        return []  # ponytail: stub; needs pgvector cosine similarity query
+    async def store_embedding(
+        self,
+        id: str,
+        text: str,
+        embedding: list[float],
+        metadata: dict | None = None,
+    ) -> None:
+        vector_store = get_vector_store()
+        await vector_store.add_documents(
+            [{"id": id, "document": text, "embedding": embedding, "metadata": metadata}]
+        )
+
+    async def search(self, query_embedding: list[float], limit: int = 10) -> list:
+        vector_store = get_vector_store()
+        return await vector_store.search(query_embedding, limit)

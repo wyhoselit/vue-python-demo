@@ -6,6 +6,7 @@ from app.modules.llm.rag.retriever import retrieve, generate_query_embedding
 from app.modules.ai.services.llm_service import LLMService, LLMCompletion
 from app.modules.ai.api.chat import rag_chat_completion
 
+
 # --- Integration Test: Retrieval + LLM Generation ---
 
 @pytest.mark.asyncio
@@ -44,13 +45,15 @@ async def test_rag_chat_completion_integration():
     request.max_tokens = 1000
     request.stream = False
     
-    with patch('app.modules.ai.api.chat.retrieve', return_value=mock_retrieval_results):
+    with patch('app.modules.ai.api.chat.retrieve', new_callable=AsyncMock) as mock_retrieve:
+        mock_retrieve.return_value = mock_retrieval_results
         response = await rag_chat_completion(request, mock_user, mock_llm_service)
     
     assert response["text"] == "Based on the context, Python is a programming language."
     assert response["model"] == "gpt-3.5-turbo"
     assert response["usage"]["total_tokens"] == 60
     assert "retrieved_docs" in response
+
 
 @pytest.mark.asyncio
 async def test_rag_chat_completion_streaming():
@@ -81,11 +84,13 @@ async def test_rag_chat_completion_streaming():
     request.max_tokens = 1000
     request.stream = True
     
-    with patch('app.modules.ai.api.chat.retrieve', return_value=mock_retrieval_results):
+    with patch('app.modules.ai.api.chat.retrieve', new_callable=AsyncMock) as mock_retrieve:
+        mock_retrieve.return_value = mock_retrieval_results
         response = await rag_chat_completion(request, mock_user, mock_llm_service)
     
     assert hasattr(response, 'media_type')
     assert response.media_type == "text/plain"
+
 
 # --- Integration Test: LLMService with RAG ---
 
@@ -131,6 +136,7 @@ async def test_llm_service_generate_with_rag():
     assert "Context 2" in call_args[0][1][-1]["content"]
     assert "What is X?" in call_args[0][1][-1]["content"]
 
+
 @pytest.mark.asyncio
 async def test_llm_service_stream_chat_with_rag():
     """
@@ -165,6 +171,7 @@ async def test_llm_service_stream_chat_with_rag():
     
     assert chunks == ["Streaming ", "RAG ", "response"]
 
+
 # --- Integration Test: Retrieval ---
 
 @pytest.mark.asyncio
@@ -177,19 +184,22 @@ async def test_retrieve_integration():
         
         mock_embed.return_value = [0.1, 0.2, 0.3]
         mock_store = MagicMock()
-        mock_store.query.return_value = {
-            'ids': [['doc1']],
-            'documents': [['Retrieved document']],
-            'metadatas': [[{'source': 'test.txt'}]],
-            'distances': [[0.05]]
-        }
+        mock_store.search = AsyncMock(return_value=[
+            MagicMock(
+                id="doc1",
+                text="Retrieved document",
+                metadata={"source": "test.txt"},
+                score=0.95
+            )
+        ])
         mock_get_store.return_value = mock_store
         
-        results = retrieve("test query", n_results=3)
+        results = await retrieve("test query", n_results=3)
         
         assert results['documents'][0] == ['Retrieved document']
         mock_embed.assert_called_once_with("test query")
-        mock_store.query.assert_called_once_with([0.1, 0.2, 0.3], 3)
+        mock_store.search.assert_called_once_with([0.1, 0.2, 0.3], 3, None)
+
 
 # --- Integration Test: End-to-End Ingestion and Retrieval ---
 
@@ -199,25 +209,23 @@ async def test_ingest_and_retrieve_flow():
     Test the full ingestion -> vector store -> retrieval flow with mocks.
     """
     from app.modules.llm.rag.ingestion_service import ingest_and_store_document
-    from app.modules.llm.rag.embedding_generator import EmbeddingGenerator
-    from app.modules.llm.rag.vector_store import get_vector_store, VectorStore
-    import app.modules.llm.rag.vector_store as vs_module
+    from app.modules.ai.services.chroma_vector_store import ChromaVectorStore
+    from app.modules.ai.services.vector_store_factory import reset_vector_store
     
-    # Reset the global singleton
-    vs_module._vector_store = None
-    
+    reset_vector_store()
+
     # Mock document loading
     mock_docs = [Document(page_content="Test document content", metadata={"source": "test.txt"})]
     
     with patch('app.modules.llm.rag.ingestion_service.load_document', return_value=mock_docs), \
          patch('app.modules.llm.rag.ingestion_service.split_documents', return_value=mock_docs), \
          patch('app.modules.llm.rag.embedding_generator.EmbeddingGenerator.generate_embeddings', return_value=[[0.1, 0.2, 0.3]]), \
-         patch('chromadb.PersistentClient') as mock_chromadb_client:
+         patch('app.modules.ai.services.chroma_vector_store.ChromaVectorStore') as mock_chroma_class:
     
         mock_collection = MagicMock()
-        mock_chromadb_client.return_value.get_or_create_collection.return_value = mock_collection
-        mock_collection.count.return_value = 1  # Simulate one document being added
-        mock_collection.add.return_value = None  # Ensure add returns None or similar if needed
+        mock_chroma_instance = MagicMock()
+        mock_chroma_instance.collection = mock_collection
+        mock_chroma_class.return_value = mock_chroma_instance
         
         # Test ingestion
         chunks = await ingest_and_store_document("test.txt")
@@ -227,11 +235,11 @@ async def test_ingest_and_retrieve_flow():
         assert 'embedding' in chunks[0].metadata
         
         # Verify vector store add was called
-        mock_collection.add.assert_called_once()
-        added_docs_call_args = mock_collection.add.call_args[1]  # keyword arguments
+        mock_chroma_instance.add_documents.assert_called_once()
+        added_docs_call_args = mock_chroma_instance.add_documents.call_args[0][0]
         
-        assert added_docs_call_args['ids'] == ['test.txt_0']
-        assert added_docs_call_args['embeddings'] == [[0.1, 0.2, 0.3]]
-        assert added_docs_call_args['documents'] == ['Test document content']
-        assert added_docs_call_args['metadatas'][0]['source'] == 'test.txt'
-        assert 'embedding' not in added_docs_call_args['metadatas'][0]  # Ensure embedding is removed from metadata
+        assert added_docs_call_args[0]['id'] == 'test.txt_0'
+        assert added_docs_call_args[0]['embedding'] == [0.1, 0.2, 0.3]
+        assert added_docs_call_args[0]['document'] == 'Test document content'
+        assert added_docs_call_args[0]['metadata']['source'] == 'test.txt'
+        assert 'embedding' not in added_docs_call_args[0]['metadata']

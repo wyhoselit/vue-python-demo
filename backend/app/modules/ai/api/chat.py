@@ -4,7 +4,6 @@ from app.api.v1.deps import get_current_user
 from app.modules.user.user import User
 from typing import AsyncGenerator, List
 from pydantic import BaseModel
-import json
 
 from app.modules.llm.rag.retriever import retrieve
 from langchain_core.documents import Document
@@ -59,7 +58,7 @@ async def rag_chat_completion(
     service: LLMService = Depends(get_llm_service)
 ):
     # 1. Retrieve relevant documents
-    retrieval_results = retrieve(request.query, request.n_results)
+    retrieval_results = await retrieve(request.query, request.n_results)
     
     # Format documents for LLM context (assuming retrieval_results['documents'] contains the text)
     context_documents = []

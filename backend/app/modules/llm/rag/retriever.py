@@ -1,5 +1,8 @@
+import asyncio
+from typing import Optional
+
+from app.modules.ai.services.vector_store_factory import get_vector_store
 from app.modules.llm.rag.embedding_generator import EmbeddingGenerator
-from app.modules.llm.rag.vector_store import get_vector_store
 
 
 _embedding_generator = EmbeddingGenerator()
@@ -18,7 +21,11 @@ def generate_query_embedding(query: str) -> list[float]:
     return _embedding_generator.generate_embedding(query)
 
 
-def retrieve(query: str, n_results: int = 5) -> dict:
+async def retrieve(
+    query: str,
+    n_results: int = 5,
+    filter_metadata: Optional[dict] = None,
+) -> dict:
     """
     Performs similarity search against the vector store using a query string.
 
@@ -28,13 +35,25 @@ def retrieve(query: str, n_results: int = 5) -> dict:
 
     Returns:
         Dictionary with keys: 'ids', 'documents', 'metadatas', 'distances'
+        (converted from SearchResult objects for backward compatibility)
     """
     query_embedding = generate_query_embedding(query)
     vector_store = get_vector_store()
-    return vector_store.query(query_embedding, n_results)
+    results = await vector_store.search(query_embedding, n_results, filter_metadata)
+
+    return {
+        "ids": [[r.id for r in results]],
+        "documents": [[r.text for r in results]],
+        "metadatas": [[r.metadata for r in results]],
+        "distances": [[1.0 - r.score for r in results]],
+    }
 
 
-def retrieve_with_embedding(query_embedding: list[float], n_results: int = 5) -> dict:
+async def retrieve_with_embedding(
+    query_embedding: list[float],
+    n_results: int = 5,
+    filter_metadata: Optional[dict] = None,
+) -> dict:
     """
     Performs similarity search against the vector store using a pre-computed embedding.
 
@@ -44,6 +63,14 @@ def retrieve_with_embedding(query_embedding: list[float], n_results: int = 5) ->
 
     Returns:
         Dictionary with keys: 'ids', 'documents', 'metadatas', 'distances'
+        (converted from SearchResult objects for backward compatibility)
     """
     vector_store = get_vector_store()
-    return vector_store.query(query_embedding, n_results)
+    results = await vector_store.search(query_embedding, n_results, filter_metadata)
+
+    return {
+        "ids": [[r.id for r in results]],
+        "documents": [[r.text for r in results]],
+        "metadatas": [[r.metadata for r in results]],
+        "distances": [[1.0 - r.score for r in results]],
+    }

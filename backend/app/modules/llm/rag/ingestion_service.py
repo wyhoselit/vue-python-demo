@@ -8,7 +8,7 @@ from langchain_core.documents import Document
 from app.modules.llm.rag.document_loader import load_document, load_documents_from_directory
 from app.modules.llm.rag.text_splitter import split_documents
 from app.modules.llm.rag.embedding_generator import EmbeddingGenerator
-from app.modules.llm.rag.vector_store import get_vector_store
+from app.modules.ai.services.vector_store_factory import get_vector_store
 
 
 _embedding_generator = EmbeddingGenerator()
@@ -91,7 +91,7 @@ async def ingest_and_store_document(file_path: str, chunk_size: int = 1000, chun
             'metadata': {k: v for k, v in chunk.metadata.items() if k != 'embedding'}
         })
     
-    vector_store.add_documents(docs_to_store)
+    await vector_store.add_documents(docs_to_store)
     
     return chunks
 
@@ -123,6 +123,6 @@ async def ingest_and_store_documents_from_directory(directory_path: str, chunk_s
             'metadata': {k: v for k, v in chunk.metadata.items() if k != 'embedding'}
         })
     
-    vector_store.add_documents(docs_to_store)
+    await vector_store.add_documents(docs_to_store)
     
     return chunks
