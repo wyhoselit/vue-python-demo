@@ -1,7 +1,7 @@
 from datetime import datetime
+import random
 from fastapi import APIRouter
 from pydantic import BaseModel
-
 
 class DashboardStats(BaseModel):
     total_users: int
@@ -24,24 +24,27 @@ router = APIRouter()
 
 @router.get("/stats", response_model=DashboardStats)
 async def get_dashboard_stats():
+
+    #retun random value
     return {
-        "total_users": 1250,
-        "active_sessions": 42,
-        "api_calls_24h": 15420,
+        "total_users": random.randint(0, 1000),
+        "active_sessions": random.randint(0, 100),
+        "api_calls_24h": random.randint(0, 10000),
     }
 
 
 @router.get("/realtime", response_model=list[RealtimeDataPoint])
 async def get_dashboard_realtime():
     now = datetime.now()
+    #return random value 
     return [
         {
             "timestamp": now.isoformat(),
-            "requests": 10,
-            "avg_response_time": 25.5,
-            "status2xx": 8,
-            "status4xx": 1,
-            "status5xx": 1,
-            "active_users": 3,
+            "requests": random.randint(0, 1000),
+            "avg_response_time": random.uniform(0, 100),
+            "status2xx": random.randint(0, 100),
+            "status4xx": random.randint(0, 100),
+            "status5xx": random.randint(0, 100),
+            "active_users": random.randint(0, 100),
         }
     ]
