@@ -1,7 +1,8 @@
 import asyncio
 from abc import ABC, abstractmethod
-from typing import List, Dict, AsyncGenerator
+from typing import List, Dict, AsyncGenerator, Optional
 from dataclasses import dataclass
+from langchain_core.documents import Document
 
 
 @dataclass
@@ -10,6 +11,15 @@ class LLMCompletion:
     model: str
     usage: Dict[str, int]
     finish_reason: str = "stop"
+
+
+RAG_PROMPT_TEMPLATE = """Use the following context to answer the question at the end. If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{context}
+
+Question: {query}
+
+Answer:"""
 
 
 class LLMProvider(ABC):
@@ -162,6 +172,27 @@ class LLMService:
     ) -> LLMCompletion:
         provider = await self.get_provider(model)
         return await provider.generate(model, messages, temperature, max_tokens, **kwargs)
+
+    async def generate_with_rag(
+        self,
+        model: str,
+        messages: List[Dict[str, str]],
+        query: str,
+        context_documents: List[Document],
+        temperature: float = 0.7,
+        max_tokens: int = 1000,
+        **kwargs
+    ) -> LLMCompletion:
+        from app.modules.llm.rag.llm_integrator import format_context_for_llm, generate_rag_prompt
+        
+        formatted_context = format_context_for_llm(context_documents)
+        rag_prompt = generate_rag_prompt(query, formatted_context, RAG_PROMPT_TEMPLATE)
+        
+        # Replace the last user message with the RAG-augmented prompt
+        rag_messages = messages[:-1] + [{"role": "user", "content": rag_prompt}]
+        
+        return await self.generate(model, rag_messages, temperature, max_tokens, **kwargs)
+
     
     async def generate_stream(
         self,
@@ -173,6 +204,26 @@ class LLMService:
     ) -> AsyncGenerator[str, None]:
         provider = await self.get_provider(model)
         async for chunk in provider.generate_stream(model, messages, temperature, max_tokens, **kwargs):
+            yield chunk
+
+    async def stream_chat_with_rag(
+        self,
+        model: str,
+        messages: List[Dict[str, str]],
+        query: str,
+        context_documents: List[Document],
+        temperature: float = 0.7,
+        max_tokens: int = 1000,
+        **kwargs
+    ) -> AsyncGenerator[str, None]:
+        from app.modules.llm.rag.llm_integrator import format_context_for_llm, generate_rag_prompt
+
+        formatted_context = format_context_for_llm(context_documents)
+        rag_prompt = generate_rag_prompt(query, formatted_context, RAG_PROMPT_TEMPLATE)
+        
+        rag_messages = messages[:-1] + [{"role": "user", "content": rag_prompt}]
+
+        async for chunk in self.generate_stream(model, rag_messages, temperature, max_tokens, **kwargs):
             yield chunk
     
     async def generate_chat(

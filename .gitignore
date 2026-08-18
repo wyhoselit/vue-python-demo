@@ -25,6 +25,7 @@ build/
 # Databases
 *.db
 *.sqlite
+*.sqlite3
 
 #node_modules
 node_modules/
@@ -38,3 +39,6 @@ career/
 **/tempo/data/*
 **/grafana/data/*
 **/prometheus/data/*
+
+#chroma_db
+**/chroma_db/*
