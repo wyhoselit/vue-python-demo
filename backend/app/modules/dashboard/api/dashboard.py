@@ -12,11 +12,11 @@ class DashboardStats(BaseModel):
 class RealtimeDataPoint(BaseModel):
     timestamp: str
     requests: int
-    avg_response_time: float
+    avgResponseTime: float
     status2xx: int
     status4xx: int
     status5xx: int
-    active_users: int
+    activeUsers: int
 
 
 router = APIRouter()
@@ -36,15 +36,14 @@ async def get_dashboard_stats():
 @router.get("/realtime", response_model=list[RealtimeDataPoint])
 async def get_dashboard_realtime():
     now = datetime.now()
-    #return random value 
     return [
         {
             "timestamp": now.isoformat(),
             "requests": random.randint(0, 1000),
-            "avg_response_time": random.uniform(0, 100),
+            "avgResponseTime": random.uniform(0, 100),
             "status2xx": random.randint(0, 100),
             "status4xx": random.randint(0, 100),
             "status5xx": random.randint(0, 100),
-            "active_users": random.randint(0, 100),
+            "activeUsers": random.randint(0, 100),
         }
     ]
