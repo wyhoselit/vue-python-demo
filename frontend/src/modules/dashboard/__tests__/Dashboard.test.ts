@@ -167,4 +167,85 @@ describe('Dashboard', () => {
 
     expect(clearIntervalSpy).toHaveBeenCalled();
   });
+
+  it('handles realtime data with valid numeric values (no NaN/Infinity)', async () => {
+    const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 };
+    const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }];
+    const mockRealtime = [{
+      timestamp: new Date().toISOString(),
+      requests: 100,
+      avgResponseTime: 50.5,
+      status2xx: 80,
+      status4xx: 5,
+      status5xx: 2,
+      activeUsers: 25,
+    }];
+
+    vi.mocked(useApiModule.useApi).mockReturnValue({
+      get: vi.fn().mockImplementation((url: string) => {
+        if (url === '/dashboard/stats') return Promise.resolve(mockStats);
+        if (url === '/users') return Promise.resolve(mockUsers);
+        if (url === '/dashboard/realtime') return Promise.resolve(mockRealtime);
+        return Promise.resolve({});
+      }),
+    } as any);
+
+    const wrapper = mount(Dashboard, {
+      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
+    });
+
+    await flushPromises();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(wrapper.html()).toContain('100');
+    expect(wrapper.html()).toContain('API 回應時間分佈');
+  });
+
+  it('falls back to mock data when realtime API returns empty array', async () => {
+    const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 };
+    const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }];
+
+    vi.mocked(useApiModule.useApi).mockReturnValue({
+      get: vi.fn().mockImplementation((url: string) => {
+        if (url === '/dashboard/stats') return Promise.resolve(mockStats);
+        if (url === '/users') return Promise.resolve(mockUsers);
+        if (url === '/dashboard/realtime') return Promise.resolve([]);
+        return Promise.resolve({});
+      }),
+    } as any);
+
+    const wrapper = mount(Dashboard, {
+      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
+    });
+
+    await flushPromises();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(wrapper.html()).toContain('100');
+    expect(wrapper.html()).toContain('API 回應時間分佈');
+  });
+
+  it('falls back to mock data when realtime API fails (network error)', async () => {
+    const mockStats = { total_users: 100, active_sessions: 10, api_calls_24h: 500 };
+    const mockUsers = [{ id: 1, name: 'Test User', email: 'test@example.com', status: 'active' }];
+
+    vi.mocked(useApiModule.useApi).mockReturnValue({
+      get: vi.fn().mockImplementation((url: string) => {
+        if (url === '/dashboard/stats') return Promise.resolve(mockStats);
+        if (url === '/users') return Promise.resolve(mockUsers);
+        if (url === '/dashboard/realtime') return Promise.reject(new Error('Network Error'));
+        return Promise.resolve({});
+      }),
+    } as any);
+
+    const wrapper = mount(Dashboard, {
+      global: { plugins: [vuetify, createPinia()], stubs: vuetifyStubs },
+    });
+
+    await flushPromises();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(wrapper.html()).toContain('100');
+    expect(wrapper.html()).toContain('API 回應時間分佈');
+  });
 });

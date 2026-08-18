@@ -1,7 +1,9 @@
-from datetime import datetime
 import random
+from datetime import datetime
+
 from fastapi import APIRouter
 from pydantic import BaseModel
+
 
 class DashboardStats(BaseModel):
     total_users: int
