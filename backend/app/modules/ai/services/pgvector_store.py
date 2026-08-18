@@ -1,4 +1,4 @@
-from sqlalchemy import select, text
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -47,38 +47,39 @@ class PGVectorStore(VectorStore):
         filter_metadata: dict | None = None,
     ) -> list[SearchResult]:
         async with self.AsyncSessionLocal() as session:
-            from pgvector.sqlalchemy import ScalarFunction
-
-            query = (
-                select(
-                    Document.id,
-                    Document.content,
-                    Document.meta_data,
-                    Document.embedding.cast(
-                        ScalarFunction("1 - cosine_distance")
-                    ).label("score"),
-                )
-                .order_by(Document.embedding.cosine_distance(query_embedding))
-                .limit(limit)
-            )
+            query = text("""
+                SELECT id, content, meta_data,
+                       1 - cosine_distance(embedding, :query_emb) as score
+                FROM documents
+                ORDER BY embedding <=> :query_emb
+                LIMIT :limit
+            """).bindparams(query_emb=query_embedding, limit=limit)
 
             if filter_metadata:
-                where_clause = text("meta_data @> :filter")
-                query = query.where(where_clause)
-                results = await session.execute(query, {"filter": filter_metadata})
-            else:
-                results = await session.execute(query)
+                query = text("""
+                    SELECT id, content, meta_data,
+                           1 - cosine_distance(embedding, :query_emb) as score
+                    FROM documents
+                    WHERE meta_data @> :filter
+                    ORDER BY embedding <=> :query_emb
+                    LIMIT :limit
+                """).bindparams(query_emb=query_embedding, limit=limit, filter=filter_metadata)
 
+            results = await session.execute(query)
             rows = results.fetchall()
-            return [
-                SearchResult(
-                    id=str(row.id),
-                    text=row.content,
-                    score=float(row.score) if hasattr(row, "score") else 0.0,
-                    metadata=row.meta_data or {},
+            
+            results_list = []
+            for row in rows:
+                results_list.append(
+                    SearchResult(
+                        id=str(row.id),
+                        text=row.content,
+                        score=float(row.score) if hasattr(row, 'score') and row.score is not None else 0.0,
+                        metadata=row.meta_data or {},
+                    )
                 )
-                for row in rows
-            ]
+
+            return results_list
 
     async def delete(self, ids: list[str]) -> None:
         async with self.AsyncSessionLocal() as session:

@@ -225,6 +225,7 @@ async def test_ingest_and_retrieve_flow():
         mock_collection = MagicMock()
         mock_chroma_instance = MagicMock()
         mock_chroma_instance.collection = mock_collection
+        mock_chroma_instance.add_documents = AsyncMock()
         mock_chroma_class.return_value = mock_chroma_instance
         
         # Test ingestion

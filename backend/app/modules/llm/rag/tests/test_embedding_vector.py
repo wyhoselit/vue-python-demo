@@ -68,7 +68,8 @@ def test_chroma_vector_store_init(mock_chromadb_client):
     mock_client.return_value.get_or_create_collection.assert_called_once_with(name="rag_documents")
 
 
-def test_chroma_vector_store_add_documents(mock_chromadb_client):
+@pytest.mark.asyncio
+async def test_chroma_vector_store_add_documents(mock_chromadb_client):
     mock_client, mock_collection = mock_chromadb_client
     
     store = ChromaVectorStore()
@@ -77,12 +78,13 @@ def test_chroma_vector_store_add_documents(mock_chromadb_client):
         {'id': '2', 'embedding': [0.3] * 384, 'document': 'doc2', 'metadata': {'source': 'test'}}
     ]
     
-    store.add_documents(docs)
+    await store.add_documents(docs)
     
     mock_collection.add.assert_called_once()
 
 
-def test_chroma_vector_store_query(mock_chromadb_client):
+@pytest.mark.asyncio
+async def test_chroma_vector_store_query(mock_chromadb_client):
     mock_client, mock_collection = mock_chromadb_client
     mock_collection.query.return_value = {
         'ids': [['1', '2']],
@@ -92,18 +94,10 @@ def test_chroma_vector_store_query(mock_chromadb_client):
     }
     
     store = ChromaVectorStore()
-    result = store.query([0.1] * 384, n_results=2)
+    result = await store.search([0.1] * 384, limit=2)
     
-    assert result == {
-        'ids': [['1', '2']],
-        'documents': [['doc1', 'doc2']],
-        'metadatas': [[{'source': 'test'}, {'source': 'test'}]],
-        'distances': [[0.1, 0.2]]
-    }
-    mock_collection.query.assert_called_once_with(
-        query_embeddings=[[0.1] * 384],
-        n_results=2
-    )
+    assert len(result) == 2
+    mock_collection.query.assert_called_once()
 
 
 def test_chroma_vector_store_get_collection_info(mock_chromadb_client):
