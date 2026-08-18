@@ -1,0 +1,38 @@
+name: Python Coverage Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        pip install poetry
+        cd backend
+        poetry install
+    - name: Run tests with coverage
+      run: |
+        cd backend
+        poetry run pytest --cov=app --cov-report=xml --cov-report=html --cov-report=term-missing
+    - name: Check coverage threshold
+      run: |
+        cd backend
+        COVERAGE_PERCENTAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); print(tree.getroot().find('packages').find('package').attrib['line-rate'])")
+        COVERAGE_PERCENTAGE=$(echo "$COVERAGE_PERCENTAGE * 100" | bc)
+        echo "Line Coverage: $COVERAGE_PERCENTAGE%"
+        if (( $(echo "$COVERAGE_PERCENTAGE < 80" | bc -l) )); then
+          echo "::warning file=backend/pyproject.toml::Code coverage is below 80% (Current: $COVERAGE_PERCENTAGE%). Please add more tests."
+        fi
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: backend/htmlcov/
