@@ -1,0 +1,40 @@
+groups:
+- name: SLO-Alerts
+  rules:
+  # Availability alerts (1h and 6h windows)
+  - alert: AvailabilityBurnRateHigh1h
+    expr: (sum(rate(http_server_request_size_bytes_count{exported_job="backend-service", http_status_code=~"5.."}[1h])) * 100) / sum(rate(http_server_request_size_bytes_count{exported_job="backend-service"}[1h])) > 0.1
+    for: 1h
+    labels:
+      severity: critical
+    annotations:
+      summary: "Availability burn rate exceeded (1h window, 99.9% SLO)"
+      description: "Availability has been below 99.9% for the last hour. Current availability: {{ $value }}%"
+
+  - alert: AvailabilityBurnRateHigh6h
+    expr: (sum(rate(http_server_request_size_bytes_count{exported_job="backend-service", http_status_code=~"5.."}[6h])) * 100) / sum(rate(http_server_request_size_bytes_count{exported_job="backend-service"}[6h])) > 0.05
+    for: 6h
+    labels:
+      severity: warning
+    annotations:
+      summary: "Availability burn rate exceeded (6h window, 99.9% SLO)"
+      description: "Availability has been below 99.9% on average for the last 6 hours. Current availability: {{ $value }}%"
+
+  # Latency alerts (1h and 6h windows)
+  - alert: LatencyBurnRateHigh1h
+    expr: histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{exported_job="backend-service"}[1h])) by (le)) > 200
+    for: 1h
+    labels:
+      severity: critical
+    annotations:
+      summary: "Latency burn rate exceeded (1h window, P95 < 200ms SLO)"
+      description: "P95 latency has been above 200ms for the last hour. Current P95: {{ $value }}ms"
+
+  - alert: LatencyBurnRateHigh6h
+    expr: histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{exported_job="backend-service"}[6h])) by (le)) > 150
+    for: 6h
+    labels:
+      severity: warning
+    annotations:
+      summary: "Latency burn rate exceeded (6h window, P95 < 200ms SLO)"
+      description: "P95 latency has been above 150ms on average for the last 6 hours. Current P95: {{ $value }}ms"

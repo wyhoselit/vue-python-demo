@@ -29,6 +29,91 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "justifySpaceBetween": true,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 0,
+          "values": false
+        },
+        "showLegend": false,
+        "sparkline": {
+          "full": false,
+          "show": true,
+          "yAxis": {}
+        },
+        "stacking": {
+          "group": "A",
+          "mode": "none"
+        },
+        "textMode": "value",
+        "title": "Availability (SLO 99.9%)",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "Prometheus",
+            "uid": "Prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 - ((sum(rate(http_server_request_size_bytes_count{exported_job=\"backend-service\", http_status_code=~\"5..\"}[1h])) * 100) / sum(rate(http_server_request_size_bytes_count{exported_job=\"backend-service\"}[1h])))",
+          "legendFormat": "Availability",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "Prometheus",
+        "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -48,8 +133,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 0,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "id": 8,
@@ -137,8 +222,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "id": 9,
@@ -205,23 +290,23 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "green",
-                "value": 0
+                "color": "red",
+                "value": 200
               }
             ]
           },
-          "unit": "s"
+          "unit": "ms"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 18,
         "y": 0
       },
       "id": 10,
@@ -250,7 +335,7 @@
           "mode": "none"
         },
         "textMode": "value",
-        "title": "Latency (p95)",
+        "title": "Latency (p95, SLO 200ms)",
         "tooltip": {
           "mode": "single",
           "sort": "none"
@@ -734,6 +819,6 @@
   "timezone": "",
   "title": "Backend Observability",
   "uid": "backend-observability",
-  "version": 8,
+  "version": 9,
   "weekStart": ""
 }

@@ -1,0 +1,24 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'telegram-webhook'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'telegram-webhook'
+
+receivers:
+- name: 'telegram-webhook'
+  webhook_configs:
+  - url: 'http://telegram-bot:8080/alert' # Placeholder URL for telegram bot
+    send_resolved: true
+
+- name: 'pagerduty'
+  pagerduty_configs:
+  - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY' # Placeholder key
+    send_resolved: true
