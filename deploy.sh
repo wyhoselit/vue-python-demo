@@ -67,5 +67,6 @@ run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 grafana" "grafana logs"
 run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 loki" "loki logs"
 run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD logs --tail 50 tempo" "tempo logs"
 
-
-run_cmd "cd ${PROJECT_ROOT}; $COMPOSE_CMD ps --format '{{.ID}} \t {{.Names}} \t {{.Status}}'" "$COMPOSE_CMD ps"
+#wait 10s
+sleep 10
+(cd ${PROJECT_ROOT}; $COMPOSE_CMD ps --format '{{.ID}} \t {{.Names}} \t {{.Status}} \t {{.Ports}}')
