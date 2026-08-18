@@ -1,10 +1,12 @@
 from typing import Any
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
+from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.modules.core.config import settings
 from app.modules.core.logging import setup_logging
@@ -15,7 +17,7 @@ from app.modules.core.exceptions import AuthException
 from app.api.router import api_router
 from init_db import init_db
 from app.modules.core.observability import setup_observability
-from app.modules.core.database import engine
+from app.modules.core.database import engine, get_db
 
 # Initialize logging
 setup_logging()
@@ -78,9 +80,16 @@ def create_app(lifespan: Any = lifespan):
         )
 
     @app.get("/health")
-    async def health_check():
-        return {"status": "ok"}
+    async def health_check(db: Session = Depends(get_db)):
+        try:
+            # Check database connectivity
+            db.execute(text("SELECT 1"))
+            db_status = "ok"
+        except Exception:
+            db_status = "error"
+            raise HTTPException(status_code=503, detail="Database connection error")
 
+        return {"status": "ok", "database": db_status}
 
     
     app.include_router(api_router, prefix="/api")

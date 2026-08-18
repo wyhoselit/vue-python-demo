@@ -67,8 +67,8 @@ kubectl apply -f "${K8S_DIR}/ingress.yaml"
 # 8. Verify deployment
 echo "=== Step 8: Verifying deployment ==="
 echo "Waiting for pods to be ready..."
-kubectl wait --for=condition=Ready pods -l app=backend --timeout=120s
-kubectl wait --for=condition=Ready pods -l app=frontend --timeout=120s
+./scripts/verify-rollout.sh backend
+./scripts/verify-rollout.sh frontend
 
 echo ""
 echo "=== Deployment Status ==="
