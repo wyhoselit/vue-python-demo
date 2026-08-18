@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vue-python-demo-ingress
+  annotations:
+    # If using cert-manager for TLS, uncomment and configure:
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # kubernetes.io/ingress.class: "nginx"
+    # If using Google-managed certificates, uncomment and configure:
+    # networking.gke.io/managed-certificates: "vue-python-demo-cert"
+    kubernetes.io/ingress.global-static-ip-name: "vue-python-demo-ip"
+    # If using Identity-Aware Proxy (IAP), uncomment and configure:
+    # cloud.google.com/iap-backend: "true"
+    # cloud.google.com/iap-oauthclient-id: "YOUR_CLIENT_ID"
+    # cloud.google.com/iap-oauthclient-secret: "YOUR_CLIENT_SECRET"
+spec:
+  rules:
+  - host: "your-domain.com"
+    http:
+      paths:
+      - path: /api/*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: backend
+            port:
+              number: 80
+      - path: /*
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
