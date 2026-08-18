@@ -42,3 +42,4 @@ career/
 
 #chroma_db
 **/chroma_db/*
+backend/.coverage
