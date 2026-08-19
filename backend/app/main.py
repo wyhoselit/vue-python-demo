@@ -95,6 +95,9 @@ def create_app(lifespan: Any = lifespan):
     app.include_router(api_router, prefix="/api")
 
     setup_observability(app, engine)
+    
+    from prometheus_fastapi_instrumentator import Instrumentator
+    Instrumentator().instrument(app).expose(app)
 
     return app
 

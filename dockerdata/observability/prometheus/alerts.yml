@@ -2,7 +2,7 @@ groups:
   - name: app_alerts
     rules:
       - alert: HighErrorRate
-        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        expr: rate(http_server_duration_milliseconds_count{status=~"5.."}[5m]) > 0.05
         for: 1m
         labels:
           severity: critical
@@ -18,3 +18,86 @@ groups:
         annotations:
           summary: "Service is down"
           description: "{{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: HighBackendLatency
+        expr: histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{job="backend-service"}[5m])) by (le, job)) > 200
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High backend latency"
+          description: "The 95th percentile of backend request latency is above 200ms."
+
+      - alert: TooManyActiveBackendRequests
+        expr: sum(http_server_active_requests{job="backend-service"}) > 50
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many active backend requests"
+          description: "The number of active backend requests is over 50."
+
+      - alert: SlowComponentRender
+        expr: histogram_quantile(0.95, sum(rate(frontend_app_component_render_duration_milliseconds_bucket[5m])) by (le, component_name)) > 500
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "Slow frontend component render"
+          description: "Component {{ $labels.component_name }} is rendering slower than 500ms (p95)."
+
+      - alert: PageViewDrop
+        expr: increase(frontend_app_page_view_total{job="frontend-app"}[10m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Drop in page views"
+          description: "There have been no new page views in the last 10 minutes."
+
+      - alert: HighFrontendClientLatency
+        expr: histogram_quantile(0.95, sum(rate(http_client_duration_milliseconds_bucket{job="frontend-app"}[5m])) by (le, http_url)) > 1000
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "High frontend client latency"
+          description: "Frontend client requests to {{ $labels.http_url }} are taking longer than 1s (p95)."
+          
+      - alert: NoLoginButtonClicks
+        expr: increase(frontend_app_button_click_total{element_id="login-submit"}[15m]) == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No login button clicks"
+          description: "The login button has not been clicked in the last 15 minutes."
+
+  - name: nginx_alerts
+    rules:
+      - alert: NginxDown
+        expr: up{job="nginx"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nginx is down"
+          description: "Nginx instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: NginxHighActiveConnections
+        expr: sum(nginx_connections_active) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High active Nginx connections"
+          description: "Active connections ({{ $value }}) exceed 1000."
+
+      - alert: NginxHighRequestRate
+        expr: sum(rate(nginx_http_requests_total[1m])) > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Nginx request rate"
+          description: "Request rate is over 1000 req/s."

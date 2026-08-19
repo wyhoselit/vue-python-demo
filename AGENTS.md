@@ -59,3 +59,17 @@ This project is indexed by GitNexus as **vue-python-demo** (3862 symbols, 4817 r
 - Feature workflow → OpenSpec (opsx) is the spine
 - Alignment, domain language, TDD, architecture deepening → mattpocock skills
 - Prefer graph tools over reading many files
+
+## Agent skills
+
+### Issue tracker
+
+Issues for this repo are tracked in GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+This repo uses the default triage label vocabulary. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repo. See `docs/agents/domain.md`.
