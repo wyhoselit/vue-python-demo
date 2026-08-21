@@ -27,7 +27,7 @@ jobs:
         run: |
           uv venv
           uv pip install -e .
-          uv pip install mkdocs-material "mkdocstrings[python]" requests uvicorn
+          uv pip install mkdocs-material "mkdocstrings[python]" requests
 
       - name: Generate OpenAPI spec
         working-directory: backend
