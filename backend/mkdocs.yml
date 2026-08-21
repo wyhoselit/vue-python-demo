@@ -1,0 +1,70 @@
+site_name: Backend API Documentation
+site_description: Internal API reference and module documentation for the OmniSight backend.
+repo_url: https://github.com/wyhoselit/omnisight-platform-poc
+edit_uri: edit/main/backend/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.suggest
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - .
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            members_order: source
+            merge_init_into_class: true
+            show_if_no_docstring: false
+
+nav:
+  - Home: index.md
+  - API Reference:
+      - Overview: api/index.md
+      - OpenAPI Spec: api/openapi.md
+  - Internal Modules:
+      - Overview: modules/index.md
+      - Core:
+          - Configuration: modules/core/config.md
+          - Security: modules/core/security.md
+          - Exceptions: modules/core/exceptions.md
+      - User:
+          - User Model: modules/user/user.md
+      - AI:
+          - LLM Service: modules/ai/llm_service.md
+          - Vector Service: modules/ai/vector_service.md
+
+strict: true
