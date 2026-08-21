@@ -2,9 +2,9 @@ name: Backend Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   docs:
@@ -44,8 +44,8 @@ jobs:
           # Fetch oasdiff
           curl -fsSL https://raw.githubusercontent.com/tufin/oasdiff/main/install.sh | sh
           
-          # Get baseline from main branch
-          git show origin/main:backend/docs/openapi/openapi.json > openapi-baseline.json
+          # Get baseline from master branch
+          git show origin/master:backend/docs/openapi/openapi.json > openapi-baseline.json
           
           # Run diff check
           oasdiff breaking openapi-baseline.json backend/docs/openapi/openapi.json

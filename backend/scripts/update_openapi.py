@@ -32,11 +32,13 @@ if __name__ == "__main__":
 
     # Otherwise, try to start the server briefly
     print("Server not found. Attempting to start server briefly...")
+    uv_python = os.environ.get("UV_PYTHON", sys.executable)
     process = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "app.main:app", "--port", "8000"],
+        [uv_python, "-m", "uvicorn", "app.main:app", "--port", "8000"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
+        cwd="backend"
     )
 
     # Wait for server to start
