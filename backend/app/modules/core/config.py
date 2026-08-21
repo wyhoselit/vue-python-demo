@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     CORS_ORIGINS: str = os.getenv("CORS_ORIGINS", "http://localhost:5173")
     API_V1_PREFIX: str = "/api/v1"
-    LOG_FILE_PATH: str = os.getenv("LOG_FILE_PATH", "/app/logs/server.log")
+    LOG_FILE_PATH: str = os.getenv("LOG_FILE_PATH", "./logs/server.log")
     OTEL_COLLECTOR_ENDPOINT: str = os.getenv(
         "OTEL_COLLECTOR_ENDPOINT", "otel-collector:4317"
     )
