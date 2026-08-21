@@ -34,8 +34,8 @@ jobs:
         env:
           DATABASE_URL: sqlite:///./test.db
           SECRET_KEY: test-key-for-ci
+          PYTHONPATH: .
         run: |
-          # Start server in background, fetch spec, then kill it
           uv run python scripts/update_openapi.py
 
       - name: Check OpenAPI diff (Breaking Changes)
