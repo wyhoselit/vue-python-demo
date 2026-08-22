@@ -1,1 +1,2 @@
 - 2026-08-22: Add missing docstrings to admin API and RAG models
+- 2026-08-22: Add docstrings to core infrastructure modules (database, middleware, logging, tracing)
