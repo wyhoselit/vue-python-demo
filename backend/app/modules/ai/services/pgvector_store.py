@@ -63,18 +63,22 @@ class PGVectorStore(VectorStore):
                     WHERE meta_data @> :filter
                     ORDER BY embedding <=> :query_emb
                     LIMIT :limit
-                """).bindparams(query_emb=query_embedding, limit=limit, filter=filter_metadata)
+                """).bindparams(
+                    query_emb=query_embedding, limit=limit, filter=filter_metadata
+                )
 
             results = await session.execute(query)
             rows = results.fetchall()
-            
+
             results_list = []
             for row in rows:
                 results_list.append(
                     SearchResult(
                         id=str(row.id),
                         text=row.content,
-                        score=float(row.score) if hasattr(row, 'score') and row.score is not None else 0.0,
+                        score=float(row.score)
+                        if hasattr(row, "score") and row.score is not None
+                        else 0.0,
                         metadata=row.meta_data or {},
                     )
                 )
@@ -90,6 +94,12 @@ class PGVectorStore(VectorStore):
                     {"ids": int_ids},
                 )
                 await session.commit()
+
+    async def get_collection_info(self) -> dict:
+        async with self.AsyncSessionLocal() as session:
+            result = await session.execute(text("SELECT COUNT(*) FROM documents"))
+            count = result.scalar()
+            return {"name": "pgvector", "count": count if count is not None else 0}
 
     async def health_check(self) -> bool:
         try:

@@ -18,6 +18,9 @@ class MockVectorStore(VectorStore):
     async def delete(self, ids: list[str]) -> None:
         pass
 
+    async def get_collection_info(self) -> dict:
+        return {"name": "mock", "count": 0}
+
     async def health_check(self) -> bool:
         return True
 

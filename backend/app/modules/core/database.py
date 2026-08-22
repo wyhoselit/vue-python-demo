@@ -1,3 +1,8 @@
+"""Database connection and session management.
+
+Provides the SQLAlchemy engine, session factory, and declarative base
+used by all application models.
+"""
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -28,6 +33,13 @@ Base = declarative_base()
 
 
 def get_db():
+    """Provide a transactional database session.
+
+    Yields:
+        Session: SQLAlchemy database session.
+
+    The session is automatically closed when the request completes.
+    """
     db = SessionLocal()
     try:
         yield db

@@ -1,3 +1,9 @@
+"""LLM service for language model interactions.
+
+Provides abstraction for LLM providers and completion handling
+with support for RAG-style context-aware responses.
+"""
+
 import asyncio
 from abc import ABC, abstractmethod
 from collections.abc import AsyncGenerator
@@ -97,7 +103,6 @@ class LLMProvider(ABC):
         Returns:
             LLMCompletion with generated text and metadata.
         """
-        pass
 
     @abstractmethod
     async def generate_stream(
@@ -120,7 +125,6 @@ class LLMProvider(ABC):
         Yields:
             Text chunks as they are generated.
         """
-        pass
 
     @abstractmethod
     async def get_models(self) -> list[str]:
@@ -129,7 +133,6 @@ class LLMProvider(ABC):
         Returns:
             List of model names/IDs.
         """
-        pass
 
     @abstractmethod
     async def health_check(self) -> bool:
@@ -138,7 +141,6 @@ class LLMProvider(ABC):
         Returns:
             True if the provider can serve requests.
         """
-        pass
 
 
 class OpenAIProvider(LLMProvider):
