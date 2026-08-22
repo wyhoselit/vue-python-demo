@@ -1,0 +1,1 @@
+- 2026-08-22: Add missing docstrings to admin API and RAG models

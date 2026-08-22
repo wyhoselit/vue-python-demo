@@ -237,6 +237,7 @@
           "admin"
         ],
         "summary": "Get Admin System Info",
+        "description": "Retrieve system information for admin monitoring.\n\nArgs:\n    admin: Dependency to verify admin user privileges.\n    db: Database session for potential future use.\n\nReturns:\n    System status information including health status, version, OS, and database type.",
         "operationId": "get_admin_system_info_api_v1_admin_system_info_get",
         "responses": {
           "200": {
@@ -256,6 +257,7 @@
           "admin"
         ],
         "summary": "Get Tracing Logs",
+        "description": "Retrieve system tracing logs.\n\nArgs:\n    tail: Number of most recent lines to retrieve.\n    admin: Dependency to verify admin user privileges.\n\nReturns:\n    A list of redacted JSON log entries.",
         "operationId": "get_tracing_logs_api_v1_admin_logs_get",
         "parameters": [
           {
@@ -730,6 +732,7 @@
           "admin"
         ],
         "summary": "Get Admin System Info",
+        "description": "Retrieve system information for admin monitoring.\n\nArgs:\n    admin: Dependency to verify admin user privileges.\n    db: Database session for potential future use.\n\nReturns:\n    System status information including health status, version, OS, and database type.",
         "operationId": "get_admin_system_info_api_v2_admin_system_info_get",
         "responses": {
           "200": {
@@ -749,6 +752,7 @@
           "admin"
         ],
         "summary": "Get Tracing Logs",
+        "description": "Retrieve system tracing logs.\n\nArgs:\n    tail: Number of most recent lines to retrieve.\n    admin: Dependency to verify admin user privileges.\n\nReturns:\n    A list of redacted JSON log entries.",
         "operationId": "get_tracing_logs_api_v2_admin_logs_get",
         "parameters": [
           {

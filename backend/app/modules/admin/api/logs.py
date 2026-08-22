@@ -1,3 +1,4 @@
+"""Admin log retrieval API endpoints."""
 import json
 import os
 from fastapi import APIRouter, Depends
@@ -12,6 +13,15 @@ def get_tracing_logs(
     tail: int = 100,
     admin=Depends(get_admin_user)
 ):
+    """Retrieve system tracing logs.
+
+    Args:
+        tail: Number of most recent lines to retrieve.
+        admin: Dependency to verify admin user privileges.
+
+    Returns:
+        A list of redacted JSON log entries.
+    """
     log_file_path = settings.LOG_FILE_PATH
     logs = []
     if os.path.exists(log_file_path):
