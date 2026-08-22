@@ -1,8 +1,8 @@
+"""Role model for user permission management."""
 from sqlalchemy import Column, Integer, String, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from app.modules.core.database import Base
 
-# Association table
 user_roles = Table(
     "user_roles",
     Base.metadata,
@@ -11,9 +11,17 @@ user_roles = Table(
 )
 
 class Role(Base):
+    """Role model for RBAC permission management.
+
+    Attributes:
+        id: Primary key identifier.
+        name: Unique role name (e.g., 'admin', 'user').
+        users: Relationship to users assigned this role.
+    """
+
     __tablename__ = "roles"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True, nullable=False)
-    
+
     users = relationship("User", secondary=user_roles, back_populates="roles")

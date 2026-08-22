@@ -1,3 +1,4 @@
+"""Admin system status API endpoints."""
 import platform
 from fastapi import APIRouter, Depends
 from app.api.v1.deps import get_admin_user
@@ -11,6 +12,15 @@ def get_admin_system_info(
     admin=Depends(get_admin_user),
     db: Session = Depends(get_db)
 ):
+    """Retrieve system information for admin monitoring.
+
+    Args:
+        admin: Dependency to verify admin user privileges.
+        db: Database session for potential future use.
+
+    Returns:
+        System status information including health status, version, OS, and database type.
+    """
     return {
         "status": "ok",
         "version": "0.1.0",
