@@ -1,7 +1,12 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+"""Application configuration module.
 
+Provides centralized settings management using Pydantic Settings,
+loading configuration from environment variables and .env files.
+"""
 
 import os
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

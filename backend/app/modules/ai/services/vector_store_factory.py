@@ -1,3 +1,9 @@
+"""Vector store factory for dependency injection.
+
+Provides a singleton pattern for vector store instances based on
+configuration. Used for dependency injection in FastAPI endpoints.
+"""
+
 from app.modules.ai.services.vector_store import VectorStore
 from app.modules.core.config import settings
 

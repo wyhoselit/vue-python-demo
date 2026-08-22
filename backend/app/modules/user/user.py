@@ -1,7 +1,14 @@
-from sqlalchemy import Column, Integer, String, Table, ForeignKey
+"""User model and related database operations.
+
+Defines the SQLAlchemy User model with role-based access control
+support.
+"""
+
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from app.modules.core.database import Base
+
 from app.modules.admin.models.role.role import user_roles
+from app.modules.core.database import Base
 
 
 class User(Base):

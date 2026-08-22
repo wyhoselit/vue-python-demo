@@ -1,7 +1,14 @@
-import bcrypt
+"""Security module for authentication and authorization.
+
+Provides password hashing (Bcrypt) and JWT token creation/verification
+functionality.
+"""
+
 from datetime import datetime, timedelta
-from typing import Optional
+
+import bcrypt
 from jose import JWTError, jwt
+
 from app.modules.core.config import settings
 
 
@@ -34,7 +41,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(pwd_bytes, hashed_pwd_bytes)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """Create a new JWT access token.
 
     Args:
@@ -54,7 +61,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 
-def verify_token(token: str) -> Optional[dict]:
+def verify_token(token: str) -> dict | None:
     """Verify and decode a JWT access token.
 
     Args:
