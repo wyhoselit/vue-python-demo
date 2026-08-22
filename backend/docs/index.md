@@ -34,3 +34,17 @@ Documentation is built and validated in `.github/workflows/docs.yml`:
 - OpenAPI spec is fetched from a fresh server start
 - mkdocs builds with `--strict` mode
 - oasdiff compares against the baseline on main branch
+
+## Automated Workflow
+
+To update documentation when making code changes:
+
+```bash
+./scripts/docs-update.sh "description of changes"
+```
+
+This script:
+1. Updates OpenAPI spec
+2. Builds docs locally
+3. Creates dated changelog entry
+4. Opens PR with CI validation
