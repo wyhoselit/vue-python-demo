@@ -1,4 +1,12 @@
 class AuthException(Exception):
+    """Base exception for all authentication and authorization errors.
+
+    Attributes:
+        detail: Human-readable error description.
+        error_code: Machine-readable error code string.
+        status_code: HTTP status code to return.
+    """
+
     def __init__(self, detail: str, error_code: str, status_code: int = 400):
         self.detail = detail
         self.error_code = error_code
@@ -7,20 +15,32 @@ class AuthException(Exception):
 
 
 class EmailAlreadyExistsError(AuthException):
+    """Raised when attempting to register with an email that already exists."""
+
     def __init__(self, detail: str = "Email already registered"):
-        super().__init__(detail=detail, error_code="EMAIL_ALREADY_EXISTS", status_code=409)
+        super().__init__(
+            detail=detail, error_code="EMAIL_ALREADY_EXISTS", status_code=409
+        )
 
 
 class InvalidCredentialsError(AuthException):
+    """Raised when login credentials are incorrect."""
+
     def __init__(self, detail: str = "Incorrect email or password"):
-        super().__init__(detail=detail, error_code="INVALID_CREDENTIALS", status_code=401)
+        super().__init__(
+            detail=detail, error_code="INVALID_CREDENTIALS", status_code=401
+        )
 
 
 class ValidationError(AuthException):
+    """Raised when input validation fails."""
+
     def __init__(self, detail: str = "Validation failed"):
         super().__init__(detail=detail, error_code="VALIDATION_ERROR", status_code=422)
 
 
 class TokenExpiredError(AuthException):
+    """Raised when a JWT token has expired."""
+
     def __init__(self, detail: str = "Token has expired"):
         super().__init__(detail=detail, error_code="TOKEN_EXPIRED", status_code=401)

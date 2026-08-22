@@ -1,0 +1,68 @@
+name: Backend Documentation
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          uv venv
+          uv pip install -e .
+          uv pip install mkdocs-material "mkdocstrings[python]" requests
+
+      - name: Generate OpenAPI spec
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./test.db
+          SECRET_KEY: test-key-for-ci
+          PYTHONPATH: .
+        run: |
+          uv run python scripts/update_openapi.py
+
+      - name: Check OpenAPI diff (Breaking Changes)
+        if: github.event_name == 'pull_request'
+        run: |
+          # Fetch oasdiff
+          curl -fsSL https://raw.githubusercontent.com/tufin/oasdiff/main/install.sh | sh
+          
+          # Get baseline from master branch
+          git show origin/master:backend/docs/openapi/openapi.json > openapi-baseline.json
+          
+          # Run diff check
+          oasdiff breaking openapi-baseline.json backend/docs/openapi/openapi.json
+
+      - name: Generate OpenAPI Full Diff Report
+        if: github.event_name == 'pull_request'
+        run: |
+          oasdiff changelog openapi-baseline.json backend/docs/openapi/openapi.json > openapi-changelog.md
+          echo "### OpenAPI Changelog" >> $GITHUB_STEP_SUMMARY
+          cat openapi-changelog.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Build Documentation
+        working-directory: backend
+        run: uv run mkdocs build --strict
+
+      - name: Upload Documentation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs
+          path: backend/site/

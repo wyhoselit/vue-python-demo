@@ -1,4 +1,4 @@
-.PHONY: install test run migrate makemigrations shell
+.PHONY: install test run migrate makemigrations shell lint format docs docs-serve docs-openapi
 
 install:
 	uv sync
@@ -23,3 +23,12 @@ lint:
 
 format:
 	uv run ruff format .
+
+docs:
+	uv run mkdocs build --strict
+
+docs-serve:
+	uv run mkdocs serve
+
+docs-openapi:
+	uv run python scripts/update_openapi.py
