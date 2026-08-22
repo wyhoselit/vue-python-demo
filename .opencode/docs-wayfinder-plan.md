@@ -54,7 +54,7 @@
 ### Ticket 4: Create team review guidelines
 **Blocking**: Ticket 3
 **Assignee**: Maintainer
-**State**: PENDING
+**State**: COMPLETED
 
 ## Execution
 
